@@ -42,11 +42,6 @@
 			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/variants/d1_mini</location>
 		</link>
 		<link>
-			<name>libraries/DNSServer</name>
-			<type>2</type>
-			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/DNSServer</location>
-		</link>
-		<link>
 			<name>libraries/ESP8266HTTPClient</name>
 			<type>2</type>
 			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266HTTPClient</location>
@@ -65,11 +60,6 @@
 			<name>libraries/LedControl</name>
 			<type>2</type>
 			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/libraries/LedControl/1.0.6</location>
-		</link>
-		<link>
-			<name>libraries/WiFiManager</name>
-			<type>2</type>
-			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/libraries/WiFiManager/0.12.0</location>
 		</link>
 	</linkedResources>
 </projectDescription>

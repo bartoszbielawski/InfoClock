@@ -20,7 +20,7 @@ using namespace Tasks;
 static std::vector<Task*> tasks{};
 static os_timer_t myTimer;
 
-static void timerCallback(void *pArg)
+static void timerCallback(void*)
 {
 	updateSleep(tasks);
 }

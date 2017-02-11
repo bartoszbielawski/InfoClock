@@ -81,6 +81,7 @@ void parseEnergy(const std::string& value)
 void parsePage1Comment(const std::string& value)
 {
 	String page1Comment = value.c_str();
+	page1Comment.trim();
 	page1Comment.replace('\n', '-');
 
 	dataStore().value(F("LHC.Page1Comment")) = page1Comment.c_str();

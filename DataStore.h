@@ -19,6 +19,12 @@ class DataStore
 		DataStore() {}
 		virtual ~DataStore() {}
 
+		bool hasKey(const S& key)
+		{
+			for (auto& e: data) if (e.key == key) return true;
+			return false;
+		}
+
 		T& value(const S& key)
 		{
 			for (auto& e: data)
@@ -36,9 +42,9 @@ class DataStore
 		std::vector<S> getKeys()
 		{
 			std::vector<S> keys;
-			for (auto& e: data)
+			for (const auto& e: data)
 			{
-				keys.emplace_back(e.key);
+				keys.push_back(e.key);
 			}
 			return keys;
 		}
@@ -53,6 +59,7 @@ class DataStore
 
 		std::vector<Element> data;
 };
+
 
 DataStore<String,String>& dataStore();
 

@@ -16,6 +16,13 @@ int operator"" _s(unsigned long long int seconds);
 
 const char* getDateTime();
 
+class String;
+
+String getTime();
+String getDate();
+
+uint32_t getUpTime();
+
 const char* generateRandomUUID();
 
 class Client;
@@ -24,6 +31,7 @@ void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P pay
 void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client);
 
 void logPrintf(char* format, ...);
+void logPPrintf(char* format, ...);
 
 class __FlashStringHelper;
 
@@ -43,8 +51,7 @@ void   writeConfig(const String& name, const String& value);
 
 int32_t getTimeZone();
 
-void saveToRTC(uint32_t address, uint32_t data);
-uint32_t readFromRTC(uint32_t address);
+uint32_t getUpTime();
 
 
 #endif /* UTILS_H_ */

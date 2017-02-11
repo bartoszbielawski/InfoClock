@@ -55,7 +55,9 @@ void macroStringReplace(FlashStream& fs, Lookup lookup, Stream& outputStream)
 
 	while (uint32_t available = fs.available())
 	{
+
 		int toRead = min(available, sizeof(localBuffer));
+
 		int read = fs.readBytesUntil('$', localBuffer, toRead);
 		if (read == toRead)
 		{

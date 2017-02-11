@@ -30,21 +30,45 @@ static const char textHtml[] = "text/html";
 
 FlashStream statusFS(statusPage);
 
+static const char uptimeFormat[] PROGMEM = "%dd%dh%dm%ds";
+
 String dataSource(const char* name)
 {
-	logPrintf("Requesting %s...", name);
+	String result;
 
-	String result = readConfig(name);
-	if (result.length() > 0)
-		return result;
-
-	result = dataStore().value(name);
-	if (result)
-		return result;
+	if (dataStore().hasKey(name))
+	{
+		result = dataStore().value(name);
+		if (result)
+			return result;
+	}
 
 	if (strcmp(name, "heap") == 0)
-		return String(ESP.getFreeHeap()) + "B";
+		return String(ESP.getFreeHeap()) + " B";
 
+	if (strcmp(name, "version") == 0)
+		return versionString;
+
+	if (strcmp(name, "essid") == 0)
+		return WiFi.SSID();
+
+	if (strcmp(name, "uptime") == 0)
+	{
+		uint32_t ut = getUpTime();
+		uint32_t d = ut  / (24 * 3600);
+		ut -= d * 24 * 3600;
+		uint32_t h = ut / 3600;
+		ut -= h * 3600;
+		uint32_t m = ut / 60;
+		ut -= m * 60;
+		uint32_t s = ut;
+
+		char buf[64];
+
+		snprintf_P(buf, sizeof(buf), uptimeFormat, d, h, m, s);
+
+		return String(buf);
+	}
 	return "?";
 }
 
@@ -183,6 +207,8 @@ void WebServerTask::reset()
 {
 	sleep(5_s);
 	webServer.stop();
+	sleep(5_s);
+	started = false;
 }
 
 
@@ -217,6 +243,7 @@ void WebServerTask::run()
 	}
 
 	webServer.handleClient();
+	delay(0);
 }
 
 WebServerTask::~WebServerTask()

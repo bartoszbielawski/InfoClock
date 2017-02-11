@@ -7,12 +7,8 @@
 
 #include "DataStore.h"
 
-static DataStore<String, String>* ds = nullptr;
-
 DataStore<String, String>& dataStore()
 {
-	if (ds == nullptr)
-		ds = new DataStore<String, String>;
-
-	return *ds;
+	static DataStore<String, String> ds;
+	return ds;
 }

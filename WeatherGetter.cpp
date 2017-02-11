@@ -22,7 +22,7 @@ const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.
 //FIXME: flash?
 const static char temperaturePath[] = "/root/main/temp";
 const static char pressurePath[] = "/root/main/pressure";
-const static char locationPath[] = "/root/sys/name";
+const static char locationPath[] = "/root/name";
 
 String processTemperature(const std::string& temperature)
 {

@@ -7,11 +7,14 @@
 #include <time.h>
 #include <stdio.h>
 
+#include <vector>
+
 #include "utils.h"
 #include "config.h"
 #include "Client.h"
 #include "Arduino.h"
 #include "FS.h"
+
 
 extern "C" {
 #include "user_interface.h"
@@ -23,6 +26,73 @@ int operator"" _s(unsigned long long int seconds) {return seconds * 1000 / MS_PE
 
 //static char dateTimeBuffer[] = "00/00/00 00:00:00";
 static char dateTimeBuffer[20] = "Initializing.....";
+
+static uint32_t startUpTime = 0;
+
+uint32_t getUpTime()
+{
+	return	time(nullptr) - startUpTime;
+}
+
+String getTime()
+{
+	time_t now = time(nullptr);
+
+	if (now == 0)
+	{
+		return "Initializing...";
+	}
+
+	//this saves the first timestamp when it was nonzero (it's near start-up time)
+	if (startUpTime == 0)
+	{
+		startUpTime = now;
+	}
+
+	String r;
+
+	char localBuffer[10];
+
+	auto lt = localtime(&now);
+	snprintf(localBuffer, sizeof(localBuffer), "%02d:%02d:%02d",
+			lt->tm_hour,
+			lt->tm_min,
+			lt->tm_sec);
+
+	r = localBuffer;
+	return r;
+}
+
+
+static const std::vector<const char*> dayNames{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+//static const std::vector<const char*> dayNames{"Nd", "Pn", "Wt", "Sr", "Cz", "Pt", "Sb"};
+
+
+String getDate()
+{
+	time_t now = time(nullptr);
+
+	String r;
+
+	if (now == 0)
+	{
+		return r;
+	}
+
+	char localBuffer[20];
+
+	auto lt = localtime(&now);
+	snprintf(localBuffer, sizeof(localBuffer), "%s %02d/%02d",
+			dayNames[lt->tm_wday],
+			lt->tm_mday,
+			lt->tm_mon+1);
+
+	r = localBuffer;
+
+	return r;
+}
+
+
 
 static time_t previousDateTime = 0;
 
@@ -105,6 +175,17 @@ void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char*
 	}
 }
 
+void logPPrintf(char* format, ...)
+{
+	char localBuffer[128];
+	va_list argList;
+	va_start(argList, format);
+	Serial.printf("%s-%09u - ", getDateTime(), ESP.getCycleCount());
+	vsnprintf(localBuffer, sizeof(localBuffer), format, argList);
+	Serial.println(localBuffer);
+	va_end(argList);
+}
+
 
 void logPrintf(char* format, ...)
 {
@@ -141,8 +222,12 @@ bool checkFileSystem()
 
 String readConfig(const String& name)
 {
+	String result;
 	auto f = SPIFFS.open(String(F("/config/")) +name, "r");
-	auto result = f.readStringUntil('\n');
+	if (!f)
+		return result;
+
+	result = f.readStringUntil('\n');
 	return result;
 }
 
@@ -153,20 +238,10 @@ void writeConfig(const String& name, const String& value)
 	f.print('\n');
 }
 
-
-void saveToRTC(uint32_t address, uint32_t data)
-{
-	//	system_rtc_mem_write((address >> 2) + 64, &data, 4);
-}
-
-uint32_t readFromRTC(uint32_t address)
-{
-	//	uint32_t result = 0;
-	//	system_rtc_mem_read((address >> 2) + 64, &data, 4);
-	//	return result;
-}
-
 int32_t getTimeZone()
 {
 	return readConfig("timezone").toInt();
 }
+
+
+

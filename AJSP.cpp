@@ -84,11 +84,6 @@ AJSP::Parser::Result AJSP::Parser::parse(char c)
 
 	while ((not consumed) and (result == Result::OK) and (not stack.empty()))
 	{
-		//		cout << "*******************************" << endl;
-		//		cout << "CH: " << c << endl;
-		//
-		//		printState("BEFORE");
-
 		switch (stack.back().entity)
 		{
 			case Entity::OBJECT:
@@ -112,14 +107,11 @@ AJSP::Parser::Result AJSP::Parser::parse(char c)
 				consumed = parseRaw(c);
 				break;
 		}
-
-		//printState("AFTER");
 	};
 
 	if (consumed)
 		offset++;
 
-	//TODO: fix the condition, check for the error code AND if the stack is empty
 	if (stack.empty() && result == Result::OK)
 	{
 		if (listener) listener->done();

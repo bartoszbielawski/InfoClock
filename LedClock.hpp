@@ -16,58 +16,7 @@
 
 #include "DataStore.h"
 
-static const std::vector<const char*> dayNames{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-//static const std::vector<const char*> dayNames{"Nd", "Pn", "Wt", "Sr", "Cz", "Pt", "Sb"};
 
-
-static String getTime()
-{
-	time_t now = time(nullptr);
-
-	String r;
-
-	if (now == 0)
-	{
-		return "Initializing...";
-	}
-
-	char localBuffer[10];
-
-	auto lt = localtime(&now);
-	snprintf(localBuffer, sizeof(localBuffer), "%02d:%02d:%02d",
-			lt->tm_hour,
-			lt->tm_min,
-			lt->tm_sec);
-
-	r = localBuffer;
-	return r;
-}
-
-static String getDate()
-{
-	time_t now = time(nullptr);
-
-	String r;
-
-	if (now == 0)
-	{
-		return r;
-	}
-
-
-
-	char localBuffer[20];
-
-	auto lt = localtime(&now);
-	snprintf(localBuffer, sizeof(localBuffer), "%s %02d/%02d",
-			dayNames[lt->tm_wday],
-			lt->tm_mday,
-			lt->tm_mon+1);
-
-	r = localBuffer;
-
-	return r;
-}
 
 using MessageProvider = std::function<String()>;
 

@@ -69,14 +69,15 @@ static const char statusPage[] PROGMEM = R"_(
 <tr><td class="wide">General</td><tr>
 <tr><td class="label">Version:</td><td>$version$</td></tr>
 <tr><td class="label">Free heap:</td><td>$heap$</td></tr>
+<tr><td class="label">Up time:</td><td>$uptime$</td></tr>
 <tr><td class="wide">WiFi</td></tr>
 <tr><td class="label">essid:</td><td>$essid$</td></tr>
 <tr><td class="label">IP:</td><td>$ip$</td></tr>
 <tr><td class="label">MAC Address:</td><td>$mac$</td></tr>
 <tr><td class="wide">Weather</td></tr>
-<tr><td class="label">Location:</td><td>$location$</td></tr>
-<tr><td class="label">Temperature:</td><td>$temperature$</td></tr>
-<tr><td class="label">Pressure:</td><td>$pressure$</td></tr>
+<tr><td class="label">Location:</td><td>$OWM.Location$</td></tr>
+<tr><td class="label">Temperature:</td><td>$OWM.Temperature$</td></tr>
+<tr><td class="label">Pressure:</td><td>$OWM.Pressure$</td></tr>
 </table>
 </form>
 </body>

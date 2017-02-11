@@ -24,7 +24,7 @@ class LedBlinker: public Task
 	public:
 		LedBlinker()
 		{
-				pinMode(LBLUE, OUTPUT);
+			pinMode(LBLUE, OUTPUT);
 		}
 
 		virtual void run()
@@ -33,6 +33,7 @@ class LedBlinker: public Task
 			sleep(s ? 2_s - 1: 1);
 			s = !s;
 		}
+
 	private:
 		bool s = false;
 };
@@ -130,8 +131,6 @@ void setup()
 	String macAddress = WiFi.macAddress();
 	dataStore().value("mac") = macAddress;
 	logPrintf("MAC Address: %s", macAddress.c_str());
-
-	dataStore().value("version") = versionString;
 
 	configTime(getTimeZone(), 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
 }
