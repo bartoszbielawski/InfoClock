@@ -49,6 +49,8 @@ bool checkFileSystem();
 String readConfig(const String& name);
 void   writeConfig(const String& name, const String& value);
 
+void copyConfigToDataStore();
+
 int32_t getTimeZone();
 
 uint32_t getUpTime();

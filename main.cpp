@@ -70,7 +70,7 @@ void connectionStateChanged(WifiConnector::States state)
 
 			ledClock.pushMessage(F("AP mode"), 5_s);
 			String ip = WiFi.softAPIP().toString();
-			dataStore().value("ip") = ip;
+			DataStore::value("ip") = ip;
 
 			logPrintf("IP = %s", ip.c_str());
 			return;
@@ -91,7 +91,7 @@ void connectionStateChanged(WifiConnector::States state)
 
 			ledClock.pushMessage(F("Connected to WiFi"), 5_s);
 			String ip = WiFi.localIP().toString();
-			dataStore().value("ip") = ip;
+			DataStore::value("ip") = ip;
 			logPrintf("IP = %s", ip.c_str());
 			break;
 		}
@@ -129,7 +129,7 @@ void setup()
 	setupTasks();
 
 	String macAddress = WiFi.macAddress();
-	dataStore().value("mac") = macAddress;
+	DataStore::value("mac") = macAddress;
 	logPrintf("MAC Address: %s", macAddress.c_str());
 
 	configTime(getTimeZone(), 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");

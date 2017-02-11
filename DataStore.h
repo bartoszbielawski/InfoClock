@@ -11,56 +11,47 @@
 #include <Arduino.h>
 #include <vector>
 #include <utility>
+#include <map>
 
-template <class S, class T>
-class DataStore
+namespace DataStore
 {
-	public:
-		DataStore() {}
-		virtual ~DataStore() {}
+	String&	value(const String& key);
+	bool	hasValue(const String& key);
+	std::vector<String> availableKeys();
 
-		bool hasKey(const S& key)
-		{
-			for (auto& e: data) if (e.key == key) return true;
-			return false;
-		}
+	template <class S, class T>
+	class DataStore
+	{
+		public:
+			DataStore() {}
+			virtual ~DataStore() {}
 
-		T& value(const S& key)
-		{
-			for (auto& e: data)
+			bool hasKey(const S& key)
 			{
-				if (e.key == key)
+				return data.count(key) == 1;
+			}
+
+			T& value(const S& key)
+			{
+				return data[key];
+			}
+
+			std::vector<S> getKeys()
+			{
+
+				std::vector<S> keys;
+				for (const auto& p: data)
 				{
-					return e.value;
+					keys.emplace_back(p.first);
 				}
+
+				return keys;
 			}
 
-			data.emplace_back(key, String());
-			return data.back().value;
-		}
+		private:
 
-		std::vector<S> getKeys()
-		{
-			std::vector<S> keys;
-			for (const auto& e: data)
-			{
-				keys.push_back(e.key);
-			}
-			return keys;
-		}
-
-	private:
-		struct Element
-		{
-			Element(const S& key, const T& value): key(key), value(value) {}
-			S key;
-			T value;
-		};
-
-		std::vector<Element> data;
-};
-
-
-DataStore<String,String>& dataStore();
+			std::map<S, T> data;
+	};
+}
 
 #endif /* DATASTORE_H_ */

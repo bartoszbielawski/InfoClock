@@ -36,9 +36,9 @@ String dataSource(const char* name)
 {
 	String result;
 
-	if (dataStore().hasKey(name))
+	if (DataStore::hasValue(name))
 	{
-		result = dataStore().value(name);
+		result = DataStore::value(name);
 		if (result)
 			return result;
 	}
@@ -69,6 +69,11 @@ String dataSource(const char* name)
 
 		return String(buf);
 	}
+
+	result = readConfig(name);
+	if (result)
+		return result;
+
 	return "?";
 }
 
@@ -112,11 +117,11 @@ void handleReadParams()
 		response += '\n';
 	}
 
-	for (auto& key: dataStore().getKeys())
+	for (auto& key: DataStore::availableKeys())
 	{
 		response += key;
 		response += " -> ";
-		response += dataStore().value(key);
+		response += DataStore::value(key);
 		response += '\n';
 	}
 
@@ -133,8 +138,8 @@ void handleWebMessage()
 	auto wm = webServer.arg(F("webmessage"));
 	if (wm.length())
 	{
-		dataStore().value("webmessage") = wm;
-		dataStore().value("webmessageIP") = webServer.client().remoteIP().toString();
+		DataStore::value(F("webmessage")) = wm;
+		DataStore::value(F("webmessageIP")) = webServer.client().remoteIP().toString();
 	}
 
 	StringStream ss(2048);
@@ -187,7 +192,7 @@ void handleWeatherServiceConfig()
 
 	if (location.length()) 	writeConfig(F("owmId"), location);
 	if (key.length()) 		writeConfig(F("owmKey"), key);
-	if (period.length())	writeConfig(F("owmPerdio"), period);
+	if (period.length())	writeConfig(F("owmPeriod"), period);
 
 	StringStream ss(2048);
 	macroStringReplace(pageHeaderFS, constString("OWM Settings"), ss);

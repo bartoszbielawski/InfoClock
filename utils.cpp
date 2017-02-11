@@ -238,6 +238,23 @@ void writeConfig(const String& name, const String& value)
 	f.print('\n');
 }
 
+void copyConfigToDataStore()
+{
+//	auto dir = SPIFFS.openDir(F("/config"));
+//
+//	while (dir.next())
+//	{
+//		response += dir.fileName();
+//		response += " -> ";
+//		auto f = dir.openFile("r");
+//		response += f.readStringUntil('\n');
+//		response += '\n';
+//	}
+//
+//	DataStore::
+}
+
+
 int32_t getTimeZone()
 {
 	return readConfig("timezone").toInt();

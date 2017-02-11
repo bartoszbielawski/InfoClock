@@ -62,14 +62,14 @@ void parseEnergy(const std::string& value)
 
 	if (energy < 300)		//450 GeV - nominal energy at injection
 	{
-		dataStore().value(F("LHC.BeamEnergy")) = String();
+		DataStore::value(F("LHC.BeamEnergy")) = String();
 		return;
 	}
 
 	String beamEnergy(energy, 2);
 	beamEnergy += F(" GeV");
 
-	dataStore().value(F("LHC.BeamEnergy")) = beamEnergy;
+	DataStore::value(F("LHC.BeamEnergy")) = beamEnergy;
 
 	logPrintf("LHC E: %s", beamEnergy.c_str());
 }
@@ -84,7 +84,7 @@ void parsePage1Comment(const std::string& value)
 	page1Comment.trim();
 	page1Comment.replace('\n', '-');
 
-	dataStore().value(F("LHC.Page1Comment")) = page1Comment.c_str();
+	DataStore::value(F("LHC.Page1Comment")) = page1Comment.c_str();
 
 	logPrintf("LHC P1: %s", page1Comment.c_str());
 }
@@ -95,7 +95,7 @@ void parsePage1Comment(const std::string& value)
 
 void parseBeamMode(const std::string& value)
 {
-	dataStore().value(F("LHC.BeamMode")) = value.c_str();
+	DataStore::value(F("LHC.BeamMode")) = value.c_str();
 	logPrintf("LHC BM: %s", value.c_str());
 }
 

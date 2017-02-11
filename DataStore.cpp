@@ -7,8 +7,23 @@
 
 #include "DataStore.h"
 
-DataStore<String, String>& dataStore()
+static DataStore::DataStore<String, String>& dataStore()
 {
-	static DataStore<String, String> ds;
+	static DataStore::DataStore<String, String> ds;
 	return ds;
+}
+
+bool DataStore::hasValue(const String& key)
+{
+	return dataStore().hasKey(key);
+}
+
+String& DataStore::value(const String& key)
+{
+	return dataStore().value(key);
+}
+
+std::vector<String> DataStore::availableKeys()
+{
+	return dataStore().getKeys();
 }

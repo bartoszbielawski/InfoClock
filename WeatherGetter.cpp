@@ -62,15 +62,15 @@ static void weatherGetterJSONCallback(const std::string& key, const std::string&
 {
 	if (key == temperaturePath)
 	{
-		dataStore().value("OWM.Temperature") = processTemperature(value);
+		DataStore::value(F("OWM.Temperature")) = processTemperature(value);
 	}
 	if (key == pressurePath)
 	{
-		dataStore().value("OWM.Pressure") = processPressure(value);
+		DataStore::value(F("OWM.Pressure")) = processPressure(value);
 	}
 	if (key == locationPath)
 	{
-		dataStore().value("OWM.Location") = value.c_str();
+		DataStore::value(F("OWM.Location")) = value.c_str();
 	}
 }
 
@@ -131,8 +131,8 @@ void WeatherGetter::run()
 		jsonParser.parse(json[i]);
 	}
 
-	const auto& temperature = dataStore().value(("OWM.Temperature"));
-	const auto& pressure = dataStore().value(("OWM.Pressure"));
+	const auto& temperature = DataStore::value(F("OWM.Temperature"));
+	const auto& pressure = DataStore::value(F("OWM.Pressure"));
 
 	logPrintf("Weather refreshed: T = %s, p = %s", temperature.c_str(), pressure.c_str());
 

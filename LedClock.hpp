@@ -22,7 +22,7 @@ using MessageProvider = std::function<String()>;
 
 static MessageProvider getFromDataStore(const String& name)
 {
-	return [name]() {return dataStore().value(name);};
+	return [name]() {return DataStore::value(name);};
 }
 
 struct DisplayState
