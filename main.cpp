@@ -4,13 +4,13 @@
 #include "FS.h"
 
 #include "config.h"
+#include "DisplayTask.hpp"
 #include "task.hpp"
 #include "tasks_utils.h"
 #include "utils.h"
-
+#include "DataStore.h"
 
 #include "WifiConnector.h"
-#include "LedClock.hpp"
 #include "WeatherGetter.h"
 #include "WebServerTask.h"
 #include "LHCStatusReader.h"
@@ -44,7 +44,7 @@ void connectionStateChanged(WifiConnector::States state);
 WifiConnector wifiConnector(connectionStateChanged);
 
 LedBlinker ledBlinker;
-LedClock ledClock(DISPLAYS);
+DisplayTask displayTask(DISPLAYS);
 WeatherGetter weatherGetter;
 WebServerTask webServerTask;
 LHCStatusReader lhcStatusReader;
@@ -58,17 +58,17 @@ void connectionStateChanged(WifiConnector::States state)
 			weatherGetter.suspend();
 			webServerTask.suspend();
 			lhcStatusReader.suspend();
-			ledClock.suspend();
-			ledClock.pushMessage(F("Initializing..."), 15_s);
+			displayTask.suspend();
+			displayTask.pushMessage(F("Initializing..."), 15_s);
 			return;
 
 		case WifiConnector::States::AP:
 		{
 			webServerTask.reset();
 			webServerTask.resume();
-			ledClock.suspend();
+			displayTask.suspend();
 
-			ledClock.pushMessage(F("AP mode"), 5_s);
+			displayTask.pushMessage(F("AP mode"), 5_s);
 			String ip = WiFi.softAPIP().toString();
 			DataStore::value("ip") = ip;
 
@@ -87,9 +87,9 @@ void connectionStateChanged(WifiConnector::States state)
 			lhcStatusReader.reset();
 			lhcStatusReader.resume();
 
-			ledClock.resume();
+			displayTask.resume();
 
-			ledClock.pushMessage(F("Connected to WiFi"), 5_s);
+			displayTask.pushMessage(F("Connected to WiFi"), 5_s);
 			String ip = WiFi.localIP().toString();
 			DataStore::value("ip") = ip;
 			logPrintf("IP = %s", ip.c_str());
@@ -117,7 +117,7 @@ void setup()
 	addTask(&wifiConnector);
 
 	//and these need to be suspended
-	addTask(&ledClock);
+	addTask(&displayTask);
 	addTask(&weatherGetter);
 	addTask(&webServerTask);
 	addTask(&lhcStatusReader);
