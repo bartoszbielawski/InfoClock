@@ -23,7 +23,7 @@ struct DisplayState
 };
 
 
-class DisplayTask: public Tasks::Task
+class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 {
 	public:
 		DisplayTask(uint32_t deviceCount);
@@ -31,9 +31,12 @@ class DisplayTask: public Tasks::Task
 		void init();
 		virtual void reset();
 
-		void pushMessage(const String& m, uint16_t sleep);
-		void pushMessage(DisplayState ds);
-		void run() override;
+		void pushMessage(String m, uint16_t sleep, bool scrolling = false);
+
+		void nextMessage();
+		void scrollMessage();
+		void refreshMessage();
+		void singleMessage();
 
 	private:
 		void nextDisplay();
@@ -41,8 +44,9 @@ class DisplayTask: public Tasks::Task
 		int index = 0;
 		LedControl ledControl;
 		SDD scroll;
-		String currentMessage;
 		DisplayState ds;
+
+		std::vector<DisplayState> priorityMessages;
 };
 
 

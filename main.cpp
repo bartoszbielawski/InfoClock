@@ -58,17 +58,14 @@ void connectionStateChanged(WifiConnector::States state)
 			weatherGetter.suspend();
 			webServerTask.suspend();
 			lhcStatusReader.suspend();
-			displayTask.suspend();
-			displayTask.pushMessage(F("Initializing..."), 15_s);
 			return;
 
 		case WifiConnector::States::AP:
 		{
 			webServerTask.reset();
 			webServerTask.resume();
-			displayTask.suspend();
 
-			displayTask.pushMessage(F("AP mode"), 5_s);
+			displayTask.pushMessage(F("AP mode"), 10_s);
 			String ip = WiFi.softAPIP().toString();
 			DataStore::value("ip") = ip;
 
@@ -87,10 +84,10 @@ void connectionStateChanged(WifiConnector::States state)
 			lhcStatusReader.reset();
 			lhcStatusReader.resume();
 
-			displayTask.resume();
-
-			displayTask.pushMessage(F("Connected to WiFi"), 5_s);
+			displayTask.pushMessage(readConfig(F("essid")), 0.4_s, true);
 			String ip = WiFi.localIP().toString();
+			displayTask.pushMessage(ip, 0.5_s, true);
+
 			DataStore::value("ip") = ip;
 			logPrintf("IP = %s", ip.c_str());
 			break;
@@ -131,6 +128,9 @@ void setup()
 	String macAddress = WiFi.macAddress();
 	DataStore::value("mac") = macAddress;
 	logPrintf("MAC Address: %s", macAddress.c_str());
+
+	displayTask.pushMessage("Initializing...", 2_s);
+	displayTask.pushMessage(versionString, 0.4_s, true);
 
 	configTime(getTimeZone(), 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
 }

@@ -40,7 +40,7 @@ String getTime()
 
 	if (now == 0)
 	{
-		return "Initializing...";
+		return "??:??:??";
 	}
 
 	//this saves the first timestamp when it was nonzero (it's near start-up time)
