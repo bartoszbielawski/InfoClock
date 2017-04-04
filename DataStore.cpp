@@ -23,6 +23,11 @@ String& DataStore::value(const String& key)
 	return dataStore().value(key);
 }
 
+const String& DataStore::valueOrDefault(const String& key, const String& def)
+{
+	return dataStore().valueOrDefault(key, def);
+}
+
 std::vector<String> DataStore::availableKeys()
 {
 	return dataStore().getKeys();

@@ -36,7 +36,8 @@ String processTemperature(const std::string& temperature)
 	f /= 10.0f;
 
 	String s(f, 1);
-	s += " $C";
+	String p = "To:";
+	s = p + s + "$C";
 	return s;
 }
 

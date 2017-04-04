@@ -23,16 +23,26 @@ static MessageProvider getFromDataStore(const String& name)
 	return [name]() {return DataStore::value(name);};
 }
 
+String getTemperature()
+{
+
+	String result = DataStore::valueOrDefault(F("OWM.Temperature"), "--");
+	result += "/";
+	result += DataStore::valueOrDefault(F("Local.Temperature"), "--");
+	return result;
+}
+
 static const std::vector<DisplayState> displayStates =
 {
 	{getTime, 										1_s,	10,	false},
 	{getDate, 										2_s,	1,	false},
-	{getFromDataStore("webmessage"),				0.3_s,	1,	true},		//webmessage
-	{getFromDataStore("OWM.Temperature"),			2_s,	1,	false},
-	{getFromDataStore("OWM.Pressure"),				2_s,	1,	false},
-	{getFromDataStore("LHC.Page1Comment"),			0.3_s,	1,	true},
-	{getFromDataStore("LHC.BeamMode"),			  	0.3_s,	1, 	true},
-	{getFromDataStore("LHC.BeamEnergy"),			2_s, 1, false},
+	{getFromDataStore(("webmessage")),				0.3_s,	1,	true},		//webmessage
+	{getFromDataStore(("Local.Temperature")),		2_s,	1,	false},
+	{getFromDataStore(("OWM.Temperature")),			2_s,	1,  false},
+	{getFromDataStore(("OWM.Pressure")),			2_s,	1,	false},
+	{getFromDataStore(("LHC.Page1Comment")),		0.3_s,	1,	true},
+	{getFromDataStore(("LHC.BeamMode")),		  	0.3_s,	1, 	true},
+	{getFromDataStore(("LHC.BeamEnergy")),			2_s, 1, false},
 };
 
 DisplayTask::DisplayTask(uint32_t deviceCount):

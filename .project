@@ -42,6 +42,11 @@
 			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/variants/d1_mini</location>
 		</link>
 		<link>
+			<name>libraries/DallasTemperature</name>
+			<type>2</type>
+			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/libraries/DallasTemperature/3.7.6</location>
+		</link>
+		<link>
 			<name>libraries/ESP8266HTTPClient</name>
 			<type>2</type>
 			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266HTTPClient</location>
@@ -55,6 +60,11 @@
 			<name>libraries/ESP8266WiFi</name>
 			<type>2</type>
 			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WiFi</location>
+		</link>
+		<link>
+			<name>libraries/OneWire</name>
+			<type>2</type>
+			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/libraries/OneWire/2.3.3</location>
 		</link>
 		<link>
 			<name>libraries/SPI</name>

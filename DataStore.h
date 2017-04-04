@@ -17,6 +17,7 @@ namespace DataStore
 {
 	String&	value(const String& key);
 	bool	hasValue(const String& key);
+	const String& valueOrDefault(const String& key, const String& def);
 	std::vector<String> availableKeys();
 
 	template <class S, class T>
@@ -29,6 +30,14 @@ namespace DataStore
 			bool hasKey(const S& key)
 			{
 				return data.count(key) == 1;
+			}
+
+			const T& valueOrDefault(const S& key, const T& def)
+			{
+				if (not hasKey(key))
+					return def;
+
+				return value(key);
 			}
 
 			T& value(const S& key)

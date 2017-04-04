@@ -14,6 +14,7 @@
 #include "WeatherGetter.h"
 #include "WebServerTask.h"
 #include "LHCStatusReader.h"
+#include "LocalSensorTask.h"
 
 #include "MacroStringReplace.h"
 
@@ -48,6 +49,7 @@ DisplayTask displayTask(DISPLAYS);
 WeatherGetter weatherGetter;
 WebServerTask webServerTask;
 LHCStatusReader lhcStatusReader;
+LocalSensorTask localSensorTask;
 
 void connectionStateChanged(WifiConnector::States state)
 {
@@ -113,6 +115,7 @@ void setup()
 	addTask(&ledBlinker);
 	addTask(&wifiConnector);
 	addTask(&displayTask);
+	addTask(&localSensorTask);
 
 	//and these need to be suspended
 	addTask(&weatherGetter)->suspend();

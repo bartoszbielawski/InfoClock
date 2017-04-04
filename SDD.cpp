@@ -49,6 +49,8 @@ bool SDD::tick()
 				state = STATE::START;
 				delayCounter = endDelay;
 				startColumn = 0;
+				ledMatrixDriver.setEnabled(true);
+				ledMatrixDriver.setIntensity(0);
 				return true;
 			}
 			return false;
