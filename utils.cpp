@@ -177,7 +177,7 @@ void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char*
 
 void logPPrintf(char* format, ...)
 {
-	char localBuffer[128];
+	char localBuffer[256];
 	va_list argList;
 	va_start(argList, format);
 	Serial.printf("%s-%09u - ", getDateTime(), ESP.getCycleCount());
@@ -189,7 +189,7 @@ void logPPrintf(char* format, ...)
 
 void logPrintf(char* format, ...)
 {
-	char localBuffer[128];
+	char localBuffer[256];
 	va_list argList;
 	va_start(argList, format);
 	Serial.printf("%s - ", getDateTime());
@@ -200,7 +200,7 @@ void logPrintf(char* format, ...)
 
 void logPrintf(const __FlashStringHelper* format, ...)
 {
-	char localBuffer[128];
+	char localBuffer[256];
 	va_list argList;
 	va_start(argList, format);
 	Serial.printf("%s - ", getDateTime());

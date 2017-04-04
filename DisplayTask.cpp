@@ -10,7 +10,7 @@
 
 #include "pyfont.h"
 #include "myTestFont.h"
-#include "LedControl.h"
+#include "LEDMatrixDriver.h"
 
 #include "utils.h"
 #include "DataStore.h"
@@ -37,7 +37,7 @@ static const std::vector<DisplayState> displayStates =
 
 DisplayTask::DisplayTask(uint32_t deviceCount):
 		TaskCRTP(&DisplayTask::nextMessage),
-		ledControl(LED_DTA, LED_CLK, LED_CS, deviceCount), scroll(ledControl)
+		ledMatrixDriver(deviceCount, LED_CS), scroll(ledMatrixDriver)
 {
 	init();
 }
@@ -53,29 +53,21 @@ void DisplayTask::reset()
 }
 
 
-void DisplayTask::pushMessage(String m, uint16_t sleep, bool scrolling)
+void DisplayTask::pushMessage(const String& m, uint16_t sleep, bool scrolling)
 {
+	priorityMessages.push_back(DisplayState{[m](){return m;}, sleep, 1, scrolling});
 
-	DisplayState ds;
-
-	ds.cycles = 1;
-	ds.fun = [m](){return m;};
-	ds.period = sleep;
-	ds.scrolling = scrolling;
-
-	priorityMessages.push_back(ds);
-
-	//execute this one if there's only one message in the queue
-	if (priorityMessages.size() == 1)
+	//wake up thread and interrupt the other display
+	//only if it's not a priority message
+	if (!priorityMessagePlayed)
 	{
 		nextState = &DisplayTask::nextMessage;
-		resume();		//resume the task so it can start running right away
+		resume();
 	}
 }
 
 void DisplayTask::scrollMessage()
 {
-	logPrintf("Scrolling message...");
 	bool done = scroll.tick();
 	sleep(ds.period);
 
@@ -93,7 +85,8 @@ void DisplayTask::nextMessage()
 
 	if (ds.scrolling)
 	{
-		scroll.renderString(ds.fun(), myTestFont::font);
+		const String& msg = ds.fun();
+		scroll.renderString(msg, myTestFont::font);
 		nextState = &DisplayTask::scrollMessage;
 		return;
 	}
@@ -104,20 +97,11 @@ void DisplayTask::nextMessage()
 
 void DisplayTask::refreshMessage()
 {
-	logPrintf("Refreshing message...");
-	ds.cycles--;
 	scroll.renderString(ds.fun(), myTestFont::font);
-	if (ds.cycles == 0)
+
+	if (--ds.cycles == 0)
 		nextState = &DisplayTask::nextMessage;
 
-	sleep(ds.period);
-}
-
-void DisplayTask::singleMessage()
-{
-	//maybe not needed as this is actually as refreshMessage
-	scroll.renderString(ds.fun(), myTestFont::font);
-	nextState = &DisplayTask::nextMessage;
 	sleep(ds.period);
 }
 
@@ -130,8 +114,11 @@ void DisplayTask::nextDisplay()
 		ds = priorityMessages.front();
 		priorityMessages.erase(priorityMessages.begin());
 		logPrintf("New message from PQ: %s", ds.fun().c_str());
+		priorityMessagePlayed = true;
 		return;
 	}
+
+	priorityMessagePlayed = false;
 
 	//otherwise get back to the regular display
 	do

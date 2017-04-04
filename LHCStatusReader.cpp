@@ -66,7 +66,7 @@ void parseEnergy(const std::string& value)
 		return;
 	}
 
-	String beamEnergy(energy, 2);
+	String beamEnergy(energy, 0);
 	beamEnergy += F(" GeV");
 
 	DataStore::value(F("LHC.BeamEnergy")) = beamEnergy;

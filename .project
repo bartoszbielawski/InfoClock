@@ -57,9 +57,9 @@
 			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WiFi</location>
 		</link>
 		<link>
-			<name>libraries/LedControl</name>
+			<name>libraries/SPI</name>
 			<type>2</type>
-			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/libraries/LedControl/1.0.6</location>
+			<location>C:/Users/caladan/eclipse/cpp-neon/eclipse/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/SPI</location>
 		</link>
 	</linkedResources>
 </projectDescription>

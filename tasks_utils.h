@@ -11,7 +11,7 @@
 #include "task.hpp"
 
 void setupTasks();
-void addTask(Tasks::Task* task);
+Tasks::Task* addTask(Tasks::Task* task);
 void scheduleTasks();
 
 #endif /* TASKS_UTILS_H_ */

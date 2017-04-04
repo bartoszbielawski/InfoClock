@@ -9,7 +9,7 @@
 #define DISPLAYTASK_HPP_
 
 #include "task.hpp"
-#include "LedControl.h"
+#include "LEDMatrixDriver.h"
 #include "SDD.hpp"
 
 using MessageProvider = std::function<String()>;
@@ -31,22 +31,22 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		void init();
 		virtual void reset();
 
-		void pushMessage(String m, uint16_t sleep, bool scrolling = false);
+		void pushMessage(const String& m, uint16_t sleep, bool scrolling = false);
 
 		void nextMessage();
 		void scrollMessage();
 		void refreshMessage();
-		void singleMessage();
 
 	private:
 		void nextDisplay();
 
 		int index = 0;
-		LedControl ledControl;
+		LEDMatrixDriver ledMatrixDriver;
 		SDD scroll;
 		DisplayState ds;
 
 		std::vector<DisplayState> priorityMessages;
+		bool		priorityMessagePlayed = false;
 };
 
 

@@ -31,9 +31,10 @@ void setupTasks()
 	os_timer_arm(&myTimer, MS_PER_CYCLE, true);
 }
 
-void addTask(Task* task)
+Task* addTask(Task* task)
 {
 	tasks.emplace_back(task);
+	return task;
 }
 
 void scheduleTasks()

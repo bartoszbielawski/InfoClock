@@ -10,7 +10,6 @@
 
 #include <vector>
 
-#include "ESP8266WiFiMulti.h"
 #include "ESP8266WiFi.h"
 
 #include "task.hpp"

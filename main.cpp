@@ -49,7 +49,6 @@ WeatherGetter weatherGetter;
 WebServerTask webServerTask;
 LHCStatusReader lhcStatusReader;
 
-
 void connectionStateChanged(WifiConnector::States state)
 {
 	switch (state)
@@ -58,6 +57,7 @@ void connectionStateChanged(WifiConnector::States state)
 			weatherGetter.suspend();
 			webServerTask.suspend();
 			lhcStatusReader.suspend();
+
 			return;
 
 		case WifiConnector::States::AP:
@@ -112,16 +112,12 @@ void setup()
 	//these tasks are always running
 	addTask(&ledBlinker);
 	addTask(&wifiConnector);
+	addTask(&displayTask);
 
 	//and these need to be suspended
-	addTask(&displayTask);
-	addTask(&weatherGetter);
-	addTask(&webServerTask);
-	addTask(&lhcStatusReader);
-
-	weatherGetter.suspend();
-	webServerTask.suspend();
-	lhcStatusReader.suspend();
+	addTask(&weatherGetter)->suspend();
+	addTask(&webServerTask)->suspend();
+	addTask(&lhcStatusReader)->suspend();
 
 	setupTasks();
 

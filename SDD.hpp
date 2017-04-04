@@ -9,12 +9,12 @@
 // Class for the state machine that handles the scrolling of the
 // text on the screens
 
-class LedControl;
+class LEDMatrixDriver;
 
 class SDD
 {
 	public:
-		SDD(LedControl &ledControl);
+		SDD(LEDMatrixDriver &ledMatrixDriver);
 		~SDD() {}
 
 		bool tick();
@@ -32,7 +32,7 @@ class SDD
 
 		STATE state = STATE::START;
 
-		LedControl &ledControl;
+		LEDMatrixDriver &ledMatrixDriver;
 		const static int columnIncrement = 3;
 		size_t           startColumn = 0;
 

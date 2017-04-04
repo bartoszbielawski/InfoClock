@@ -2,21 +2,18 @@
  * Author: Bartosz Bielawski
  */
 
-#include "LedControl.h"
+#include "LEDMatrixDriver.h"
 #include "SDD.hpp"
 
 using namespace std;
 
-SDD::SDD(LedControl &ledControl):
-						  ledControl(ledControl),
-						  buffer(ledControl.getDeviceCount() * 8),
-						  physicalDisplayLen(ledControl.getDeviceCount() * 8)
+SDD::SDD(LEDMatrixDriver &ledMatrixDriver):
+						  ledMatrixDriver(ledMatrixDriver),
+						  buffer(ledMatrixDriver.getSegments() * 8),
+						  physicalDisplayLen(ledMatrixDriver.getSegments() * 8)
 {
-	for (int i = 0; i < ledControl.getDeviceCount(); ++i)
-	{
-		ledControl.shutdown(i, false);
-		ledControl.clearDisplay(i);
-	}
+	ledMatrixDriver.setEnabled(true);
+	ledMatrixDriver.setIntensity(0);
 }
 
 bool SDD::tick()
@@ -100,6 +97,7 @@ void SDD::refreshDisplay()
 {
 	for (int  i = 0; i < physicalDisplayLen; ++i)
 	{
-		ledControl.setColumn(i / 8, 7-i % 8, buffer[i+startColumn]);
+		ledMatrixDriver.setColumn(i, buffer[i+startColumn]);
 	}
+	ledMatrixDriver.display();
 }
