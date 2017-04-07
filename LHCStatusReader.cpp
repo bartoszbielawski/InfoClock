@@ -57,11 +57,13 @@ const char* lastKey = NULL;
 void parseEnergy(const std::string& value)
 {
 	//0.12 GeV per LSB
+
 	float energy = atoi(value.c_str());
 	energy *= 0.120;		//in GeV
 
-	if (energy < 300)		//450 GeV - nominal energy at injection
+	if ((energy < 300) or (energy > 7800)) 		//450 GeV - nominal energy at injection
 	{
+		//65535 reported by the DIP service in some cases
 		DataStore::value(F("LHC.BeamEnergy")) = String();
 		return;
 	}

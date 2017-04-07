@@ -32,3 +32,8 @@ std::vector<String> DataStore::availableKeys()
 {
 	return dataStore().getKeys();
 }
+
+void DataStore::erase(const String& key)
+{
+	dataStore().erase(key);
+}

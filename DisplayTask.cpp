@@ -20,17 +20,9 @@
 static MessageProvider getFromDataStore(const String& name)
 {
 	//TODO: check: capture expression copies value or reference?
-	return [name]() {return DataStore::value(name);};
+	return [name]() {return DataStore::valueOrDefault(name, String());};
 }
 
-String getTemperature()
-{
-
-	String result = DataStore::valueOrDefault(F("OWM.Temperature"), "--");
-	result += "/";
-	result += DataStore::valueOrDefault(F("Local.Temperature"), "--");
-	return result;
-}
 
 static const std::vector<DisplayState> displayStates =
 {

@@ -36,9 +36,13 @@ String processTemperature(const std::string& temperature)
 	f /= 10.0f;
 
 	String s(f, 1);
-	String p = "To:";
-	s = p + s + "$C";
-	return s;
+	String p;
+	p += (char)0x82;
+	p += ' ';
+	p += s;
+	p += '\x80';
+	p += 'C';
+	return p;
 }
 
 String processPressure(const std::string& pressure)

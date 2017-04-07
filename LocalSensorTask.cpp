@@ -23,14 +23,23 @@ LocalSensorTask::LocalSensorTask():
 void LocalSensorTask::run()
 {
 	float t = dallasTemperature.getTempCByIndex(0);
+	if (t == -127.0f)
+	{
+		logPrintf(F("LST: Sensor not found..."));
+		dallasTemperature.requestTemperatures();
+		sleep(10_s);
+		return;
+	}
+
 	String s(t, 1);
-	String p = "Ti:";
-	s = p + s;
-	s += "$C";
-	DataStore::value("Local.Temperature") = s;
-	logPrintf("LocalSensorTask: %s", s.c_str());
+	String p = "\x81 ";
+	p += s;
+	p += (char)0x80;
+	p += 'C';
+	DataStore::value(F("Local.Temperature")) = p;
+	logPrintf(F("LST: %s"), p.c_str());
 	dallasTemperature.requestTemperatures();
-	sleep(5_s);
+	sleep(10_s);
 }
 
 LocalSensorTask::~LocalSensorTask()
