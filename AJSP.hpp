@@ -14,6 +14,8 @@
 #include <utility>
 #include <vector>
 
+#include "PathConstructor.hpp"
+
 #define USE_ARDUINO
 
 #ifndef USE_ARDUINO
@@ -38,6 +40,7 @@ namespace AJSP
 			void setListener(Listener* l);
 			uint32_t getCurrentOffset() const {return offset;}
 			const std::string& getLastKey() const {return lastKey;}
+			const std::string& getCurrentPath() const {return pathConstructor.getPath();}
 
 			bool done() {return stack.empty();}
 
@@ -116,6 +119,8 @@ namespace AJSP
 			constexpr static const char* rootElementName = "root";
 
 			std::string lastKey = rootElementName;
+			PathConstructor pathConstructor;
+
 			uint32_t	offset = 0;
 			Result   	result = Result::OK;
 
@@ -133,21 +138,19 @@ namespace AJSP
 	class Listener
 	{
 		public:
-			Listener(Parser* p): parser(p) {}
+			Listener() {}
 			virtual ~Listener() {}
 
-			virtual void arrayStart() = 0;
-			virtual void arrayEnd() = 0;
+			virtual void arrayStart() {};
+			virtual void arrayEnd() {};
 
-			virtual void objectStart() = 0;
-			virtual void objectEnd() = 0;
+			virtual void objectStart() {};
+			virtual void objectEnd() {};
 
-			virtual void key(const std::string& key) = 0;
+			virtual void key(const std::string& key) {};
 			virtual void value(const std::string& value, Parser::Entity entity) = 0;
 
-			virtual void done() = 0;
-		protected:
-			Parser* parser;
+			virtual void done() {};
 	};
 
 

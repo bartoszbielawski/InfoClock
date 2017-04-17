@@ -9,12 +9,15 @@
 #include "tasks_utils.h"
 #include "utils.h"
 #include "DataStore.h"
+#include "OTA.hpp"
 
 #include "WifiConnector.h"
 #include "WeatherGetter.h"
 #include "WebServerTask.h"
 #include "LHCStatusReader.h"
 #include "LocalSensorTask.h"
+
+#include "ArduinoOTA.h"
 
 #include "MacroStringReplace.h"
 
@@ -92,6 +95,10 @@ void connectionStateChanged(WifiConnector::States state)
 
 			DataStore::value("ip") = ip;
 			logPrintf("IP = %s", ip.c_str());
+
+
+
+			ArduinoOTA.begin();
 			break;
 		}
 	}
@@ -100,14 +107,14 @@ void connectionStateChanged(WifiConnector::States state)
 
 void setup()
 {
-	Serial.begin(115200);
+	Serial.begin(921600);
 
 	//the filesystem is not ready yet - format it and save some settings
 	if (!SPIFFS.begin())
 	{
 		SPIFFS.format();
 		SPIFFS.begin();
-		writeConfig(F("configPassword"), F("password"));
+		writeConfig(F("configPassword"), "password");
 		logPrintf("Formatting filesystem, the default password is %s", readConfig(F("configPassword")).c_str());
 	}
 
@@ -132,9 +139,12 @@ void setup()
 	displayTask.pushMessage(versionString, 0.4_s, true);
 
 	configTime(getTimeZone(), 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
+
+	configureOTA();
 }
 
 void loop()
 {
 	scheduleTasks();
+	ArduinoOTA.handle();
 }

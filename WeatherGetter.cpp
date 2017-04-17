@@ -91,7 +91,9 @@ WeatherGetter::WeatherGetter(): pathListener(&jsonParser)
 
 void WeatherGetter::reset()
 {
-	//TODO: reset dataStore values?
+	DataStore::value(F("OWM.Temperature")) = String();
+	DataStore::value(F("OWM.Pressure")) = String();
+	DataStore::value(F("OWM.Location")) = String();
 }
 
 void WeatherGetter::run()
@@ -126,9 +128,11 @@ void WeatherGetter::run()
 
 	String json = httpClient.getString();
 
+	//logPrintf(F("WG message: %s"), json.c_str());
+
 	jsonParser.reset();
 	jsonParser.setListener(&pathListener);
-	pathListener.clear();
+	//pathListener.clear();
 
 	//TODO: add proper error handling of json parser
 	for (int  i = 0; i < json.length(); ++i)

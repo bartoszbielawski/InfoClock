@@ -13,6 +13,9 @@
 
 #include "WebServerTask.h"
 #include "ESP8266WebServer.h"
+#include "ESP8266HTTPUpdateServer.h"
+#include "ArduinoOTA.h"
+
 #include "MacroStringReplace.h"
 #include "config.h"
 #include "DataStore.h"
@@ -210,7 +213,6 @@ WebServerTask::WebServerTask()
 
 void WebServerTask::reset()
 {
-	sleep(5_s);
 	webServer.stop();
 	sleep(5_s);
 	started = false;

@@ -33,7 +33,7 @@ class SDD
 		STATE state = STATE::START;
 
 		LEDMatrixDriver &ledMatrixDriver;
-		const static int columnIncrement = 3;
+		const static int columnIncrement = 1;
 		size_t           startColumn = 0;
 
 		const static int endDelay = 5;

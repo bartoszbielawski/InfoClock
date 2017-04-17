@@ -28,12 +28,12 @@ static const std::vector<DisplayState> displayStates =
 {
 	{getTime, 										1_s,	10,	false},
 	{getDate, 										2_s,	1,	false},
-	{getFromDataStore(("webmessage")),				0.3_s,	1,	true},		//webmessage
+	{getFromDataStore(("webmessage")),				0.1_s,	1,	true},		//webmessage
 	{getFromDataStore(("Local.Temperature")),		2_s,	1,	false},
 	{getFromDataStore(("OWM.Temperature")),			2_s,	1,  false},
 	{getFromDataStore(("OWM.Pressure")),			2_s,	1,	false},
-	{getFromDataStore(("LHC.Page1Comment")),		0.3_s,	1,	true},
-	{getFromDataStore(("LHC.BeamMode")),		  	0.3_s,	1, 	true},
+	{getFromDataStore(("LHC.Page1Comment")),		0.1_s,	1,	true},
+	{getFromDataStore(("LHC.BeamMode")),		  	0.1_s,	1, 	true},
 	{getFromDataStore(("LHC.BeamEnergy")),			2_s, 1, false},
 };
 

@@ -5,7 +5,7 @@
  *      Author: Bartosz Bielawski
  */
 
-#include "PathConstructor.h"
+#include "PathConstructor.hpp"
 #include <string.h>
 
 PathConstructor::PathConstructor(uint32_t reserve, char separator): size(0), separator(separator)

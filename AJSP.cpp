@@ -57,6 +57,8 @@ void AJSP::Parser::setListener(Listener* l)
 void AJSP::Parser::reset()
 {
 	localBuffer.clear();
+	pathConstructor.clear();
+
 	lastKey = rootElementName;
 	offset = 0;
 	stack.emplace_back(Entity::VALUE, State::NONE);
@@ -138,8 +140,9 @@ bool AJSP::Parser::parseValue(char c)
 	if (c == '{')	//object - consumes the element
 	{
 		//NOTE: exit point
+		pathConstructor.push(lastKey);
 		if (listener) listener->objectStart();
-
+		
 		currentElement = StackElement(Entity::OBJECT, State::OBJECT_KEY_OR_END);
 		return true;
 	}
@@ -147,6 +150,7 @@ bool AJSP::Parser::parseValue(char c)
 	if (c == '[')	//array - consumes the char
 	{
 		//NOTE: exit point
+		pathConstructor.push(lastKey);
 		if (listener) listener->arrayStart();
 
 		currentElement = StackElement(Entity::ARRAY, State::ARRAY_VALUE_OR_END);
@@ -200,12 +204,17 @@ bool AJSP::Parser::parseString(char c)
 
 				if (isKey)
 				{
-					if (listener) listener->key(localBuffer);
 					lastKey = localBuffer;
+					if (listener) listener->key(localBuffer);
 				}
 				else
-				{
-					if (listener) listener->value(localBuffer, Entity::STRING);
+				{	
+					if (listener) 
+					{
+						pathConstructor.push(lastKey);
+						listener->value(localBuffer, Entity::STRING);
+						pathConstructor.pop();
+					}
 				}
 
 				stack.pop_back();
@@ -254,6 +263,8 @@ bool AJSP::Parser::parseArray(char c)
 				//NOTE: exit point
 				if (listener)
 					listener->arrayEnd();
+				
+				pathConstructor.pop();
 				stack.pop_back();
 				return true;
 			}
@@ -281,6 +292,8 @@ bool AJSP::Parser::parseArray(char c)
 				//NOTE: exit point
 				if (listener)
 					listener->arrayEnd();
+
+				pathConstructor.pop();
 				stack.pop_back();
 				return true;
 			}
@@ -313,6 +326,7 @@ bool		AJSP::Parser::parseObject(char c)
 				if (listener)
 					listener->objectEnd();
 
+				pathConstructor.pop();
 				stack.pop_back();
 				return true;
 			}
@@ -363,6 +377,7 @@ bool		AJSP::Parser::parseObject(char c)
 				if (listener)
 					listener->objectEnd();
 
+				pathConstructor.pop();
 				stack.pop_back();
 				return true;
 			}
@@ -410,10 +425,16 @@ bool		AJSP::Parser::parseRaw(char c)
 	}
 
 	//if we already had something in the buffer then it's the end of the token
-	if (localBuffer.length() && listener)
+	if (localBuffer.length())
 	{
 		//NOTE: exit point
-		listener->value(localBuffer, Entity::RAW);
+		if (listener)
+		{
+			pathConstructor.push(lastKey);
+			listener->value(localBuffer, Entity::RAW);
+			pathConstructor.pop();
+		}
+		
 		localBuffer.clear();
 	}
 

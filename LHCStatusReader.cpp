@@ -158,16 +158,22 @@ jsonListener(&jsonParser)
 void LHCStatusReader::reset()
 {
 	//reset variables
-	//TODO: clear data store values
+	DataStore::value(F("LHC.Page1Comment")) = String();
+	DataStore::value(F("LHC.BeamMode")) = String();
+	DataStore::value(F("LHC.BeamEnergy")) = String();
 
-	logPrintf("LHCStatusReader - Reset");
-	nextState = &LHCStatusReader::connect;
+	logPrintf(F("LHCStatusReader - Reset"));
+
 	connection.stop();
+	jsonParser.reset();
+	wspWrapper.reset();
+
+	nextState = &LHCStatusReader::connect;
 }
 
 void LHCStatusReader::connect()
 {
-	logPrintf("LHCStatusReader - connecting to the LHC status server...");
+	logPrintf(F("LHCStatusReader - connecting to the LHC status server..."));
 	connection.connect(hostname, port);
 	if (!connection.connected())
 	{
@@ -175,7 +181,7 @@ void LHCStatusReader::connect()
 		return;		//try again...
 	}
 
-	logPrintf("LHCStatusReader - connected...");
+	logPrintf(F("LHCStatusReader - connected..."));
 
 	connection.write_P(httpGetRequestStart, sizeof(httpGetRequestStart)-1);
 	connection.write(generateRandomUUID());
@@ -200,7 +206,7 @@ void LHCStatusReader::subscribe()
 	//flush
 	while (int a = connection.available()) connection.read();
 
-	logPrintf("LHCStatusReader - subscribing...");
+	logPrintf(F("LHCStatusReader - subscribing..."));
 	static const uint8_t k[] = {0xDE, 0xAD, 0xBE, 0xEF};
 
 	sendWSPacket_P(0x81, sizeof(subscriptionRequest), k, subscriptionRequest, &connection);
@@ -223,17 +229,31 @@ void LHCStatusReader::readData()
 		uint32_t readSize = std::min(connection.available(), (int)sizeof(localBuffer));
 
 		readSize = connection.read(localBuffer, readSize);
+
 		for (int i = 0; i < readSize; i++)
 		{
 			uint8_t c = localBuffer[i];
 			auto state = wspWrapper.push(c);
 
-			//TODO: reset the wspWrapper in case of error
-			bool data = state == CustomWebSocketPacketWrapper::State::DATA;
-			if (data and wspWrapper.getLength() >= 5)
+			if (state == CustomWebSocketPacketWrapper::State::DATA_HEADER)
 			{
-				jsonParser.parse(c);
+				logPrintf(F("PL: %d"), wspWrapper.getLength());
 			}
+
+			bool data = state == CustomWebSocketPacketWrapper::State::DATA;
+			if (data)
+			{
+				if (wspWrapper.getLength() > 5)
+					jsonParser.parse(c);
+				else
+				{
+					logPrintf(F("Received idle message from the service, restarting..."));
+					reset();	//we have started receiving these short messages, restart
+					return;
+				}
+
+			}
+
 		}
 
 		//reset the WDT after each batch of data
