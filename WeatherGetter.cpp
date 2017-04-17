@@ -17,7 +17,7 @@
  * 6424612 - Ornex
  */
 
-const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.5/weather?%s&APPID=%s";
+const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.5/weather?%s&APPID=%s&units=metric";
 
 //FIXME: flash?
 const static char temperaturePath[] = "/root/main/temp";
@@ -27,10 +27,7 @@ const static char locationPath[] = "/root/name";
 String processTemperature(const std::string& temperature)
 {
 	float f = atof(temperature.c_str());
-	if (f < 5)		//really, less than 5 K? is the probe in LHC?
-		return String();
 
-	f -= 273.15f;
 	f *= 10.0f;
 	f = roundf(f);
 	f /= 10.0f;

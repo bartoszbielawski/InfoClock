@@ -235,10 +235,10 @@ void LHCStatusReader::readData()
 			uint8_t c = localBuffer[i];
 			auto state = wspWrapper.push(c);
 
-			if (state == CustomWebSocketPacketWrapper::State::DATA_HEADER)
-			{
-				logPrintf(F("PL: %d"), wspWrapper.getLength());
-			}
+//			if (state == CustomWebSocketPacketWrapper::State::DATA_HEADER)
+//			{
+//				logPrintf(F("PL: %d"), wspWrapper.getLength());
+//			}
 
 			bool data = state == CustomWebSocketPacketWrapper::State::DATA;
 			if (data)

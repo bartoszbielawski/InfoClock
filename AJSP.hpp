@@ -42,7 +42,7 @@ namespace AJSP
 			const std::string& getLastKey() const {return lastKey;}
 			const std::string& getCurrentPath() const {return pathConstructor.getPath();}
 
-			bool done() {return stack.empty();}
+			bool done() const {return stack.empty();}
 
 			enum class Result: uint8_t
 			{
