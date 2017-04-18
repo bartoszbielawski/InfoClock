@@ -169,15 +169,18 @@ void LHCStatusReader::reset()
 	wspWrapper.reset();
 
 	nextState = &LHCStatusReader::connect;
+	sleep(5_s);
 }
 
 void LHCStatusReader::connect()
 {
 	logPrintf(F("LHCStatusReader - connecting to the LHC status server..."));
+
+	connection.setTimeout(1000);
 	connection.connect(hostname, port);
 	if (!connection.connected())
 	{
-		sleep(1_s);
+		reset();
 		return;		//try again...
 	}
 
@@ -204,10 +207,14 @@ void LHCStatusReader::subscribe()
 	}
 
 	//flush
-	while (int a = connection.available()) connection.read();
+	while (int a = connection.available())
+		connection.read();
 
 	logPrintf(F("LHCStatusReader - subscribing..."));
-	static const uint8_t k[] = {0xDE, 0xAD, 0xBE, 0xEF};
+
+	uint32_t rnd = os_random();
+	uint8_t k[] = {(rnd >> 24) & 0xFF, (rnd >> 16) & 0xFF, (rnd >> 8) & 0xFF, rnd & 0xFF};
+
 
 	sendWSPacket_P(0x81, sizeof(subscriptionRequest), k, subscriptionRequest, &connection);
 

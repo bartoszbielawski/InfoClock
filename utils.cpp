@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include <vector>
+#include <memory>
 
 #include "utils.h"
 #include "config.h"
@@ -131,25 +132,38 @@ const char* generateRandomUUID()
 
 void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, Client* client)
 {
-	client->write(header);
+						//header, length, key, payload
+	uint32_t totalSize = 1 + (size >= 0x7E ? 3: 1) + 4 + size;
+	logPrintf("SWS: total packet size: %d", totalSize);
 
+	std::unique_ptr<uint8_t[]> ptr(new uint8_t[totalSize]);
+	uint8_t* pckt = ptr.get();
+
+	logPrintf("SWS: header...");
+	*pckt++ = header;
+
+	logPrintf("SWS: len...");
 	if (size >= 0x7E)
 	{
-		client->write(0xFE);
-		client->write(size >> 8);
-		client->write(size & 0xFF);
+		*pckt++ = 0xFE;
+		*pckt++ = size >> 8;
+		*pckt++ = size & 0xFF;
 	}
 	else
 	{
-		client->write((size & 0x7F) | 0x80);
+		*pckt++ = (size & 0x7F) | 0x80;
 	}
 
-	client->write(key, 4);
+	logPrintf("SWS: key...");
+	for (int i = 0; i < 4; i++)
+		*pckt++ = key[i];
 
+	logPrintf("SWS: body...");
 	for (int i = 0; i < size; i++)
-	{
-		client->write(pgm_read_byte(payload+i) ^ key[i % 4]);
-	}
+		*pckt++ = pgm_read_byte(payload+i) ^ key[i % 4];
+
+	client->write(ptr.get(), totalSize);
+	logPrintf("SWS: done!...");
 }
 
 void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client)

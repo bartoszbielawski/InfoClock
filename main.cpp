@@ -133,6 +133,8 @@ void setup()
 
 	String macAddress = WiFi.macAddress();
 	DataStore::value("mac") = macAddress;
+
+	logPrintf("\n\n");
 	logPrintf("MAC Address: %s", macAddress.c_str());
 
 	displayTask.pushMessage("Initializing...", 2_s);
