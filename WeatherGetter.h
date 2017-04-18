@@ -20,11 +20,6 @@ class WeatherGetter: public Tasks::Task
 		virtual ~WeatherGetter() {}
 		virtual void reset();
 		virtual void run();
-
-	private:
-		HTTPClient httpClient;
-		AJSP::Parser jsonParser;
-		PathListener pathListener;
 };
 
 #endif /* WEATHERGETTER_H_ */

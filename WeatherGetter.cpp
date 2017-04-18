@@ -9,6 +9,7 @@
 #include "DataStore.h"
 #include "config.h"
 #include "utils.h"
+#include "MapCollector.hpp"
 
 /*
  * 2660646 - Geneva
@@ -17,14 +18,11 @@
  * 6424612 - Ornex
  */
 
+using namespace std;
+
 const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.5/weather?%s&APPID=%s&units=metric";
 
-//FIXME: flash?
-const static char temperaturePath[] = "/root/main/temp";
-const static char pressurePath[] = "/root/main/pressure";
-const static char locationPath[] = "/root/name";
-
-String processTemperature(const std::string& temperature)
+String processTemperature(const string& temperature)
 {
 	float f = atof(temperature.c_str());
 
@@ -42,7 +40,7 @@ String processTemperature(const std::string& temperature)
 	return p;
 }
 
-String processPressure(const std::string& pressure)
+String processPressure(const string& pressure)
 {
 	if (pressure.empty())
 	{
@@ -59,30 +57,30 @@ String processPressure(const std::string& pressure)
 }
 
 
+static const vector<String> prefixes{
+	"main",
+	"wind",
+	"sys/sun",
+	"name"
+};
 
-static void weatherGetterJSONCallback(const std::string& key, const std::string& value)
+bool jsonPathFilter(const string& key)
 {
-	if (key == temperaturePath)
+	String s(key.c_str());
+
+	for (auto& prefix: prefixes)
 	{
-		DataStore::value(F("OWM.Temperature")) = processTemperature(value);
+		//"/root/" => first 6 chars
+		if (s.startsWith(prefix, 6))
+			return true;
 	}
-	if (key == pressurePath)
-	{
-		DataStore::value(F("OWM.Pressure")) = processPressure(value);
-	}
-	if (key == locationPath)
-	{
-		DataStore::value(F("OWM.Location")) = value.c_str();
-	}
+
+	return false;
 }
 
-WeatherGetter::WeatherGetter(): pathListener(&jsonParser)
+WeatherGetter::WeatherGetter()
 {
 	reset();
-	pathListener.monitoredPaths().push_back(temperaturePath);
-	pathListener.monitoredPaths().push_back(pressurePath);
-	pathListener.monitoredPaths().push_back(locationPath);
-	pathListener.setCallback(weatherGetterJSONCallback);
 	sleep(30_s);
 }
 
@@ -100,7 +98,7 @@ void WeatherGetter::run()
 
 	if (location.length() == 0 or key.length() == 0)
 	{
-		logPrintf("Weather service not configured... ");
+		logPrintf(F("Weather service not configured... "));
 		sleep(60_s);
 		return;
 	}
@@ -108,43 +106,47 @@ void WeatherGetter::run()
 	char localBuffer[256];
 	snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, location.c_str(), key.c_str());
 
-	logPrintf("Weather Service: URL = %s", localBuffer);
+	logPrintf(F("Weather Getter: URL = %s"), localBuffer);
 
+	HTTPClient httpClient;
 	httpClient.begin(localBuffer);
 
 	int httpCode = httpClient.GET();
 
 	if (httpCode != HTTP_CODE_OK)
 	{
-		logPrintf("HTTP failed with code %d\n", httpCode);
-		//report error, retry in 60 seconds
+		logPrintf(F("HTTP failed with code %d"), httpCode);
 		sleep(60_s);
 		httpClient.end();
 		return;
 	}
 
+	//fetch the response
 	String json = httpClient.getString();
 
-	//logPrintf(F("WG message: %s"), json.c_str());
+	//prepare the parser - provide filtering function
+	MapCollector mc(jsonPathFilter);
 
-	jsonParser.reset();
-	jsonParser.setListener(&pathListener);
-	//pathListener.clear();
-
-	//TODO: add proper error handling of json parser
-	for (int  i = 0; i < json.length(); ++i)
+	for (size_t  i = 0; i < json.length(); ++i)
 	{
-		jsonParser.parse(json[i]);
+		mc.parse(json[i]);
 	}
 
-	const auto& temperature = DataStore::value(F("OWM.Temperature"));
-	const auto& pressure = DataStore::value(F("OWM.Pressure"));
+	auto& results = mc.getValues();
 
-	logPrintf("Weather refreshed: T = %s, p = %s", temperature.c_str(), pressure.c_str());
+	DataStore::value(F("OWM.Pressure")) = processPressure(results["/root/main/pressure"]);
+	DataStore::value(F("OWM.Temperature")) = processTemperature(results["/root/main/temp"]);
+	DataStore::value(F("OWM.Location")) = String(results["/root/name"].c_str());
+
+	//print all we have acquired - useful for adding new fields
+	for (const auto& e: results)
+	{
+		logPrintf(F("Weather Getter: %s: %s"), e.first.c_str(), e.second.c_str());
+	}
 
 	httpClient.end();
 
-	int period = readConfig("owmPeriod").toInt() * MS_PER_CYCLE;
+	int period = readConfig(F("owmPeriod")).toInt() * MS_PER_CYCLE;
 	if (period == 0)
 		period = 600_s;
 

@@ -16,8 +16,8 @@ const static uint8_t LED_CS = D8;
 
 const static int32_t MS_PER_CYCLE = 20;
 
-const static int32_t DISPLAYS=8;
+const static int32_t DISPLAYS = 8;
 
-const static char versionString[] = "v 0.1.3";
+const static char versionString[] = "v 0.1.4";
 
 #endif /* CONFIG_H_ */
