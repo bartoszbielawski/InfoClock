@@ -26,7 +26,7 @@ static MessageProvider getFromDataStore(const String& name)
 
 static const std::vector<DisplayState> displayStates =
 {
-	{getTime, 										1_s,	5,	false},
+	{getTime, 										1_s,	10,	false},
 	{getDate, 										2_s,	1,	false},
 	{getFromDataStore(("webmessage")),				0.08_s,	1,	true},		//webmessage
 	{getTime, 										1_s,	5,	false},

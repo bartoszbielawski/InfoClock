@@ -4,6 +4,7 @@
 
 #include "LEDMatrixDriver.h"
 #include "SDD.hpp"
+#include "config.h"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ SDD::SDD(LEDMatrixDriver &ledMatrixDriver):
 						  physicalDisplayLen(ledMatrixDriver.getSegments() * 8)
 {
 	ledMatrixDriver.setEnabled(true);
-	ledMatrixDriver.setIntensity(intensity);
+	ledMatrixDriver.setIntensity(INTENSITY);
 }
 
 bool SDD::tick()
@@ -50,7 +51,7 @@ bool SDD::tick()
 				delayCounter = endDelay;
 				startColumn = 0;
 				ledMatrixDriver.setEnabled(true);
-				ledMatrixDriver.setIntensity(intensity);
+				ledMatrixDriver.setIntensity(INTENSITY);
 				return true;
 			}
 			return false;
