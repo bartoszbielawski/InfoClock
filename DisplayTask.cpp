@@ -26,12 +26,14 @@ static MessageProvider getFromDataStore(const String& name)
 
 static const std::vector<DisplayState> displayStates =
 {
-	{getTime, 										1_s,	10,	false},
+	{getTime, 										1_s,	5,	false},
 	{getDate, 										2_s,	1,	false},
 	{getFromDataStore(("webmessage")),				0.08_s,	1,	true},		//webmessage
+	{getTime, 										1_s,	5,	false},
 	{getFromDataStore(("Local.Temperature")),		2_s,	1,	false},
 	{getFromDataStore(("OWM.Temperature")),			2_s,	1,  false},
 	{getFromDataStore(("OWM.Pressure")),			2_s,	1,	false},
+	{getTime, 										1_s,	5,	false},
 	{getFromDataStore(("LHC.Page1Comment")),		0.08_s,	1,	true},
 	{getFromDataStore(("LHC.BeamMode")),		  	0.08_s,	1, 	true},
 	{getFromDataStore(("LHC.BeamEnergy")),			2_s, 1, false},

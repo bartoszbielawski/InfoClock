@@ -91,7 +91,7 @@ void connectionStateChanged(WifiConnector::States state)
 
 			displayTask.pushMessage(readConfig(F("essid")), 0.4_s, true);
 			String ip = WiFi.localIP().toString();
-			displayTask.pushMessage(ip, 0.5_s, true);
+			displayTask.pushMessage(ip, 0.1_s, true);
 
 			DataStore::value("ip") = ip;
 			logPrintf("IP = %s", ip.c_str());

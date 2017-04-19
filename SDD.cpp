@@ -13,7 +13,7 @@ SDD::SDD(LEDMatrixDriver &ledMatrixDriver):
 						  physicalDisplayLen(ledMatrixDriver.getSegments() * 8)
 {
 	ledMatrixDriver.setEnabled(true);
-	ledMatrixDriver.setIntensity(4);
+	ledMatrixDriver.setIntensity(intensity);
 }
 
 bool SDD::tick()
@@ -50,7 +50,7 @@ bool SDD::tick()
 				delayCounter = endDelay;
 				startColumn = 0;
 				ledMatrixDriver.setEnabled(true);
-				ledMatrixDriver.setIntensity(4);
+				ledMatrixDriver.setIntensity(intensity);
 				return true;
 			}
 			return false;

@@ -36,7 +36,8 @@ class SDD
 		const static int columnIncrement = 1;
 		size_t           startColumn = 0;
 
-		const static int endDelay = 5;
+		const static int endDelay = 10;
+		const static uint8_t intensity = 7;
 		int              delayCounter = 0;
 		int              physicalDisplayLen;
 };
