@@ -11,6 +11,7 @@
 #include "pgmspace.h"
 #include "OTA.hpp"
 #include "utils.h"
+#include "ESP8266mDNS.h"
 
 void configureOTA()
 {

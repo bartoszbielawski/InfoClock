@@ -77,7 +77,7 @@ void DisplayTask::scrollMessage()
 
 	if (done)
 	{
-		logPrintf("Scrolling done...");
+		logPrintf(F("DT: Scrolling done..."));
 		nextState = &DisplayTask::nextMessage;
 	}
 }
@@ -117,7 +117,7 @@ void DisplayTask::nextDisplay()
 	{
 		ds = priorityMessages.front();
 		priorityMessages.erase(priorityMessages.begin());
-		logPrintf("New message from PQ: %s", ds.fun().c_str());
+		logPrintf(F("DT: New message from PQ: %s"), ds.fun().c_str());
 		priorityMessagePlayed = true;
 		return;
 	}
@@ -133,5 +133,5 @@ void DisplayTask::nextDisplay()
 	while (displayStates[index].fun().length() == 0);
 
 	ds = displayStates[index];
-	logPrintf("New message from RQ: %s", ds.fun().c_str());
+	logPrintf(F("DT: New message from RQ: %s"), ds.fun().c_str());
 }

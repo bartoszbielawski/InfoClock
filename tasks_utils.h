@@ -10,8 +10,33 @@
 
 #include "task.hpp"
 
+#include "WebServerTask.h"
+#include "DisplayTask.hpp"
+
+struct TaskDescriptor
+{
+		const static uint8_t ENABLED = 1;
+		const static uint8_t CONNECTED = 2;
+
+		TaskDescriptor(Tasks::Task* task, uint8_t flags):
+			task(task), flags(flags){}
+
+		Tasks::Task* task;
+		uint8_t flags;
+};
+
+struct RegisterTask
+{
+		RegisterTask(Tasks::Task* t, uint8_t flags = 0);
+};
+
 void setupTasks();
-Tasks::Task* addTask(Tasks::Task* task);
+
+Tasks::Task* addTask(Tasks::Task* t, uint8_t flags = 0);
+void addTask(const TaskDescriptor& td);
 void scheduleTasks();
+
+WebServerTask& getWebServerTask();
+DisplayTask& getDisplayTask();
 
 #endif /* TASKS_UTILS_H_ */

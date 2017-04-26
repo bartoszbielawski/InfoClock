@@ -15,7 +15,8 @@
 #include "Client.h"
 #include "Arduino.h"
 #include "FS.h"
-
+#include "DataStore.h"
+#include "WiFiUdp.h"
 
 extern "C" {
 #include "user_interface.h"
@@ -132,17 +133,17 @@ const char* generateRandomUUID()
 
 void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, Client* client)
 {
-						//header, length, key, payload
+	//header, length, key, payload
 	uint32_t totalSize = 1 + (size >= 0x7E ? 3: 1) + 4 + size;
-	logPrintf("SWS: total packet size: %d", totalSize);
+	//logPrintf("SWS: total packet size: %d", totalSize);
 
 	std::unique_ptr<uint8_t[]> ptr(new uint8_t[totalSize]);
 	uint8_t* pckt = ptr.get();
 
-	logPrintf("SWS: header...");
+	//logPrintf("SWS: header...");
 	*pckt++ = header;
 
-	logPrintf("SWS: len...");
+	//logPrintf("SWS: len...");
 	if (size >= 0x7E)
 	{
 		*pckt++ = 0xFE;
@@ -154,16 +155,16 @@ void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P pay
 		*pckt++ = (size & 0x7F) | 0x80;
 	}
 
-	logPrintf("SWS: key...");
+	//logPrintf("SWS: key...");
 	for (int i = 0; i < 4; i++)
 		*pckt++ = key[i];
 
-	logPrintf("SWS: body...");
+	//logPrintf("SWS: body...");
 	for (int i = 0; i < size; i++)
 		*pckt++ = pgm_read_byte(payload+i) ^ key[i % 4];
 
 	client->write(ptr.get(), totalSize);
-	logPrintf("SWS: done!...");
+	//logPrintf("SWS: done!...");
 }
 
 void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client)
@@ -206,9 +207,20 @@ void logPrintf(char* format, ...)
 	char localBuffer[256];
 	va_list argList;
 	va_start(argList, format);
-	Serial.printf("%s - ", getDateTime());
-	vsnprintf(localBuffer, sizeof(localBuffer), format, argList);
+	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - ", getDateTime());
+	vsnprintf(localBuffer+bytes, sizeof(localBuffer)-bytes, format, argList);
 	Serial.println(localBuffer);
+
+//	WiFiUDP udp;
+//	if (udp.beginPacket("192.168.1.125", 9999))
+//	{
+//		udp.write(localBuffer);
+//		udp.endPacket();
+//	}
+//	else
+//	{
+//		Serial.println(":(");
+//	}
 	va_end(argList);
 }
 
@@ -217,9 +229,20 @@ void logPrintf(const __FlashStringHelper* format, ...)
 	char localBuffer[256];
 	va_list argList;
 	va_start(argList, format);
-	Serial.printf("%s - ", getDateTime());
-	vsnprintf_P(localBuffer, sizeof(localBuffer), (PGM_P)format, argList);
+	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - ", getDateTime());
+	vsnprintf_P(localBuffer+bytes, sizeof(localBuffer)-bytes, (PGM_P)format, argList);
 	Serial.println(localBuffer);
+//
+//	WiFiUDP udp;
+//	if (udp.beginPacket("192.168.1.125", 9999))
+//	{
+//		udp.write(localBuffer);
+//		udp.endPacket();
+//	}
+//	else
+//	{
+//		Serial.println(":(");
+//	}
 	va_end(argList);
 }
 
@@ -234,15 +257,27 @@ bool checkFileSystem()
 	return alreadyFormatted;
 }
 
+void readConfigFromFlash()
+{
+	SPIFFS.begin();
+	auto dir = SPIFFS.openDir(F("/config"));
+
+	while (dir.next())
+	{
+		auto f = dir.openFile("r");
+		auto value = f.readStringUntil('\n');
+		//skip the /config/ part of the path
+		auto name = dir.fileName().substring(8);
+		DataStore::value(name) = value;
+		//logPrintf(F("RCFF: %s = %s"), name.c_str(), value.c_str());
+	}
+}
+
 String readConfig(const String& name)
 {
-	String result;
-	auto f = SPIFFS.open(String(F("/config/")) +name, "r");
-	if (!f)
-		return result;
-
-	result = f.readStringUntil('\n');
-	return result;
+	auto value = DataStore::value(name);
+	//logPrintf("RC: %s = %s", name.c_str(), value.c_str());
+	return value;
 }
 
 void writeConfig(const String& name, const String& value)
@@ -250,22 +285,8 @@ void writeConfig(const String& name, const String& value)
 	auto f = SPIFFS.open(String(F("/config/")) +name, "w+");
 	f.print(value);
 	f.print('\n');
-}
-
-void copyConfigToDataStore()
-{
-//	auto dir = SPIFFS.openDir(F("/config"));
-//
-//	while (dir.next())
-//	{
-//		response += dir.fileName();
-//		response += " -> ";
-//		auto f = dir.openFile("r");
-//		response += f.readStringUntil('\n');
-//		response += '\n';
-//	}
-//
-//	DataStore::
+	f.close();
+	DataStore::value(name) = value;
 }
 
 

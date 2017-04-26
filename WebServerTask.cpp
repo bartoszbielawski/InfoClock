@@ -106,7 +106,7 @@ void handleReadParams()
 {
 	if (!handleAuth()) return;
 
-	logPrintf("WebServer - Reading params...");
+	logPrintf(F("WST: Reading params..."));
 	auto dir = SPIFFS.openDir(F("/config"));
 
 	String response;
@@ -163,7 +163,7 @@ void handleGeneralSettings()
 	auto submitted = webServer.arg(F("submitted"));
 	if (submitted.length())
 	{
-		logPrintf("Saving data...");
+		logPrintf("WST: Saving data...");
 		writeConfig(F("essid"), webServer.arg(F("essid")));
 
 		//we don't send the current value so we have to check if it is present
@@ -226,7 +226,7 @@ void WebServerTask::run()
 	if (!started)
 	{
 		started = true;
-		logPrintf("WebServerTask - configuring server");
+		logPrintf("WST: configuring server");
 
 		webServer.onNotFound([](){
 			webServer.send(404, "text/plain", "Not found... :/");
@@ -245,7 +245,7 @@ void WebServerTask::run()
 
 		webServer.begin();
 
-		logPrintf("WebServerTask - ready!");
+		logPrintf("WST: ready!");
 		return;
 	}
 

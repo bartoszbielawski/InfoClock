@@ -25,7 +25,7 @@ class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 
 		virtual void reset();
 
-		virtual ~LHCStatusReader();
+		virtual ~LHCStatusReader() = default;
 
 	private:
 		WiFiClient connection;

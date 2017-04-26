@@ -20,6 +20,6 @@ const static int32_t MS_PER_CYCLE = 20;
 const static int32_t DISPLAYS = 8;
 const static uint8_t INTENSITY = 2;
 
-const static char versionString[] = "v 0.1.4";
+const static char versionString[] = "v 0.2.0";
 
 #endif /* CONFIG_H_ */

@@ -8,6 +8,7 @@
 #include "LocalSensorTask.h"
 #include "DataStore.h"
 #include "utils.h"
+#include "tasks_utils.h"
 
 LocalSensorTask::LocalSensorTask():
 	oneWire(D3),
@@ -46,4 +47,6 @@ LocalSensorTask::~LocalSensorTask()
 {
 
 }
+
+static RegisterTask r(new LocalSensorTask);
 

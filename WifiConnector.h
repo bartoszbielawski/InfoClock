@@ -31,6 +31,29 @@ class WifiConnector: public Tasks::TaskCRTP<WifiConnector>
 		{
 		}
 
+		void lateInit()
+		{
+			connectionTimeout = 60;
+			if (callback)
+				callback(States::NONE);
+
+			auto essid = readConfig("essid");
+
+			if (essid.length() == 0)
+				mainState = States::AP;
+
+			switch (mainState)
+			{
+				case States::AP:
+					initAP();
+					break;
+				case States::CLIENT:
+					initSTA(essid);
+					break;
+			}
+		}
+
+
 		void initAP()
 		{
 			//run the AP
@@ -64,27 +87,6 @@ class WifiConnector: public Tasks::TaskCRTP<WifiConnector>
 			nextState = &WifiConnector::monitorClientStatus;
 		}
 
-		void lateInit()
-		{
-			connectionTimeout = 60;
-			if (callback)
-				callback(States::NONE);
-
-			auto essid = readConfig("essid");
-
-			if (essid.length() == 0)
-				mainState = States::AP;
-
-			switch (mainState)
-			{
-				case States::AP:
-					initAP();
-					break;
-				case States::CLIENT:
-					initSTA(essid);
-					break;
-			}
-		}
 
 		void monitorClientStatus()
 		{

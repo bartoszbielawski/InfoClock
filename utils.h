@@ -45,14 +45,12 @@ T min(T a, T b)
 
 class String;
 
-bool checkFileSystem();
+void readConfigFromFlash();
 String readConfig(const String& name);
 void   writeConfig(const String& name, const String& value);
 
-void copyConfigToDataStore();
 
 int32_t getTimeZone();
-
 uint32_t getUpTime();
 
 

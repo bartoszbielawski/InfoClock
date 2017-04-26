@@ -5,6 +5,9 @@
  *      Author: Bartosz Bielawski
  */
 
+
+#pragma once
+
 #ifndef DISPLAYTASK_HPP_
 #define DISPLAYTASK_HPP_
 

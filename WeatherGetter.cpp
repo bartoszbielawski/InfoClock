@@ -9,6 +9,7 @@
 #include "DataStore.h"
 #include "config.h"
 #include "utils.h"
+#include "tasks_utils.h"
 #include "MapCollector.hpp"
 
 /*
@@ -98,7 +99,7 @@ void WeatherGetter::run()
 
 	if (location.length() == 0 or key.length() == 0)
 	{
-		logPrintf(F("Weather service not configured... "));
+		logPrintf(F("WG: service not configured... "));
 		sleep(60_s);
 		return;
 	}
@@ -106,7 +107,7 @@ void WeatherGetter::run()
 	char localBuffer[256];
 	snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, location.c_str(), key.c_str());
 
-	logPrintf(F("Weather Getter: URL = %s"), localBuffer);
+	logPrintf(F("WG: URL = %s"), localBuffer);
 
 	HTTPClient httpClient;
 	httpClient.begin(localBuffer);
@@ -115,7 +116,7 @@ void WeatherGetter::run()
 
 	if (httpCode != HTTP_CODE_OK)
 	{
-		logPrintf(F("HTTP failed with code %d"), httpCode);
+		logPrintf(F("WG: HTTP failed with code %d"), httpCode);
 		sleep(60_s);
 		httpClient.end();
 		return;
@@ -141,7 +142,7 @@ void WeatherGetter::run()
 	//print all we have acquired - useful for adding new fields
 	for (const auto& e: results)
 	{
-		logPrintf(F("Weather Getter: %s: %s"), e.first.c_str(), e.second.c_str());
+		logPrintf(F("WG: %s: %s"), e.first.c_str(), e.second.c_str());
 	}
 
 	httpClient.end();
@@ -152,3 +153,6 @@ void WeatherGetter::run()
 
 	sleep(period);
 }
+
+
+static RegisterTask r(new WeatherGetter, TaskDescriptor::CONNECTED);
