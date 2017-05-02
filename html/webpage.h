@@ -31,6 +31,8 @@ static const char generalSettingsPage[] PROGMEM = R"_(
 <tr><td class="label">Password:</td><td><input name="wifiPassword" type="password"></td></tr>
 <tr><td class="wide">Timezone settings</td></tr>
 <tr><td class="label">In seconds including DST:</td><td><input name="timezone" type="text" value="$timezone$"></td></tr>
+<tr><td class="wide">Logging settings</td></tr>
+<tr><td class="label">Syslog server:</td><td><input name="syslogServer" type="text" value="$syslogServer$"></td></tr>
 <tr><td/><td><input type="submit"></td></tr>
 </table>
 <input type="hidden" name="submitted" value="true">

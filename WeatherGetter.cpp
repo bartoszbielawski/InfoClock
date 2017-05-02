@@ -60,8 +60,8 @@ String processPressure(const string& pressure)
 
 static const vector<String> prefixes{
 	"main",
-	"wind",
-	"sys/sun",
+	//"wind",
+	//"sys/sun",
 	"name"
 };
 
@@ -99,7 +99,7 @@ void WeatherGetter::run()
 
 	if (location.length() == 0 or key.length() == 0)
 	{
-		logPrintf(F("WG: service not configured... "));
+		logPrintfX(F("WG"), F("Service not configured... "));
 		sleep(60_s);
 		return;
 	}
@@ -107,7 +107,7 @@ void WeatherGetter::run()
 	char localBuffer[256];
 	snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, location.c_str(), key.c_str());
 
-	logPrintf(F("WG: URL = %s"), localBuffer);
+	logPrintfX(F("WG"), F("URL = %s"), localBuffer);
 
 	HTTPClient httpClient;
 	httpClient.begin(localBuffer);
@@ -116,7 +116,7 @@ void WeatherGetter::run()
 
 	if (httpCode != HTTP_CODE_OK)
 	{
-		logPrintf(F("WG: HTTP failed with code %d"), httpCode);
+		logPrintfX(F("WG"), F("HTTP failed with code %d"), httpCode);
 		sleep(60_s);
 		httpClient.end();
 		return;
@@ -142,7 +142,7 @@ void WeatherGetter::run()
 	//print all we have acquired - useful for adding new fields
 	for (const auto& e: results)
 	{
-		logPrintf(F("WG: %s: %s"), e.first.c_str(), e.second.c_str());
+		logPrintfX(F("WG"), F("%s = %s"), e.first.c_str(), e.second.c_str());
 	}
 
 	httpClient.end();

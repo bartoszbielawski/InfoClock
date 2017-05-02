@@ -11,6 +11,8 @@
 #include <string>
 #include "pgmspace.h"
 
+extern int32_t timezone;
+
 int operator"" _s(long double seconds);
 int operator"" _s(unsigned long long int seconds);
 
@@ -30,12 +32,10 @@ class Client;
 void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, Client* client);
 void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client);
 
-void logPrintf(char* format, ...);
-void logPPrintf(char* format, ...);
-
 class __FlashStringHelper;
 
-void logPrintf(const __FlashStringHelper* format, ...);
+//void logPrintf(const __FlashStringHelper* format, ...);
+void logPrintfX(const __FlashStringHelper* app, const __FlashStringHelper* format, ...);
 
 template <class T>
 T min(T a, T b)

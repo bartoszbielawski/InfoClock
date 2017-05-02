@@ -17,6 +17,7 @@
 #include "FS.h"
 #include "DataStore.h"
 #include "WiFiUdp.h"
+#include "SyslogSender.hxx"
 
 extern "C" {
 #include "user_interface.h"
@@ -27,7 +28,7 @@ int operator"" _s(unsigned long long int seconds) {return seconds * 1000 / MS_PE
 
 
 //static char dateTimeBuffer[] = "00/00/00 00:00:00";
-static char dateTimeBuffer[20] = "Initializing.....";
+static char dateTimeBuffer[] = "1970-01-01T00:00:00";
 
 static uint32_t startUpTime = 0;
 
@@ -105,8 +106,8 @@ const char* getDateTime()
 		return dateTimeBuffer;
 
 	auto lt = localtime(&now);
-	snprintf(dateTimeBuffer, 32, "%02d/%02d/%02d %02d:%02d:%02d",
-			lt->tm_year-100,
+	snprintf(dateTimeBuffer, 32, "%04d-%02d-%02dT%02d:%02d:%02d",
+			lt->tm_year-100+2000,
 			lt->tm_mon+1,
 			lt->tm_mday,
 			lt->tm_hour,
@@ -202,7 +203,7 @@ void logPPrintf(char* format, ...)
 }
 
 
-void logPrintf(char* format, ...)
+void logPrintf(const char* format, ...)
 {
 	char localBuffer[256];
 	va_list argList;
@@ -211,38 +212,37 @@ void logPrintf(char* format, ...)
 	vsnprintf(localBuffer+bytes, sizeof(localBuffer)-bytes, format, argList);
 	Serial.println(localBuffer);
 
-//	WiFiUDP udp;
-//	if (udp.beginPacket("192.168.1.125", 9999))
-//	{
-//		udp.write(localBuffer);
-//		udp.endPacket();
-//	}
-//	else
-//	{
-//		Serial.println(":(");
-//	}
+	syslogSend(F("XX"), localBuffer+bytes);
+
 	va_end(argList);
 }
 
-void logPrintf(const __FlashStringHelper* format, ...)
+//void logPrintf(const __FlashStringHelper* format, ...)
+//{
+//	char localBuffer[256];
+//	va_list argList;
+//	va_start(argList, format);
+//	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - ", getDateTime());
+//	vsnprintf_P(localBuffer+bytes, sizeof(localBuffer)-bytes, (PGM_P)format, argList);
+//	Serial.println(localBuffer);
+//
+//	syslogSend(localBuffer+bytes);
+//
+//	va_end(argList);
+//}
+
+void logPrintfX(const __FlashStringHelper* app, const __FlashStringHelper* format, ...)
 {
 	char localBuffer[256];
+	String a(app);
 	va_list argList;
 	va_start(argList, format);
-	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - ", getDateTime());
+	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - %s: ", getDateTime(), a.c_str());
 	vsnprintf_P(localBuffer+bytes, sizeof(localBuffer)-bytes, (PGM_P)format, argList);
 	Serial.println(localBuffer);
-//
-//	WiFiUDP udp;
-//	if (udp.beginPacket("192.168.1.125", 9999))
-//	{
-//		udp.write(localBuffer);
-//		udp.endPacket();
-//	}
-//	else
-//	{
-//		Serial.println(":(");
-//	}
+
+	syslogSend(app, localBuffer+bytes);
+
 	va_end(argList);
 }
 
@@ -295,5 +295,4 @@ int32_t getTimeZone()
 	return readConfig("timezone").toInt();
 }
 
-
-
+int32_t timezone = 0;

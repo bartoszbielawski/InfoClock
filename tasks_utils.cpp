@@ -99,7 +99,7 @@ static void wifiConnectorCallback(WifiConnector::States state)
 			getDisplayTask().pushMessage(F("AP mode"), 10_s);
 			String ip = WiFi.softAPIP().toString();
 			DataStore::value("ip") = ip;
-			logPrintf("IP = %s", ip.c_str());
+			logPrintfX(F("WC"), F("IP = %s"), ip.c_str());
 			return;
 		}
 
@@ -120,8 +120,8 @@ static void wifiConnectorCallback(WifiConnector::States state)
 			String ip = WiFi.localIP().toString();
 			getDisplayTask().pushMessage(ip, 0.1_s, true);
 
-			DataStore::value("ip") = ip;
-			logPrintf("IP = %s", ip.c_str());
+			DataStore::value(F("ip")) = ip;
+			logPrintfX(F("WC"), F("IP = %s"), ip.c_str());
 
 			ArduinoOTA.begin();
 			break;

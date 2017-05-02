@@ -20,4 +20,3 @@ Required libraries:
 And libraries already included:
 * AJSP (Another Json Streaming Parser)
 * C++Tasks
-

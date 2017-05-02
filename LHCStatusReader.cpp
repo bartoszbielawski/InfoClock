@@ -74,7 +74,7 @@ void parseEnergy(const std::string& value)
 
 	DataStore::value(F("LHC.BeamEnergy")) = beamEnergy;
 
-	logPrintf("LSR E: %s", beamEnergy.c_str());
+	logPrintfX(F("LSR"), F("E = %s"), beamEnergy.c_str());
 }
 
 /*
@@ -89,7 +89,7 @@ void parsePage1Comment(const std::string& value)
 
 	DataStore::value(F("LHC.Page1Comment")) = page1Comment.c_str();
 
-	logPrintf("LSR P1: %s", page1Comment.c_str());
+	logPrintfX(F("LSR"), F("P1 Comment = %s"), page1Comment.c_str());
 }
 
 /*
@@ -99,7 +99,7 @@ void parsePage1Comment(const std::string& value)
 void parseBeamMode(const std::string& value)
 {
 	DataStore::value(F("LHC.BeamMode")) = value.c_str();
-	logPrintf("LSR BM: %s", value.c_str());
+	logPrintfX(F("LSR"), F("BM = %s"), value.c_str());
 }
 
 struct SubDesc
@@ -163,7 +163,7 @@ void LHCStatusReader::reset()
 	DataStore::value(F("LHC.BeamMode")) = String();
 	DataStore::value(F("LHC.BeamEnergy")) = String();
 
-	logPrintf(F("LHCStatusReader - Reset"));
+	logPrintfX(F("LSR"), F("Reset"));
 
 	connection.stop();
 	jsonParser.reset();
@@ -175,7 +175,7 @@ void LHCStatusReader::reset()
 
 void LHCStatusReader::connect()
 {
-	logPrintf(F("LSR - connecting to the LHC status server"));
+	logPrintfX(F("LSR"), F("Connecting to the LHC status server"));
 
 	connection.setTimeout(1000);
 	connection.connect(hostname, port);
@@ -185,7 +185,7 @@ void LHCStatusReader::connect()
 		return;		//try again...
 	}
 
-	logPrintf(F("LSR - connected"));
+	logPrintfX(F("LSR"), F("Connected"));
 
 	connection.write_P(httpGetRequestStart, sizeof(httpGetRequestStart)-1);
 	connection.write(generateRandomUUID());
@@ -211,11 +211,10 @@ void LHCStatusReader::subscribe()
 	while (int a = connection.available())
 		connection.read();
 
-	logPrintf(F("LSR - subscribing..."));
+	logPrintfX(F("LSR"), F("Subscribing..."));
 
 	uint32_t rnd = os_random();
 	uint8_t k[] = {(rnd >> 24) & 0xFF, (rnd >> 16) & 0xFF, (rnd >> 8) & 0xFF, rnd & 0xFF};
-
 
 	sendWSPacket_P(0x81, sizeof(subscriptionRequest), k, subscriptionRequest, &connection);
 
@@ -255,7 +254,7 @@ void LHCStatusReader::readData()
 					jsonParser.parse(c);
 				else
 				{
-					logPrintf(F("LSR - idle message rcvd, restarting..."));
+					logPrintfX(F("LSR"), F("Idle message rcvd, restarting..."));
 					reset();	//we have started receiving these short messages, restart
 					return;
 				}

@@ -16,18 +16,18 @@
 void configureOTA()
 {
 	ArduinoOTA.onStart([]() {
-		logPrintf(F("Starting OTA..."));
+		logPrintfX(F("OTA"), F("Starting..."));
 	});
 
 	ArduinoOTA.onEnd([]() {
-		logPrintf(F("OTA done..."));
+		logPrintfX(F("OTA"), F("Done..."));
 	});
 
 	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-		logPrintf(F("Progress: %u%%"), (progress / (total / 100)));
+		logPrintfX(F("OTA"), F("Progress: %u%%"), (progress / (total / 100)));
 	});
 	ArduinoOTA.onError([](ota_error_t error) {
-		logPrintf(F("Error[%u]"), error);
+		logPrintfX(F("OTA"), F("Error[%u]"), error);
 	});
 
 	ArduinoOTA.setPassword(readConfig(F("configPassword")).c_str());

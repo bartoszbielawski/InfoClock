@@ -9,13 +9,18 @@
 #include "DataStore.h"
 #include "utils.h"
 #include "tasks_utils.h"
+#include "config.h"
 
 LocalSensorTask::LocalSensorTask():
-	oneWire(D3),
+	oneWire(ONE_WIRE_TEMP),
 	dallasTemperature(&oneWire)
 {
-	pinMode(D2, OUTPUT);
-	digitalWrite(D2, 0);
+	//this is need
+#ifdef OW_GND
+	pinMode(OW_GND, OUTPUT);
+	digitalWrite(OW_GND, 0);
+#endif
+
 	//initialize and request the temperature right away
 	dallasTemperature.begin();
 	dallasTemperature.requestTemperatures();
@@ -26,7 +31,7 @@ void LocalSensorTask::run()
 	float t = dallasTemperature.getTempCByIndex(0);
 	if (t == -127.0f)
 	{
-		logPrintf(F("LST: Sensor not found..."));
+		logPrintfX(F("LST"), F("Sensor not found..."));
 		dallasTemperature.requestTemperatures();
 		sleep(10_s);
 		return;
@@ -38,7 +43,7 @@ void LocalSensorTask::run()
 	p += (char)0x80;
 	p += 'C';
 	DataStore::value(F("Local.Temperature")) = p;
-	logPrintf(F("LST: %s"), p.c_str());
+	logPrintfX(F("LST"), F("T = %s"), p.c_str());
 	dallasTemperature.requestTemperatures();
 	sleep(10_s);
 }

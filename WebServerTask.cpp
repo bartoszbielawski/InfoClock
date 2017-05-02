@@ -106,7 +106,7 @@ void handleReadParams()
 {
 	if (!handleAuth()) return;
 
-	logPrintf(F("WST: Reading params..."));
+	logPrintfX(F("WST"), F("WST: Reading params..."));
 	auto dir = SPIFFS.openDir(F("/config"));
 
 	String response;
@@ -163,7 +163,7 @@ void handleGeneralSettings()
 	auto submitted = webServer.arg(F("submitted"));
 	if (submitted.length())
 	{
-		logPrintf("WST: Saving data...");
+		logPrintfX(F("WST"), F("Saving data..."));
 		writeConfig(F("essid"), webServer.arg(F("essid")));
 
 		//we don't send the current value so we have to check if it is present
@@ -172,6 +172,10 @@ void handleGeneralSettings()
 			writeConfig(F("wifiPassword"), pwd);
 
 		writeConfig(F("timezone"), webServer.arg(F("timezone")));
+
+		auto ss = webServer.arg(F("syslogServer"));
+		writeConfig(F("syslogServer"), ss);
+		//the new syslog settings will be used after reboot
 	}
 
 	StringStream ss(2048);
@@ -226,7 +230,7 @@ void WebServerTask::run()
 	if (!started)
 	{
 		started = true;
-		logPrintf("WST: configuring server");
+		logPrintfX(F("WST"), F("Configuring server"));
 
 		webServer.onNotFound([](){
 			webServer.send(404, "text/plain", "Not found... :/");
@@ -245,7 +249,7 @@ void WebServerTask::run()
 
 		webServer.begin();
 
-		logPrintf("WST: ready!");
+		logPrintfX(F("WST"), F("Ready!"));
 		return;
 	}
 

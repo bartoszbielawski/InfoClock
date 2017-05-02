@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "DataStore.h"
 #include "OTA.hpp"
+#include "SyslogSender.hxx"
 
 #include "DisplayTask.hpp"
 
@@ -28,7 +29,7 @@ void setup()
 		SPIFFS.format();
 		SPIFFS.begin();
 		writeConfig(F("configPassword"), "password");
-		logPrintf("Formatting filesystem, the default password is %s", readConfig(F("configPassword")).c_str());
+		logPrintfX(F("MAIN"), F("Formatting filesystem, the default password is %s"), readConfig(F("configPassword")).c_str());
 	}
 
 	readConfigFromFlash();
@@ -38,13 +39,15 @@ void setup()
 	String macAddress = WiFi.macAddress();
 	DataStore::value("mac") = macAddress;
 
-	logPrintf("\n\n");
-	logPrintf("MAC Address: %s", macAddress.c_str());
+	logPrintfX(F("MAIN"), F("\n\n"));
+	logPrintfX(F("MAIN"), F("MAC Address: %s"), macAddress.c_str());
 
 	getDisplayTask().pushMessage("Initializing...", 2_s);
 	getDisplayTask().pushMessage(versionString, 0.4_s, true);
 
-	configTime(getTimeZone(), 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
+	timezone = DataStore::value(F("timezone")).toInt();
+	syslogServer = DataStore::value(F("syslogServer"));
+	configTime(timezone, 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
 
 	configureOTA();
 }

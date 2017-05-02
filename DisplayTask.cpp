@@ -28,14 +28,14 @@ static const std::vector<DisplayState> displayStates =
 {
 	{getTime, 										1_s,	10,	false},
 	{getDate, 										2_s,	1,	false},
-	{getFromDataStore(("webmessage")),				0.08_s,	1,	true},		//webmessage
+	{getFromDataStore(("webmessage")),				0.05_s,	1,	true},		//webmessage
 	{getTime, 										1_s,	5,	false},
 	{getFromDataStore(("Local.Temperature")),		2_s,	1,	false},
 	{getFromDataStore(("OWM.Temperature")),			2_s,	1,  false},
 	{getFromDataStore(("OWM.Pressure")),			2_s,	1,	false},
 	{getTime, 										1_s,	5,	false},
-	{getFromDataStore(("LHC.Page1Comment")),		0.08_s,	1,	true},
-	{getFromDataStore(("LHC.BeamMode")),		  	0.08_s,	1, 	true},
+	{getFromDataStore(("LHC.Page1Comment")),		0.05_s,	1,	true},
+	{getFromDataStore(("LHC.BeamMode")),		  	0.05_s,	1, 	true},
 	{getFromDataStore(("LHC.BeamEnergy")),			2_s, 1, false},
 };
 
@@ -77,7 +77,7 @@ void DisplayTask::scrollMessage()
 
 	if (done)
 	{
-		logPrintf(F("DT: Scrolling done..."));
+		logPrintfX(F("DT"), F("Scrolling done..."));
 		nextState = &DisplayTask::nextMessage;
 	}
 }
@@ -117,7 +117,7 @@ void DisplayTask::nextDisplay()
 	{
 		ds = priorityMessages.front();
 		priorityMessages.erase(priorityMessages.begin());
-		logPrintf(F("DT: New message from PQ: %s"), ds.fun().c_str());
+		logPrintfX(F("DT"), F("New message from PQ = %s"), ds.fun().c_str());
 		priorityMessagePlayed = true;
 		return;
 	}
@@ -133,5 +133,5 @@ void DisplayTask::nextDisplay()
 	while (displayStates[index].fun().length() == 0);
 
 	ds = displayStates[index];
-	logPrintf(F("DT: New message from RQ: %s"), ds.fun().c_str());
+	logPrintfX(F("DT"), F("New message from RQ = %s"), ds.fun().c_str());
 }
