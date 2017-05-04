@@ -31,6 +31,12 @@ struct RegisterTask
 		RegisterTask(Tasks::Task* t, uint8_t flags = 0);
 };
 
+
+struct RegisterPage
+{
+		RegisterPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph);
+};
+
 void setupTasks();
 
 Tasks::Task* addTask(Tasks::Task* t, uint8_t flags = 0);

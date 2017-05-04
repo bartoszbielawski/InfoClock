@@ -54,16 +54,7 @@ static const char webmessagePage[] PROGMEM = R"_(
 </html>
 )_";
 
-static const char owmPage[] PROGMEM = R"_(
-<form method="post" action="owm" autocomplete="on">
-<table>
-<tr><td class="wide">OpenWeatherMap</td></tr>
-<tr><td class="label">ID:</td><td><input type="text" name="owmId" value="$owmId$"></td></tr>
-<tr><td class="label">Key:</td><td><input type="text" name="owmKey" value="$owmKet$"></td></tr>
-<tr><td class="label">Refresh period (s):</td><td><input type="text" name="owmPeriod" value="$owmPeriod$"></td></tr>
-<tr><td/><td><input type="submit"></td></tr>
-</table></form></body></html>
-)_";
+
 
 static const char statusPage[] PROGMEM = R"_(
 <form method="post" action="owm" autocomplete="on">

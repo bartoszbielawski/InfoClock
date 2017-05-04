@@ -12,7 +12,7 @@
 #include "Arduino.h"
 #include "ESP8266WebServer.h"
 
-extern String webMessage;
+//extern String webMessage;
 
 class WebServerTask: public Tasks::Task {
 public:
@@ -24,10 +24,14 @@ public:
 
 	virtual ~WebServerTask();
 
+
+	void registerPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph);
+
 	bool started = false;
 
 private:
 	ESP8266WebServer webServer;
+	std::vector<std::pair<String, String>> registeredPages;
 };
 
 #endif /* WEBSERVERTASK_H_ */

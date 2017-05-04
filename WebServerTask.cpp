@@ -23,60 +23,11 @@
 #include "html/webpage.h"
 
 #include "utils.h"
+#include "tasks_utils.h"
+#include "web_utils.h"
 
-FlashStream pageHeaderFS(pageHeader);
-
-static const char textPlain[] = "text/plain";
-static const char textHtml[] = "text/html";
 
 FlashStream statusFS(statusPage);
-
-static const char uptimeFormat[] PROGMEM = "%dd%dh%dm%ds";
-
-String dataSource(const char* name)
-{
-	String result;
-
-	if (DataStore::hasValue(name))
-	{
-		result = DataStore::value(name);
-		if (result)
-			return result;
-	}
-
-	if (strcmp(name, "heap") == 0)
-		return String(ESP.getFreeHeap()) + " B";
-
-	if (strcmp(name, "version") == 0)
-		return versionString;
-
-	if (strcmp(name, "essid") == 0)
-		return WiFi.SSID();
-
-	if (strcmp(name, "uptime") == 0)
-	{
-		uint32_t ut = getUpTime();
-		uint32_t d = ut  / (24 * 3600);
-		ut -= d * 24 * 3600;
-		uint32_t h = ut / 3600;
-		ut -= h * 3600;
-		uint32_t m = ut / 60;
-		ut -= m * 60;
-		uint32_t s = ut;
-
-		char buf[64];
-
-		snprintf_P(buf, sizeof(buf), uptimeFormat, d, h, m, s);
-
-		return String(buf);
-	}
-
-	result = readConfig(name);
-	if (result)
-		return result;
-
-	return "?";
-}
 
 
 void handleStatus(ESP8266WebServer& webServer)
@@ -85,19 +36,11 @@ void handleStatus(ESP8266WebServer& webServer)
 
 	macroStringReplace(pageHeaderFS, constString("Status"), ss);
 	macroStringReplace(statusFS, dataSource, ss);
-
 	webServer.send(200, textHtml, ss.buffer);
 }
 
 
-bool handleAuth(ESP8266WebServer& webServer)
-{
-	bool authed = webServer.authenticate("user", readConfig(F("configPassword")).c_str());
-	if (!authed)
-		webServer.requestAuthentication();
 
-	return authed;
-}
 
 //TODO: remove
 void handleReadParams(ESP8266WebServer& webServer)
@@ -185,26 +128,7 @@ void handleGeneralSettings(ESP8266WebServer& webServer)
 }
 
 
-FlashStream owmFS(owmPage);
 
-void handleWeatherServiceConfig(ESP8266WebServer& webServer)
-{
-	if (!handleAuth(webServer)) return;
-
-	auto location = webServer.arg(F("owmId"));
-	auto key   = webServer.arg(F("owmKey"));
-	auto period = webServer.arg(F("owmPeriod"));
-
-	if (location.length()) 	writeConfig(F("owmId"), location);
-	if (key.length()) 		writeConfig(F("owmKey"), key);
-	if (period.length())	writeConfig(F("owmPeriod"), period);
-
-	StringStream ss(2048);
-	macroStringReplace(pageHeaderFS, constString("OWM Settings"), ss);
-	macroStringReplace(owmFS, dataSource, ss);
-
-	webServer.send(200, textHtml, ss.buffer);
-}
 
 
 
@@ -212,6 +136,16 @@ WebServerTask::WebServerTask():
 		webServer(80)
 {
 	reset();
+}
+
+void WebServerTask::registerPage(const String& url, const String& label,
+		std::function<void(ESP8266WebServer& ws)> ph)
+{
+	registeredPages.emplace_back(url, label);
+	String newUrl("/");
+	newUrl += url;
+	std::function<void(void)> f = [this, ph] () {ph(webServer);};
+	webServer.on(newUrl.c_str(), f);
 }
 
 void WebServerTask::reset()
@@ -237,7 +171,7 @@ void WebServerTask::run()
 			webServer.send(200, "text/html", FPSTR(mainPage));
 		});
 
-		webServer.on("/owm", [this](){handleWeatherServiceConfig(webServer);});
+		//webServer.on("/owm", [this](){handleWeatherServiceConfig(webServer);});
 		webServer.on("/webmessage", [this](){handleWebMessage(webServer);});
 		webServer.on("/settings", [this] (){handleGeneralSettings(webServer);});
 

@@ -72,6 +72,11 @@ RegisterTask::RegisterTask(Tasks::Task* t, uint8_t flags)
 	addTask(t, flags);
 }
 
+RegisterPage::RegisterPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph)
+{
+	getWebServerTask().registerPage(url, label, ph);
+}
+
 void scheduleTasks()
 {
 	for (auto& td: getTasks())

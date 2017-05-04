@@ -11,7 +11,8 @@
 #include "utils.h"
 #include "tasks_utils.h"
 #include "MapCollector.hpp"
-
+#include "WebServerTask.h"
+#include "web_utils.h"
 /*
  * 2660646 - Geneva
  * 2659667 - Meyrin
@@ -154,5 +155,37 @@ void WeatherGetter::run()
 	sleep(period);
 }
 
+static const char owmPage[] PROGMEM = R"_(
+<form method="post" action="owm" autocomplete="on">
+<table>
+<tr><td class="wide">OpenWeatherMap</td></tr>
+<tr><td class="label">ID:</td><td><input type="text" name="owmId" value="$owmId$"></td></tr>
+<tr><td class="label">Key:</td><td><input type="text" name="owmKey" value="$owmKet$"></td></tr>
+<tr><td class="label">Refresh period (s):</td><td><input type="text" name="owmPeriod" value="$owmPeriod$"></td></tr>
+<tr><td/><td><input type="submit"></td></tr>
+</table></form></body></html>
+)_";
 
-static RegisterTask r(new WeatherGetter, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
+FlashStream owmFS(owmPage);
+
+void handleWeatherServiceConfig(ESP8266WebServer& webServer)
+{
+	if (!handleAuth(webServer)) return;
+
+	auto location = webServer.arg(F("owmId"));
+	auto key   = webServer.arg(F("owmKey"));
+	auto period = webServer.arg(F("owmPeriod"));
+
+	if (location.length()) 	writeConfig(F("owmId"), location);
+	if (key.length()) 		writeConfig(F("owmKey"), key);
+	if (period.length())	writeConfig(F("owmPeriod"), period);
+
+	StringStream ss(2048);
+	macroStringReplace(pageHeaderFS, constString("OWM Settings"), ss);
+	macroStringReplace(owmFS, dataSource, ss);
+
+	webServer.send(200, textHtml, ss.buffer);
+}
+
+static RegisterTask rt(new WeatherGetter, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
+static RegisterPage rp("owm", "OWM Config", &handleWeatherServiceConfig);

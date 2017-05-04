@@ -54,5 +54,6 @@ void   writeConfig(const String& name, const String& value);
 int32_t getTimeZone();
 uint32_t getUpTime();
 
+String dataSource(const char* name);
 
 #endif /* UTILS_H_ */

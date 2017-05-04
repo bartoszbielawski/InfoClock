@@ -18,8 +18,8 @@ const static uint8_t LED_CS = D8;
 //LED_MOSI = D7
 //LED_CLK = D5
 
-const static int32_t DISPLAYS = 8;
-const static uint8_t INTENSITY = 3;
+const static int32_t DISPLAYS = 5;
+const static uint8_t INTENSITY = 0;
 
 const static int32_t MS_PER_CYCLE = 10;
 

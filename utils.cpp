@@ -19,7 +19,7 @@
 #include "WiFiUdp.h"
 #include "SyslogSender.hxx"
 #include "ESPAsyncTCP.h"
-
+#include "ESP8266WiFi.h"
 
 extern "C" {
 #include "user_interface.h"
@@ -28,8 +28,6 @@ extern "C" {
 int operator"" _s(long double seconds) {return seconds * 1000 / MS_PER_CYCLE;}
 int operator"" _s(unsigned long long int seconds) {return seconds * 1000 / MS_PER_CYCLE;}
 
-
-//static char dateTimeBuffer[] = "00/00/00 00:00:00";
 static char dateTimeBuffer[] = "1970-01-01T00:00:00";
 
 static uint32_t startUpTime = 0;
@@ -298,3 +296,50 @@ int32_t getTimeZone()
 }
 
 int32_t timezone = 0;
+
+static const char uptimeFormat[] PROGMEM = "%dd%dh%dm%ds";
+
+String dataSource(const char* name)
+{
+	String result;
+
+	if (DataStore::hasValue(name))
+	{
+		result = DataStore::value(name);
+		if (result)
+			return result;
+	}
+
+	if (strcmp(name, "heap") == 0)
+		return String(ESP.getFreeHeap()) + " B";
+
+	if (strcmp(name, "version") == 0)
+		return versionString;
+
+	if (strcmp(name, "essid") == 0)
+		return WiFi.SSID();
+
+	if (strcmp(name, "uptime") == 0)
+	{
+		uint32_t ut = getUpTime();
+		uint32_t d = ut  / (24 * 3600);
+		ut -= d * 24 * 3600;
+		uint32_t h = ut / 3600;
+		ut -= h * 3600;
+		uint32_t m = ut / 60;
+		ut -= m * 60;
+		uint32_t s = ut;
+
+		char buf[64];
+
+		snprintf_P(buf, sizeof(buf), uptimeFormat, d, h, m, s);
+
+		return String(buf);
+	}
+
+	result = readConfig(name);
+	if (result)
+		return result;
+
+	return "?";
+}
