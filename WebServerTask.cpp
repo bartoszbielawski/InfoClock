@@ -24,8 +24,6 @@
 
 #include "utils.h"
 
-ESP8266WebServer webServer(80);
-
 FlashStream pageHeaderFS(pageHeader);
 
 static const char textPlain[] = "text/plain";
@@ -81,7 +79,7 @@ String dataSource(const char* name)
 }
 
 
-void handleStatus()
+void handleStatus(ESP8266WebServer& webServer)
 {
 	StringStream ss(2048);
 
@@ -92,7 +90,7 @@ void handleStatus()
 }
 
 
-bool handleAuth()
+bool handleAuth(ESP8266WebServer& webServer)
 {
 	bool authed = webServer.authenticate("user", readConfig(F("configPassword")).c_str());
 	if (!authed)
@@ -102,9 +100,9 @@ bool handleAuth()
 }
 
 //TODO: remove
-void handleReadParams()
+void handleReadParams(ESP8266WebServer& webServer)
 {
-	if (!handleAuth()) return;
+	if (!handleAuth(webServer)) return;
 
 	logPrintfX(F("WST"), F("WST: Reading params..."));
 	auto dir = SPIFFS.openDir(F("/config"));
@@ -133,9 +131,9 @@ void handleReadParams()
 
 FlashStream webmessageFS(webmessagePage);
 
-void handleWebMessage()
+void handleWebMessage(ESP8266WebServer& webServer)
 {
-	if (!handleAuth())
+	if (!handleAuth(webServer))
 		return;
 
 	auto wm = webServer.arg(F("webmessage"));
@@ -156,9 +154,9 @@ void handleWebMessage()
 
 FlashStream generalSettingsFS(generalSettingsPage);
 
-void handleGeneralSettings()
+void handleGeneralSettings(ESP8266WebServer& webServer)
 {
-	if (!handleAuth()) return;
+	if (!handleAuth(webServer)) return;
 
 	auto submitted = webServer.arg(F("submitted"));
 	if (submitted.length())
@@ -189,9 +187,9 @@ void handleGeneralSettings()
 
 FlashStream owmFS(owmPage);
 
-void handleWeatherServiceConfig()
+void handleWeatherServiceConfig(ESP8266WebServer& webServer)
 {
-	if (!handleAuth()) return;
+	if (!handleAuth(webServer)) return;
 
 	auto location = webServer.arg(F("owmId"));
 	auto key   = webServer.arg(F("owmKey"));
@@ -210,7 +208,8 @@ void handleWeatherServiceConfig()
 
 
 
-WebServerTask::WebServerTask()
+WebServerTask::WebServerTask():
+		webServer(80)
 {
 	reset();
 }
@@ -223,8 +222,6 @@ void WebServerTask::reset()
 }
 
 
-
-
 void WebServerTask::run()
 {
 	if (!started)
@@ -232,20 +229,20 @@ void WebServerTask::run()
 		started = true;
 		logPrintfX(F("WST"), F("Configuring server"));
 
-		webServer.onNotFound([](){
+		webServer.onNotFound([this](){
 			webServer.send(404, "text/plain", "Not found... :/");
 		});
 
-		webServer.on("/", [](){
+		webServer.on("/", [this](){
 			webServer.send(200, "text/html", FPSTR(mainPage));
 		});
 
-		webServer.on("/owm", &handleWeatherServiceConfig);
-		webServer.on("/webmessage", &handleWebMessage);
-		webServer.on("/settings", &handleGeneralSettings);
+		webServer.on("/owm", [this](){handleWeatherServiceConfig(webServer);});
+		webServer.on("/webmessage", [this](){handleWebMessage(webServer);});
+		webServer.on("/settings", [this] (){handleGeneralSettings(webServer);});
 
-		webServer.on("/readParams", &handleReadParams);
-		webServer.on("/status", 	&handleStatus);
+		webServer.on("/readParams", [this](){handleReadParams(webServer);});
+		webServer.on("/status", 	[this](){handleStatus(webServer);});
 
 		webServer.begin();
 

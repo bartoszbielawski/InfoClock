@@ -10,6 +10,7 @@
 
 #include "task.hpp"
 #include "Arduino.h"
+#include "ESP8266WebServer.h"
 
 extern String webMessage;
 
@@ -26,7 +27,7 @@ public:
 	bool started = false;
 
 private:
-	uint64_t cntr = 0;
+	ESP8266WebServer webServer;
 };
 
 #endif /* WEBSERVERTASK_H_ */
