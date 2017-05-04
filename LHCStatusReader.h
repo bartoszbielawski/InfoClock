@@ -13,6 +13,7 @@
 #include "CustomWebSocketPacketWrapper.h"
 #include "PathListener.h"
 #include "WiFiClient.h"
+#include "ESPAsyncTCP.h"
 
 class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 {
@@ -20,18 +21,23 @@ class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 		LHCStatusReader();
 
 		void connect();
+		void connected();
 		void subscribe();
-		void readData();
+
+		//this is not a state any more
+		void readData(uint8_t* data, size_t size);
 
 		virtual void reset();
 
 		virtual ~LHCStatusReader() = default;
 
 	private:
-		WiFiClient connection;
+		//WiFiClient connection;
+		AsyncClient connection;
 		CustomWebSocketPacketWrapper wspWrapper;
 		AJSP::Parser jsonParser;
 		PathListener jsonListener;
+		uint32_t idlePackets = 0;
 };
 
 #endif /* LHCSTATUSREADER_H_ */

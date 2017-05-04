@@ -2,7 +2,7 @@
 
 A small clock project that displays some information on a LED display
 
-CPU:      ESP8266 (WeMos D1 Mini)
+CPU:      ESP8266 (WeMos D1 Mini or NodeMCU)
 
 Display:  8x 8x8 pixel MAX7219-based display
 Bought here:
@@ -16,6 +16,7 @@ Required libraries:
 * ESP8266WebServer
 * ESP8266Wifi
 * LedControl
+* ESPAsyncTCP (for the LHC Reader)
 
 And libraries already included:
 * AJSP (Another Json Streaming Parser)

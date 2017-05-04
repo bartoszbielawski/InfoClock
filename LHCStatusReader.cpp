@@ -154,6 +154,8 @@ jsonListener(&jsonParser)
 	jsonListener.monitoredPaths().push_back(valuePath);
 	jsonListener.setCallback(onListenerMarch);
 	jsonParser.setListener(&jsonListener);
+	connection.setRxTimeout(30);	//no RX data for 30 seconds
+	sleep(30_s);
 }
 
 void LHCStatusReader::reset()
@@ -165,20 +167,47 @@ void LHCStatusReader::reset()
 
 	logPrintfX(F("LSR"), F("Reset"));
 
-	connection.stop();
+	connection.abort();
+	if (connection.connected())
+		connection.close();
+
 	jsonParser.reset();
 	wspWrapper.reset();
 
+	idlePackets = 0;
+
 	nextState = &LHCStatusReader::connect;
 	sleep(5_s);
+}
+
+static void discardData(void*, AsyncClient*, void*, size_t)
+{
+	//do nothing
 }
 
 void LHCStatusReader::connect()
 {
 	logPrintfX(F("LSR"), F("Connecting to the LHC status server"));
 
-	connection.setTimeout(1000);
+	connection.onConnect([] (void* o, AsyncClient*) {
+		static_cast<LHCStatusReader*>(o)->connected();
+	}, this);
+
+	/* SPECIAL CASE HANDLING */
+	connection.onDisconnect([] (void* o, AsyncClient*) {
+		static_cast<LHCStatusReader*>(o)->reset();
+	}, this);
+
+	connection.onTimeout([] (void* o, AsyncClient*, uint32) {
+		static_cast<LHCStatusReader*>(o)->reset();
+	}, this);
+
 	connection.connect(hostname, port);
+	sleep(60_s);
+}
+
+void LHCStatusReader::connected()
+{
 	if (!connection.connected())
 	{
 		reset();
@@ -187,14 +216,28 @@ void LHCStatusReader::connect()
 
 	logPrintfX(F("LSR"), F("Connected"));
 
-	connection.write_P(httpGetRequestStart, sizeof(httpGetRequestStart)-1);
+	if (!connection.canSend())
+	{
+		sleep(0.1_s);
+		return;
+	}
+
+	//if we get anything just throw it away :)
+	connection.onData(&discardData, this);
+
+	//TODO: local copy using a local buffer, not the String
+	String s(httpGetRequestStart);
+	connection.write(s.c_str(), s.length());
 	connection.write(generateRandomUUID());
-	connection.write_P(httpGetRequestMiddle, sizeof(httpGetRequestMiddle)-1);
+	s = httpGetRequestMiddle;
+	connection.write(s.c_str(), s.length());
 	connection.write(generateRandomUUID());
-	connection.write_P(httpGetRequestEnd, sizeof(httpGetRequestEnd)-1);
+	s = httpGetRequestEnd;
+	connection.write(s.c_str(), s.length());
 
 	nextState = &LHCStatusReader::subscribe;
-	sleep(0.1_s);		//wait for the response to arrive
+
+	sleep(1_s);		//wait for the response to arrive and discard it :)
 }
 
 
@@ -202,70 +245,51 @@ void LHCStatusReader::subscribe()
 {
 	if (!connection.connected())
 	{
-		nextState = &LHCStatusReader::connect;
-		sleep(5_s);
+		reset();
 		return;
 	}
-
-	//flush
-	while (int a = connection.available())
-		connection.read();
 
 	logPrintfX(F("LSR"), F("Subscribing..."));
 
 	uint32_t rnd = os_random();
 	uint8_t k[] = {(rnd >> 24) & 0xFF, (rnd >> 16) & 0xFF, (rnd >> 8) & 0xFF, rnd & 0xFF};
 
+	//now we want to do something with the data, don't discard it any more
+	connection.onData([](void* o, AsyncClient*, void* data, size_t size){
+		static_cast<LHCStatusReader*>(o)->readData((uint8_t*)data, size);
+	}, this);
+
 	sendWSPacket_P(0x81, sizeof(subscriptionRequest), k, subscriptionRequest, &connection);
 
-	nextState = &LHCStatusReader::readData;
+	//we can actually suspend the thread as it should be now processed in async way
+	suspend();
 }
 
-void LHCStatusReader::readData()
+void LHCStatusReader::readData(uint8_t* data, size_t size)
 {
-	if (!connection.connected())
+	for (int i = 0; i < size; i++)
 	{
-		nextState = &LHCStatusReader::connect;
-		sleep(1_s);
-		return;
-	}
+		uint8_t c = data[i];
+		auto state = wspWrapper.push(c);
 
-	while (connection.available())
-	{
-		uint8_t localBuffer[64];
-		uint32_t readSize = std::min(connection.available(), (int)sizeof(localBuffer));
-
-		readSize = connection.read(localBuffer, readSize);
-
-		for (int i = 0; i < readSize; i++)
+		bool data = state == CustomWebSocketPacketWrapper::State::DATA;
+		if (data)
 		{
-			uint8_t c = localBuffer[i];
-			auto state = wspWrapper.push(c);
-
-//			if (state == CustomWebSocketPacketWrapper::State::DATA_HEADER)
-//			{
-//				logPrintf(F("PL: %d"), wspWrapper.getLength());
-//			}
-
-			bool data = state == CustomWebSocketPacketWrapper::State::DATA;
-			if (data)
+			if (wspWrapper.getLength() > 5)
+				jsonParser.parse(c);
+			else
 			{
-				if (wspWrapper.getLength() > 5)
-					jsonParser.parse(c);
-				else
+				idlePackets++;
+				if (idlePackets > 5)
 				{
 					logPrintfX(F("LSR"), F("Idle message rcvd, restarting..."));
 					reset();	//we have started receiving these short messages, restart
-					return;
 				}
-
+				return;
 			}
-		}
-		//reset the WDT after each batch of data
-		wdt_reset();
-	}
 
-	sleep(0.1_s);
+		}
+	}
 }
 
 static RegisterTask r(new LHCStatusReader, TaskDescriptor::CONNECTED);

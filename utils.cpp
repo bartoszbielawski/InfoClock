@@ -18,6 +18,8 @@
 #include "DataStore.h"
 #include "WiFiUdp.h"
 #include "SyslogSender.hxx"
+#include "ESPAsyncTCP.h"
+
 
 extern "C" {
 #include "user_interface.h"
@@ -132,7 +134,7 @@ const char* generateRandomUUID()
 	return UUID;
 }
 
-void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, Client* client)
+void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, AsyncClient* client)
 {
 	//header, length, key, payload
 	uint32_t totalSize = 1 + (size >= 0x7E ? 3: 1) + 4 + size;
@@ -164,32 +166,32 @@ void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P pay
 	for (int i = 0; i < size; i++)
 		*pckt++ = pgm_read_byte(payload+i) ^ key[i % 4];
 
-	client->write(ptr.get(), totalSize);
+	client->write((const char*)ptr.get(), totalSize);
 	//logPrintf("SWS: done!...");
 }
-
-void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client)
-{
-	client->write(header);
-
-	if (size >= 0x7E)
-	{
-		client->write(0xFE);
-		client->write(size >> 8);
-		client->write(size & 0xFF);
-	}
-	else
-	{
-		client->write((size & 0x7F) | 0x80);
-	}
-
-	client->write(key, 4);
-
-	for (int i = 0; i < size; i++)
-	{
-		client->write(payload[i] ^ key[i % 4]);
-	}
-}
+//
+//void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client)
+//{
+//	client->write(header);
+//
+//	if (size >= 0x7E)
+//	{
+//		client->write(0xFE);
+//		client->write(size >> 8);
+//		client->write(size & 0xFF);
+//	}
+//	else
+//	{
+//		client->write((size & 0x7F) | 0x80);
+//	}
+//
+//	client->write(key, 4);
+//
+//	for (int i = 0; i < size; i++)
+//	{
+//		client->write(payload[i] ^ key[i % 4]);
+//	}
+//}
 
 void logPPrintf(char* format, ...)
 {

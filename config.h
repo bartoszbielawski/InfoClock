@@ -19,15 +19,15 @@ const static uint8_t LED_CS = D8;
 //LED_CLK = D5
 
 const static int32_t DISPLAYS = 8;
-const static uint8_t INTENSITY = 2;
+const static uint8_t INTENSITY = 3;
 
-const static int32_t MS_PER_CYCLE = 50;
+const static int32_t MS_PER_CYCLE = 10;
 
 //Local Sensor Task
 const static uint8_t ONE_WIRE_TEMP = D3;
 //use this define if you have no free ground pin and want to use some DIO
 #define OW_GND D2
 
-const static char versionString[] = "v 0.2.1";
+const static char versionString[] = "v 0.2.2";
 
 #endif /* CONFIG_H_ */

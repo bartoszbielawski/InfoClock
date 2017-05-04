@@ -48,5 +48,6 @@ void syslogSend(const __FlashStringHelper*  app, char* msg)
 		udp.printf("<14>1 %s.00Z %s %s - - - %s", getDateTime(), wifi_station_get_hostname(),  a.c_str(), msg);
 
 		udp.endPacket();
+		yield();
 	}
 }

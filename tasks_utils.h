@@ -17,6 +17,7 @@ struct TaskDescriptor
 {
 		const static uint8_t ENABLED = 1;
 		const static uint8_t CONNECTED = 2;
+		const static uint8_t SLOW = 3;
 
 		TaskDescriptor(Tasks::Task* task, uint8_t flags):
 			task(task), flags(flags){}
@@ -38,5 +39,8 @@ void scheduleTasks();
 
 WebServerTask& getWebServerTask();
 DisplayTask& getDisplayTask();
+
+extern bool slowTaskCanExecute;
+
 
 #endif /* TASKS_UTILS_H_ */

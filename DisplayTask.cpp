@@ -13,6 +13,7 @@
 #include "LEDMatrixDriver.h"
 
 #include "utils.h"
+#include "tasks_utils.h"
 #include "DataStore.h"
 
 #include "config.h"
@@ -34,7 +35,7 @@ static const std::vector<DisplayState> displayStates =
 	{getFromDataStore(("OWM.Temperature")),			2_s,	1,  false},
 	{getFromDataStore(("OWM.Pressure")),			2_s,	1,	false},
 	{getTime, 										1_s,	5,	false},
-	{getFromDataStore(("LHC.Page1Comment")),		0.05_s,	1,	true},
+	{getFromDataStore(("LHC.Page1Comment")),		0.025_s,1,	true},
 	{getFromDataStore(("LHC.BeamMode")),		  	0.05_s,	1, 	true},
 	{getFromDataStore(("LHC.BeamEnergy")),			2_s, 1, false},
 };
@@ -107,6 +108,9 @@ void DisplayTask::refreshMessage()
 		nextState = &DisplayTask::nextMessage;
 
 	sleep(ds.period);
+	//this flag will alow slow tasks to execute only if there is a two second sleep ahead
+	slowTaskCanExecute = ds.period > 1_s;
+	//logPrintfX(F("DT"), F("slowTask: %s"), slowTaskCanExecute ? "true": "false");
 }
 
 

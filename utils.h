@@ -27,10 +27,11 @@ uint32_t getUpTime();
 
 const char* generateRandomUUID();
 
-class Client;
 
-void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, Client* client);
-void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client);
+class AsyncClient;
+
+void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, AsyncClient* client);
+//void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client);
 
 class __FlashStringHelper;
 

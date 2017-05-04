@@ -53,5 +53,5 @@ LocalSensorTask::~LocalSensorTask()
 
 }
 
-static RegisterTask r(new LocalSensorTask);
+static RegisterTask r(new LocalSensorTask, TaskDescriptor::SLOW);
 

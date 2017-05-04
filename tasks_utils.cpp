@@ -25,11 +25,13 @@ extern "C" {
 
 using namespace Tasks;
 
+bool slowTaskCanExecute = false;
+
 static std::vector<TaskDescriptor>& getTasks()
-		{
+				{
 	static std::vector<TaskDescriptor> tasks;
 	return tasks;
-		}
+				}
 
 static os_timer_t myTimer;
 
@@ -74,7 +76,33 @@ void scheduleTasks()
 {
 	for (auto& td: getTasks())
 	{
-		schedule(td.task);
+		bool slow = td.flags & TaskDescriptor::SLOW;
+
+		//schedule(td.task);
+
+		if (!slow)
+		{
+			schedule(td.task);
+			continue;
+		}
+
+		//it is slow but the token is there
+		if (td.task->getState() == Tasks::State::READY)
+		{
+			//when it's ready and it can be executed now - do it!
+			if (slowTaskCanExecute)
+			{
+
+				//logPrintfX(F("TS"), F("Executing slow task..."));
+				td.task->run();
+				slowTaskCanExecute = false;
+				continue;
+			}
+
+			//otherwise delay by 0.1s
+			//logPrintfX(F("TS"), F("Delaying slow task execution..."));
+			td.task->sleep(0.1_s);
+		}
 	}
 }
 
@@ -107,15 +135,6 @@ static void wifiConnectorCallback(WifiConnector::States state)
 		{
 			getWebServerTask().reset();
 
-			for (const auto& td: getTasks())
-			{
-				if (td.flags & TaskDescriptor::CONNECTED)
-				{
-					td.task->reset();
-					td.task->resume();
-				}
-			}
-
 			getDisplayTask().pushMessage(readConfig(F("essid")), 0.4_s, true);
 			String ip = WiFi.localIP().toString();
 			getDisplayTask().pushMessage(ip, 0.1_s, true);
@@ -124,6 +143,15 @@ static void wifiConnectorCallback(WifiConnector::States state)
 			logPrintfX(F("WC"), F("IP = %s"), ip.c_str());
 
 			ArduinoOTA.begin();
+
+			for (const auto& td: getTasks())
+			{
+				if (td.flags & TaskDescriptor::CONNECTED)
+				{
+					td.task->reset();
+					td.task->resume();
+				}
+			}
 			break;
 		}
 	}

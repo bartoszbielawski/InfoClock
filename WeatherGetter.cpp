@@ -155,4 +155,4 @@ void WeatherGetter::run()
 }
 
 
-static RegisterTask r(new WeatherGetter, TaskDescriptor::CONNECTED);
+static RegisterTask r(new WeatherGetter, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
