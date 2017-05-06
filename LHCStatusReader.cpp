@@ -13,6 +13,7 @@
 #include "DataStore.h"
 #include "utils.h"
 #include "tasks_utils.h"
+#include "web_utils.h"
 
 //address and port of the broadcast server
 static const char hostname[] = "prod-bcast-ws-01.cern.ch";
@@ -292,4 +293,31 @@ void LHCStatusReader::readData(uint8_t* data, size_t size)
 	}
 }
 
-static RegisterTask r(new LHCStatusReader, TaskDescriptor::CONNECTED);
+
+
+//------------- WEBPAGE STUFF
+
+
+static const char lhcStatusPage[] PROGMEM = R"_(
+<table>
+<tr><td class="wide">LHC</td></tr>
+<tr><td class="label">Beam mode:</td><td>$LHC.BeamMode$</td></tr>
+<tr><td class="label">Page 1 Comment:</td><td>$LHC.Page1Comment$</td></tr>
+<tr><td class="label">Energy:</td><td>$LHC.BeamEnergy$</td></tr>
+</table>
+</body>
+</html>
+)_";
+
+FlashStream lhcStatusPageFS(lhcStatusPage);
+
+static void handleLHCStatus(ESP8266WebServer& webServer)
+{
+	StringStream ss(2048);
+	macroStringReplace(pageHeaderFS, constString("LHC Status"), ss);
+	macroStringReplace(lhcStatusPageFS, dataSource, ss);
+	webServer.send(200, textHtml, ss.buffer);
+}
+
+static RegisterTask rt(new LHCStatusReader, TaskDescriptor::CONNECTED);
+static RegisterPage rp("lhc", "LHC Status", handleLHCStatus);

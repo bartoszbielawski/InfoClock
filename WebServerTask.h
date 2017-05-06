@@ -30,6 +30,9 @@ public:
 	bool started = false;
 
 private:
+	void handleMainPage();
+	String generateLinks();
+
 	ESP8266WebServer webServer;
 	std::vector<std::pair<String, String>> registeredPages;
 };

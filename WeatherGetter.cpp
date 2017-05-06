@@ -187,5 +187,28 @@ void handleWeatherServiceConfig(ESP8266WebServer& webServer)
 	webServer.send(200, textHtml, ss.buffer);
 }
 
+static const char owmPageStatus[] PROGMEM = R"_(
+<table>
+<tr><td class="wide">Weather</td></tr>
+<tr><td class="label">Location:</td><td>$OWM.Location$</td></tr>
+<tr><td class="label">Temperature:</td><td>$OWM.Temperature$</td></tr>
+<tr><td class="label">Pressure:</td><td>$OWM.Pressure$</td></tr>
+</table>
+</body>
+</html>
+)_";
+
+FlashStream owmPageStatusFS(owmPageStatus);
+
+void handleOwmStatus(ESP8266WebServer& webServer)
+{
+	StringStream ss(2048);
+	macroStringReplace(pageHeaderFS, constString("OWM Status"), ss);
+	macroStringReplace(owmPageStatusFS, dataSource, ss);
+	webServer.send(200, textHtml, ss.buffer);
+}
+
+//TODO: add OWM status
 static RegisterTask rt(new WeatherGetter, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
-static RegisterPage rp("owm", "OWM Config", &handleWeatherServiceConfig);
+static RegisterPage rpConfig("owm", "OWM Config", &handleWeatherServiceConfig);
+static RegisterPage rpStatus("owms", "OWM Status", &handleOwmStatus);

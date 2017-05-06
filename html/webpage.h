@@ -57,7 +57,6 @@ static const char webmessagePage[] PROGMEM = R"_(
 
 
 static const char statusPage[] PROGMEM = R"_(
-<form method="post" action="owm" autocomplete="on">
 <table>
 <tr><td class="wide">General</td><tr>
 <tr><td class="label">Version:</td><td>$version$</td></tr>
@@ -67,12 +66,7 @@ static const char statusPage[] PROGMEM = R"_(
 <tr><td class="label">essid:</td><td>$essid$</td></tr>
 <tr><td class="label">IP:</td><td>$ip$</td></tr>
 <tr><td class="label">MAC Address:</td><td>$mac$</td></tr>
-<tr><td class="wide">Weather</td></tr>
-<tr><td class="label">Location:</td><td>$OWM.Location$</td></tr>
-<tr><td class="label">Temperature:</td><td>$OWM.Temperature$</td></tr>
-<tr><td class="label">Pressure:</td><td>$OWM.Pressure$</td></tr>
 </table>
-</form>
 </body>
 </html>
 )_";
@@ -91,10 +85,10 @@ static const char mainPage[] PROGMEM = R"_(
   </head>
   <body>
    <h2>ESP Display</h2>
-   <a href="/settings">General settings</a>
-   <a href="/owm">OWM settings</a>
-   <a href="/webmessage">Web Message</a>
    <a href="/status">Device status</a>
+   <a href="/settings">General settings</a>
+   <a href="/webmessage">Web Message</a>
+   $links$
   </body>
 </html>
 )_";

@@ -40,8 +40,6 @@ void handleStatus(ESP8266WebServer& webServer)
 }
 
 
-
-
 //TODO: remove
 void handleReadParams(ESP8266WebServer& webServer)
 {
@@ -127,15 +125,35 @@ void handleGeneralSettings(ESP8266WebServer& webServer)
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-
-
-
-
-
 WebServerTask::WebServerTask():
 		webServer(80)
 {
 	reset();
+}
+
+String WebServerTask::generateLinks()
+{
+	String results;
+
+	for (auto& p: registeredPages)
+	{
+		results += "<a href=\"";
+		results += p.first;
+		results += "\">";
+		results += p.second;
+		results += "</a>\n";
+	}
+
+	return results;
+}
+
+FlashStream mainPageFS(mainPage);
+
+void WebServerTask::handleMainPage()
+{
+	StringStream ss(2048);
+	macroStringReplace(mainPageFS, [this] (const char*) {return generateLinks();}, ss);
+	webServer.send(200, textHtml, ss.buffer);
 }
 
 void WebServerTask::registerPage(const String& url, const String& label,
@@ -168,7 +186,7 @@ void WebServerTask::run()
 		});
 
 		webServer.on("/", [this](){
-			webServer.send(200, "text/html", FPSTR(mainPage));
+			this->handleMainPage();
 		});
 
 		//webServer.on("/owm", [this](){handleWeatherServiceConfig(webServer);});
