@@ -12,7 +12,6 @@
 #include "AJSP.hpp"
 #include "CustomWebSocketPacketWrapper.h"
 #include "PathListener.h"
-#include "WiFiClient.h"
 #include "ESPAsyncTCP.h"
 
 class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
@@ -32,12 +31,13 @@ class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 		virtual ~LHCStatusReader() = default;
 
 	private:
-		//WiFiClient connection;
 		AsyncClient connection;
 		CustomWebSocketPacketWrapper wspWrapper;
 		AJSP::Parser jsonParser;
 		PathListener jsonListener;
 		uint32_t idlePackets = 0;
+		uint32_t totalIdlePackets = 0;
+		uint32_t reconnects = 0;
 };
 
 #endif /* LHCSTATUSREADER_H_ */

@@ -12,6 +12,6 @@
 
 extern String syslogServer;
 
-void syslogSend(const __FlashStringHelper* app, char* msg);
+void syslogSend(const String& app, const char* msg);
 
 #endif /* SYSLOGSENDER_HXX_ */

@@ -17,6 +17,7 @@ class FlashStream: public Stream
 {
 	public:
 		FlashStream(PGM_P ptr, size_t size = 0);
+		virtual ~FlashStream() = default;
 
 		int available() override;
 		int read() override;
@@ -38,11 +39,11 @@ class MemoryStream: public Stream
 {
 	public:
 		MemoryStream(size_t initialSize = 128): buffer(initialSize) {}
-		virtual ~MemoryStream() {}
+		virtual ~MemoryStream() = default;
 
 		int available() override {return 0;}
-		int read() override {}
-		int peek() override {}
+		int read() override {return 0;}
+		int peek() override {return 0;}
 
 		size_t write(uint8_t c) override {buffer.push_back(c); return 1;}
 		void flush() override {}

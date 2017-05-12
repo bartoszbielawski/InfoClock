@@ -18,6 +18,8 @@
 #include "WebServerTask.h"
 #include "WifiConnector.h"
 
+#include "AsyncLoggerTask.h"
+
 //ESP8266 raw API
 extern "C" {
 #include "user_interface.h"
@@ -50,6 +52,7 @@ void setupTasks()
 	addTask(&getWifiConnector());
 	addTask(&getWebServerTask());
 	addTask(&getDisplayTask());
+	addTask(&getLoggerTask());
 
 	os_timer_setfn(&myTimer, timerCallback, NULL);
 	os_timer_arm(&myTimer, MS_PER_CYCLE, true);
@@ -70,6 +73,7 @@ Tasks::Task* addTask(Tasks::Task* t, uint8_t flags)
 RegisterTask::RegisterTask(Tasks::Task* t, uint8_t flags)
 {
 	addTask(t, flags);
+	task = t;
 }
 
 RegisterPage::RegisterPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph)
@@ -178,4 +182,10 @@ DisplayTask& getDisplayTask()
 {
 	static DisplayTask displayTask(DISPLAYS);
 	return displayTask;
+}
+
+AsyncLoggerTask& getLoggerTask()
+{
+	static AsyncLoggerTask alt;
+	return alt;
 }

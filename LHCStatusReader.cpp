@@ -75,7 +75,7 @@ void parseEnergy(const std::string& value)
 
 	DataStore::value(F("LHC.BeamEnergy")) = beamEnergy;
 
-	logPrintfX(F("LSR"), F("E = %s"), beamEnergy.c_str());
+	logPrintfA(F("LSR"), F("E = %s"), beamEnergy.c_str());
 }
 
 /*
@@ -90,7 +90,7 @@ void parsePage1Comment(const std::string& value)
 
 	DataStore::value(F("LHC.Page1Comment")) = page1Comment.c_str();
 
-	logPrintfX(F("LSR"), F("P1 Comment = %s"), page1Comment.c_str());
+	logPrintfA(F("LSR"), F("P1 Comment = %s"), page1Comment.c_str());
 }
 
 /*
@@ -100,7 +100,7 @@ void parsePage1Comment(const std::string& value)
 void parseBeamMode(const std::string& value)
 {
 	DataStore::value(F("LHC.BeamMode")) = value.c_str();
-	logPrintfX(F("LSR"), F("BM = %s"), value.c_str());
+	logPrintfA(F("LSR"), F("BM = %s"), value.c_str());
 }
 
 struct SubDesc
@@ -203,6 +203,7 @@ void LHCStatusReader::connect()
 		static_cast<LHCStatusReader*>(o)->reset();
 	}, this);
 
+	reconnects++;
 	connection.connect(hostname, port);
 	sleep(60_s);
 }
@@ -215,7 +216,7 @@ void LHCStatusReader::connected()
 		return;		//try again...
 	}
 
-	logPrintfX(F("LSR"), F("Connected"));
+	logPrintfA(F("LSR"), F("Connected"));
 
 	if (!connection.canSend())
 	{
@@ -281,9 +282,10 @@ void LHCStatusReader::readData(uint8_t* data, size_t size)
 			else
 			{
 				idlePackets++;
+				totalIdlePackets++;
 				if (idlePackets > 5)
 				{
-					logPrintfX(F("LSR"), F("Idle message rcvd, restarting..."));
+					logPrintfA(F("LSR"), F("Idle message rcvd, restarting..."));
 					reset();	//we have started receiving these short messages, restart
 				}
 				return;

@@ -12,6 +12,7 @@
 
 #include "WebServerTask.h"
 #include "DisplayTask.hpp"
+#include "AsyncLoggerTask.h"
 
 struct TaskDescriptor
 {
@@ -29,6 +30,7 @@ struct TaskDescriptor
 struct RegisterTask
 {
 		RegisterTask(Tasks::Task* t, uint8_t flags = 0);
+		Tasks::Task* task;
 };
 
 
@@ -45,6 +47,7 @@ void scheduleTasks();
 
 WebServerTask& getWebServerTask();
 DisplayTask& getDisplayTask();
+AsyncLoggerTask& getLoggerTask();
 
 extern bool slowTaskCanExecute;
 

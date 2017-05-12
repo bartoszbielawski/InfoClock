@@ -20,6 +20,7 @@
 #include "SyslogSender.hxx"
 #include "ESPAsyncTCP.h"
 #include "ESP8266WiFi.h"
+#include "tasks_utils.h"
 
 extern "C" {
 #include "user_interface.h"
@@ -167,29 +168,6 @@ void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P pay
 	client->write((const char*)ptr.get(), totalSize);
 	//logPrintf("SWS: done!...");
 }
-//
-//void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client)
-//{
-//	client->write(header);
-//
-//	if (size >= 0x7E)
-//	{
-//		client->write(0xFE);
-//		client->write(size >> 8);
-//		client->write(size & 0xFF);
-//	}
-//	else
-//	{
-//		client->write((size & 0x7F) | 0x80);
-//	}
-//
-//	client->write(key, 4);
-//
-//	for (int i = 0; i < size; i++)
-//	{
-//		client->write(payload[i] ^ key[i % 4]);
-//	}
-//}
 
 void logPPrintf(char* format, ...)
 {
@@ -203,42 +181,14 @@ void logPPrintf(char* format, ...)
 }
 
 
-void logPrintf(const char* format, ...)
-{
-	char localBuffer[256];
-	va_list argList;
-	va_start(argList, format);
-	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - ", getDateTime());
-	vsnprintf(localBuffer+bytes, sizeof(localBuffer)-bytes, format, argList);
-	Serial.println(localBuffer);
-
-	syslogSend(F("XX"), localBuffer+bytes);
-
-	va_end(argList);
-}
-
-//void logPrintf(const __FlashStringHelper* format, ...)
-//{
-//	char localBuffer[256];
-//	va_list argList;
-//	va_start(argList, format);
-//	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - ", getDateTime());
-//	vsnprintf_P(localBuffer+bytes, sizeof(localBuffer)-bytes, (PGM_P)format, argList);
-//	Serial.println(localBuffer);
-//
-//	syslogSend(localBuffer+bytes);
-//
-//	va_end(argList);
-//}
-
-void logPrintfX(const __FlashStringHelper* app, const __FlashStringHelper* format, ...)
+void logPrintfX(const String& app, const String& format, ...)
 {
 	char localBuffer[256];
 	String a(app);
 	va_list argList;
 	va_start(argList, format);
 	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - %s: ", getDateTime(), a.c_str());
-	vsnprintf_P(localBuffer+bytes, sizeof(localBuffer)-bytes, (PGM_P)format, argList);
+	vsnprintf(localBuffer+bytes, sizeof(localBuffer)-bytes, format.c_str(), argList);
 	Serial.println(localBuffer);
 
 	syslogSend(app, localBuffer+bytes);
@@ -246,6 +196,21 @@ void logPrintfX(const __FlashStringHelper* app, const __FlashStringHelper* forma
 	va_end(argList);
 }
 
+void logPrintfA(const String& app, const String& format, ...)
+{
+	char localBuffer[256];
+	String a(app);
+	va_list argList;
+	va_start(argList, format);
+	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - %s: ", getDateTime(), a.c_str());
+	vsnprintf(localBuffer+bytes, sizeof(localBuffer)-bytes, format.c_str(), argList);
+
+	Serial.println(localBuffer);
+
+	getLoggerTask().log(app.c_str(), localBuffer+bytes);
+
+	va_end(argList);
+}
 
 bool checkFileSystem()
 {
@@ -336,10 +301,6 @@ String dataSource(const char* name)
 
 		return String(buf);
 	}
-
-	result = readConfig(name);
-	if (result)
-		return result;
 
 	return "?";
 }

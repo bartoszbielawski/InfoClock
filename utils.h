@@ -31,12 +31,14 @@ const char* generateRandomUUID();
 class AsyncClient;
 
 void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, AsyncClient* client);
-//void sendWSPacket(uint8_t header, uint16_t size, const uint8_t* key, const char* payload, Client* client);
 
 class __FlashStringHelper;
 
-//void logPrintf(const __FlashStringHelper* format, ...);
-void logPrintfX(const __FlashStringHelper* app, const __FlashStringHelper* format, ...);
+void logPrintfX(const String& app, const String& format, ...);
+void logPrintfA(const String& app, const String& format, ...);
+
+//void logPrintfX(const __FlashStringHelper* app, const __FlashStringHelper* format, ...);
+//void logPrintfX(const __FlashStringHelper* app, const char* format, ...);
 
 template <class T>
 T min(T a, T b)
