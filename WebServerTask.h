@@ -35,6 +35,7 @@ private:
 
 	ESP8266WebServer webServer;
 	std::vector<std::pair<String, String>> registeredPages;
+
 };
 
 #endif /* WEBSERVERTASK_H_ */

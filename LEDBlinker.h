@@ -2,7 +2,7 @@
  * LEDBlinker.h
  *
  *  Created on: 26.04.2017
- *      Author: caladan
+ *      Author: Bartosz Bielawski
  */
 
 #ifndef LEDBLINKER_H_

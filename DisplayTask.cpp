@@ -2,7 +2,7 @@
  * DisplayTask.cpp
  *
  *  Created on: 15.02.2017
- *      Author: caladan
+ *      Author: Bartosz Bielawski
  */
 
 

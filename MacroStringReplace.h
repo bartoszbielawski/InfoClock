@@ -12,6 +12,7 @@
 #include <Stream.h>
 #include <functional>
 #include <vector>
+#include <map>
 
 class FlashStream: public Stream
 {
@@ -81,5 +82,7 @@ using Lookup = std::function<String(const char*)>;
 Lookup constString(String c);
 
 void macroStringReplace(FlashStream& fs, Lookup lookup, Stream& outputStream);
+
+Lookup mapLookup(const std::map<String, String>& m);
 
 #endif /* MACROSTRINGREPLACE_H_ */

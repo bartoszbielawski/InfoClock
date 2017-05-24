@@ -89,4 +89,15 @@ Lookup constString(String c)
 	return [c](const char* argument) {return c;};
 }
 
+Lookup mapLookup(const std::map<String, String>& m)
+{
+	return [m](const char* argument)
+	{
+		auto f = m.find(argument);
+		if (f == m.end())
+			return String();
+
+		return f->second;
+	};
+}
 

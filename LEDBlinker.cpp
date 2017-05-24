@@ -2,7 +2,7 @@
  * LEDBlinker.cpp
  *
  *  Created on: 26.04.2017
- *      Author: caladan
+ *      Author: Bartosz Bielawski
  */
 
 #include "LEDBlinker.h"

@@ -12,14 +12,21 @@
 #include "ESP8266HTTPClient.h"
 #include "AJSP.hpp"
 #include "PathListener.h"
+#include "CounterCRTP.hpp"
 
-class WeatherGetter: public Tasks::Task
+class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
 {
 	public:
 		WeatherGetter();
 		virtual ~WeatherGetter() {}
 		virtual void reset();
 		virtual void run();
+
+		int16_t pressure;
+		float temperature;
+		String localization;
+
+		String taskName;
 };
 
 #endif /* WEATHERGETTER_H_ */

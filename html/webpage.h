@@ -15,8 +15,8 @@ static const char pageHeader[] PROGMEM = R"_(
 <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
 <title>$title$</title><style>
   h2 {color: green;}
-  .label {text-align: right; font-style: italic;}
-  .wide {font-weight: bold; font-size: 130%;}
+  th {font-weight: bold; font-size: 130%;}
+  .l {text-align: right; font-style: italic;}
   a {text-decoration: none;}
 </style></head>
 <body>
@@ -26,13 +26,13 @@ static const char pageHeader[] PROGMEM = R"_(
 static const char generalSettingsPage[] PROGMEM = R"_(
 <form method="post" action="settings" autocomplete="on">
 <table>
-<tr><td class="wide">WiFi settings</td></tr>
-<tr><td class="label">ESSID:</td><td><input name="essid" type="text" value="$essid$"></td></tr>
-<tr><td class="label">Password:</td><td><input name="wifiPassword" type="password"></td></tr>
-<tr><td class="wide">Timezone settings</td></tr>
-<tr><td class="label">In seconds including DST:</td><td><input name="timezone" type="text" value="$timezone$"></td></tr>
-<tr><td class="wide">Logging settings</td></tr>
-<tr><td class="label">Syslog server:</td><td><input name="syslogServer" type="text" value="$syslogServer$"></td></tr>
+<tr><th>WiFi settings</th></tr>
+<tr><td class="l">ESSID:</td><td><input name="essid" type="text" value="$essid$"></td></tr>
+<tr><td class="l">Password:</td><td><input name="wifiPassword" type="password"></td></tr>
+<tr><th>Timezone settings</th></tr>
+<tr><td class="l">In seconds including DST:</td><td><input name="timezone" type="text" value="$timezone$"></td></tr>
+<tr><th>Logging settings</th></tr>
+<tr><td class="l">Syslog server:</td><td><input name="syslogServer" type="text" value="$syslogServer$"></td></tr>
 <tr><td/><td><input type="submit"></td></tr>
 </table>
 <input type="hidden" name="submitted" value="true">
@@ -45,8 +45,8 @@ static const char generalSettingsPage[] PROGMEM = R"_(
 static const char webmessagePage[] PROGMEM = R"_(
     <form method="post" action="webmessage" autocomplete="on">
     <table>
-      <tr><td class="wide">Webmessage</td></tr>
-      <tr><td class="label">Message:</td><td><input name="webmessage" type="text" value="$webmessage$"></td></tr>
+      <tr><th>Webmessage</th></tr>
+      <tr><td class="l">Message:</td><td><input name="webmessage" type="text" value="$webmessage$"></td></tr>
       <tr><td/><td><input type="submit"></td></tr>
     </table>
     </form>
@@ -58,14 +58,14 @@ static const char webmessagePage[] PROGMEM = R"_(
 
 static const char statusPage[] PROGMEM = R"_(
 <table>
-<tr><td class="wide">General</td><tr>
-<tr><td class="label">Version:</td><td>$version$</td></tr>
-<tr><td class="label">Free heap:</td><td>$heap$</td></tr>
-<tr><td class="label">Up time:</td><td>$uptime$</td></tr>
-<tr><td class="wide">WiFi</td></tr>
-<tr><td class="label">essid:</td><td>$essid$</td></tr>
-<tr><td class="label">IP:</td><td>$ip$</td></tr>
-<tr><td class="label">MAC Address:</td><td>$mac$</td></tr>
+<tr><th>General</th><tr>
+<tr><td class="l">Version:</td><td>$version$</td></tr>
+<tr><td class="l">Free heap:</td><td>$heap$</td></tr>
+<tr><td class="l">Up time:</td><td>$uptime$</td></tr>
+<tr><th>WiFi</th></tr>
+<tr><td class="l">essid:</td><td>$essid$</td></tr>
+<tr><td class="l">IP:</td><td>$ip$</td></tr>
+<tr><td class="l">MAC Address:</td><td>$mac$</td></tr>
 </table>
 </body>
 </html>
@@ -89,6 +89,7 @@ static const char mainPage[] PROGMEM = R"_(
    <a href="/settings">General settings</a>
    <a href="/webmessage">Web Message</a>
    $links$
+   <a href="/reset">Reset device</a>
   </body>
 </html>
 )_";

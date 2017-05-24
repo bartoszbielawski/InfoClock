@@ -14,6 +14,9 @@
 #include "DisplayTask.hpp"
 #include "AsyncLoggerTask.h"
 
+#include <initializer_list>
+
+
 struct TaskDescriptor
 {
 		const static uint8_t ENABLED = 1;
@@ -34,9 +37,28 @@ struct RegisterTask
 };
 
 
+using PageCallback = std::function<void(ESP8266WebServer&, void*)>;
+
+struct PageDescriptor
+{
+		PageDescriptor(const char* url, const char* label, PageCallback callback):
+			url(url), label(label), callback(callback) {}
+
+		const char* url;
+		const char* label;
+		PageCallback callback;
+};
+
 struct RegisterPage
 {
 		RegisterPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph);
+};
+
+
+struct RegisterPackage
+{
+		RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags,
+				std::initializer_list<PageDescriptor> pages);
 };
 
 void setupTasks();

@@ -302,10 +302,10 @@ void LHCStatusReader::readData(uint8_t* data, size_t size)
 
 static const char lhcStatusPage[] PROGMEM = R"_(
 <table>
-<tr><td class="wide">LHC</td></tr>
-<tr><td class="label">Beam mode:</td><td>$LHC.BeamMode$</td></tr>
-<tr><td class="label">Page 1 Comment:</td><td>$LHC.Page1Comment$</td></tr>
-<tr><td class="label">Energy:</td><td>$LHC.BeamEnergy$</td></tr>
+<tr><th>LHC Status</th></tr>
+<tr><td class="l">Beam mode:</td><td>$LHC.BeamMode$</td></tr>
+<tr><td class="l">Page 1 Comment:</td><td>$LHC.Page1Comment$</td></tr>
+<tr><td class="l">Energy:</td><td>$LHC.BeamEnergy$</td></tr>
 </table>
 </body>
 </html>
@@ -313,7 +313,7 @@ static const char lhcStatusPage[] PROGMEM = R"_(
 
 FlashStream lhcStatusPageFS(lhcStatusPage);
 
-static void handleLHCStatus(ESP8266WebServer& webServer)
+static void handleLHCStatus(ESP8266WebServer& webServer, void*)
 {
 	StringStream ss(2048);
 	macroStringReplace(pageHeaderFS, constString("LHC Status"), ss);
@@ -321,5 +321,8 @@ static void handleLHCStatus(ESP8266WebServer& webServer)
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-static RegisterTask rt(new LHCStatusReader, TaskDescriptor::CONNECTED);
-static RegisterPage rp("lhc", "LHC Status", handleLHCStatus);
+static RegisterPackage lhc("lhc", new LHCStatusReader, TaskDescriptor::CONNECTED,
+		{PageDescriptor("lhc", "LHC Status", handleLHCStatus)});
+
+//static RegisterTask rt(new LHCStatusReader, TaskDescriptor::CONNECTED);
+//static RegisterPage rp("lhc", "LHC Status", handleLHCStatus);

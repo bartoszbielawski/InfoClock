@@ -2,7 +2,17 @@
  * LEDMatrixDriver.h
  *
  *  Created on: 30.03.2017
- *      Author: caladan
+ *      Author: Bartosz Bielawski
+ */
+
+/*
+ * This is a driver for MAX7219 based LED matrix displays.
+ * It was written to replace the one already available as a library in Arduino repository.
+ *
+ * The differences are:
+ * 	* This driver uses hardware SPI which makes it much faster (with exception of soft SS)
+ * 	* Display or displayRow() has to be used to refresh the display
+ * 	* up to 255 segments are supported.
  */
 
 #ifndef LEDMATRIXDRIVER_H_
@@ -13,6 +23,7 @@
 
 class LEDMatrixDriver
 {
+	//command as defined in the datasheet
 	const static uint16_t ENABLE =		0x0C00;
 	const static uint16_t TEST =	 	0x0F00;
 	const static uint16_t INTENSITY =	0x0A00;
@@ -21,7 +32,7 @@ class LEDMatrixDriver
 
 	public:
 		LEDMatrixDriver(uint8_t N, uint8_t ssPin);
-		virtual ~LEDMatrixDriver();
+		virtual ~LEDMatrixDriver() = default;
 
 		void setEnabled(bool enabled);
 		void setIntensity(uint8_t level);
@@ -38,7 +49,6 @@ class LEDMatrixDriver
 		const uint8_t N;
 		SPISettings spiSettings;
 		std::vector<uint8_t> frameBuffer;
-		std::vector<uint16_t> commandBuffer;
 		uint8_t ssPin;
 };
 

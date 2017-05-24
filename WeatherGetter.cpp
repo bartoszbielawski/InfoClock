@@ -13,6 +13,8 @@
 #include "MapCollector.hpp"
 #include "WebServerTask.h"
 #include "web_utils.h"
+#include "CounterCRTP.hpp"
+
 /*
  * 2660646 - Geneva
  * 2659667 - Meyrin
@@ -82,6 +84,9 @@ bool jsonPathFilter(const string& key)
 
 WeatherGetter::WeatherGetter()
 {
+	taskName = "WG";
+	taskName += counter;
+
 	reset();
 	sleep(30_s);
 }
@@ -95,12 +100,16 @@ void WeatherGetter::reset()
 
 void WeatherGetter::run()
 {
-	auto location = readConfig(F("owmId"));
-	auto key = readConfig(F("owmKey"));
+	String idn(F("owmId"));
+	String keyn(F("owmKey"));
+	idn += counter;
+	keyn += counter;
+	auto location = readConfig(idn);
+	auto key = readConfig(keyn);
 
 	if (location.length() == 0 or key.length() == 0)
 	{
-		logPrintfX(F("WG"), F("Service not configured... "));
+		logPrintfX(taskName, F("Service not configured... "));
 		sleep(60_s);
 		return;
 	}
@@ -108,7 +117,7 @@ void WeatherGetter::run()
 	char localBuffer[256];
 	snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, location.c_str(), key.c_str());
 
-	logPrintfX(F("WG"), F("URL = %s"), localBuffer);
+	logPrintfX(taskName, F("URL = %s"), localBuffer);
 
 	HTTPClient httpClient;
 	httpClient.begin(localBuffer);
@@ -117,7 +126,7 @@ void WeatherGetter::run()
 
 	if (httpCode != HTTP_CODE_OK)
 	{
-		logPrintfX(F("WG"), F("HTTP failed with code %d"), httpCode);
+		logPrintfX(taskName, F("HTTP failed with code %d"), httpCode);
 		sleep(60_s);
 		httpClient.end();
 		return;
@@ -136,6 +145,10 @@ void WeatherGetter::run()
 
 	auto& results = mc.getValues();
 
+	pressure = processPressure(results["/root/main/pressure"]).toInt();
+	temperature = String(results["/root/main/temp"].c_str()).toFloat();
+	localization = results["/root/name"].c_str();
+
 	DataStore::value(F("OWM.Pressure")) = processPressure(results["/root/main/pressure"]);
 	DataStore::value(F("OWM.Temperature")) = processTemperature(results["/root/main/temp"]);
 	DataStore::value(F("OWM.Location")) = String(results["/root/name"].c_str());
@@ -143,72 +156,93 @@ void WeatherGetter::run()
 	//print all we have acquired - useful for adding new fields
 	for (const auto& e: results)
 	{
-		logPrintfX(F("WG"), F("%s = %s"), e.first.c_str(), e.second.c_str());
+		logPrintfX(taskName, F("%s = %s"), e.first.c_str(), e.second.c_str());
 	}
 
 	httpClient.end();
 
-	int period = readConfig(F("owmPeriod")).toInt() * MS_PER_CYCLE;
+	String periodParamName(F("owmPeriod"));
+	periodParamName += counter;
+	int period = readConfig(periodParamName).toInt() * MS_PER_CYCLE;
 	if (period == 0)
 		period = 600_s;
 
 	sleep(period);
 }
 
-static const char owmPage[] PROGMEM = R"_(
+static const char owmConfigPage[] PROGMEM = R"_(
 <form method="post" action="owm" autocomplete="on">
 <table>
-<tr><td class="wide">OpenWeatherMap</td></tr>
-<tr><td class="label">ID:</td><td><input type="text" name="owmId" value="$owmId$"></td></tr>
-<tr><td class="label">Key:</td><td><input type="text" name="owmKey" value="$owmKet$"></td></tr>
-<tr><td class="label">Refresh period (s):</td><td><input type="text" name="owmPeriod" value="$owmPeriod$"></td></tr>
+<tr><th>OpenWeatherMap</th></tr>
+<tr><td class="l">ID:</td><td><input type="text" name="owmId" value="$owmId$"></td></tr>
+<tr><td class="l">Key:</td><td><input type="text" name="owmKey" value="$owmKet$"></td></tr>
+<tr><td class="l">Refresh period (s):</td><td><input type="text" name="owmPeriod" value="$owmPeriod$"></td></tr>
 <tr><td/><td><input type="submit"></td></tr>
 </table></form></body></html>
 )_";
 
-FlashStream owmFS(owmPage);
+FlashStream owmConfigPageFS(owmConfigPage);
 
-void handleWeatherServiceConfig(ESP8266WebServer& webServer)
+void handleOWMConfig(ESP8266WebServer& webServer, void* t)
 {
 	if (!handleAuth(webServer)) return;
+
+	WeatherGetter* wg = (WeatherGetter*)t;
 
 	auto location = webServer.arg(F("owmId"));
 	auto key   = webServer.arg(F("owmKey"));
 	auto period = webServer.arg(F("owmPeriod"));
 
-	if (location.length()) 	writeConfig(F("owmId"), location);
-	if (key.length()) 		writeConfig(F("owmKey"), key);
-	if (period.length())	writeConfig(F("owmPeriod"), period);
+	auto configIdName = String(F("owmId"))+wg->getId();
+	auto configKeyName = String(F("owmKey"))+wg->getId();
+	auto configPeriodName = String(F("owmPeriod"))+wg->getId();
+
+	if (location.length()) 	writeConfig(configIdName, location);
+	if (key.length()) 		writeConfig(configKeyName, key);
+	if (period.length())	writeConfig(configPeriodName, period);
 
 	StringStream ss(2048);
 	macroStringReplace(pageHeaderFS, constString("OWM Settings"), ss);
-	macroStringReplace(owmFS, dataSource, ss);
 
+	std::map<String, String> m = {
+			{F("owmId"), 		readConfig(configIdName)},
+			{F("owmKey"), 		readConfig(configKeyName)},
+			{F("owmPeriod"), 	readConfig(configPeriodName)},
+	};
+
+	macroStringReplace(owmConfigPageFS, mapLookup(m), ss);
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-static const char owmPageStatus[] PROGMEM = R"_(
+static const char owmStatusPage[] PROGMEM = R"_(
 <table>
-<tr><td class="wide">Weather</td></tr>
-<tr><td class="label">Location:</td><td>$OWM.Location$</td></tr>
-<tr><td class="label">Temperature:</td><td>$OWM.Temperature$</td></tr>
-<tr><td class="label">Pressure:</td><td>$OWM.Pressure$</td></tr>
-</table>
-</body>
-</html>
+<tr><th>$loc$</th></tr>
+<tr><td class="l">Temperature:</td><td>$t$ &#8451;</td></tr>
+<tr><td class="l">Pressure:</td><td>$p$ hPa</td></tr>
+</table></form></body></html>
 )_";
 
-FlashStream owmPageStatusFS(owmPageStatus);
+FlashStream owmStatusPageFS(owmStatusPage);
 
-void handleOwmStatus(ESP8266WebServer& webServer)
+void handleOWMStatus(ESP8266WebServer& webServer, void* t)
 {
+	WeatherGetter* wg = static_cast<WeatherGetter*>(t);
 	StringStream ss(2048);
 	macroStringReplace(pageHeaderFS, constString("OWM Status"), ss);
-	macroStringReplace(owmPageStatusFS, dataSource, ss);
+
+	std::map<String, String> m =
+	{
+			{F("loc"), wg->localization},
+			{F("t"), String(wg->temperature)},
+			{F("p"), String(wg->pressure)}
+	};
+	macroStringReplace(owmStatusPageFS, mapLookup(m), ss);
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-//TODO: add OWM status
-static RegisterTask rt(new WeatherGetter, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
-static RegisterPage rpConfig("owm", "OWM Config", &handleWeatherServiceConfig);
-static RegisterPage rpStatus("owms", "OWM Status", &handleOwmStatus);
+static RegisterPackage r1("OWM1", new WeatherGetter, TaskDescriptor::CONNECTED,
+{
+	PageDescriptor("owmc1", "OWM Config", &handleOWMConfig),
+	PageDescriptor("owms1", "OWM Status", &handleOWMStatus)
+});
+

@@ -2,7 +2,7 @@
  * AsyncLoggerTask.h
  *
  *  Created on: 10.05.2017
- *      Author: caladan
+ *      Author: Bartosz Bielawski
  */
 
 #ifndef ASYNCLOGGERTASK_H_

@@ -25,10 +25,9 @@
 #include "utils.h"
 #include "tasks_utils.h"
 #include "web_utils.h"
-
+#include "LambdaTask.hpp"
 
 FlashStream statusFS(statusPage);
-
 
 void handleStatus(ESP8266WebServer& webServer)
 {
@@ -37,6 +36,21 @@ void handleStatus(ESP8266WebServer& webServer)
 	macroStringReplace(pageHeaderFS, constString("Status"), ss);
 	macroStringReplace(statusFS, dataSource, ss);
 	webServer.send(200, textHtml, ss.buffer);
+}
+
+
+void handleReset(ESP8266WebServer& webServer)
+{
+	if (!handleAuth(webServer)) return;
+
+	getDisplayTask().pushMessage("Rebooting...", 5_s, false);
+	LambdaTask* lt = new LambdaTask([](){ESP.restart();});
+	addTask(lt, TaskDescriptor::ENABLED);
+	logPrintfA(F("WS"), F("Rebooting in 5 seconds..."));
+	lt->sleep(5_s);
+
+	webServer.sendHeader("Location", String("/"), true);
+	webServer.send(302, "text/plain", "");
 }
 
 
@@ -195,6 +209,7 @@ void WebServerTask::run()
 
 		webServer.on("/readParams", [this](){handleReadParams(webServer);});
 		webServer.on("/status", 	[this](){handleStatus(webServer);});
+		webServer.on("/reset", [this]{handleReset(webServer);});
 
 		webServer.begin();
 

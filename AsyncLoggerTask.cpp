@@ -2,7 +2,7 @@
  * AsyncLoggerTask.cpp
  *
  *  Created on: 10.05.2017
- *      Author: caladan
+ *      Author: Bartosz Bielawski
  */
 
 #include "AsyncLoggerTask.h"
@@ -19,7 +19,6 @@ void AsyncLoggerTask::run()
 	while (not messages.empty())
 	{
 		auto& msg = messages.front();
-		//String c = msg.second;
 		syslogSend(msg.first, msg.second.c_str());
 		messages.pop();
 	}

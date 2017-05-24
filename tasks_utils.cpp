@@ -81,6 +81,19 @@ RegisterPage::RegisterPage(const String& url, const String& label, std::function
 	getWebServerTask().registerPage(url, label, ph);
 }
 
+RegisterPackage::RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags,
+						 std::initializer_list<PageDescriptor> pages)
+{
+	addTask(t, flags);
+	for (auto& pd: pages)
+	{
+		getWebServerTask().registerPage(pd.url, pd.label, [t, pd] (ESP8266WebServer& w) {
+			pd.callback(w, t);
+		});
+	}
+}
+
+
 void scheduleTasks()
 {
 	for (auto& td: getTasks())

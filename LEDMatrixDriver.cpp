@@ -2,7 +2,7 @@
  * LEDMatrixDriver.cpp
  *
  *  Created on: 30.03.2017
- *      Author: caladan
+ *      Author: Bartosz Bielawski
  */
 
 #include "LEDMatrixDriver.h"
@@ -13,7 +13,6 @@ LEDMatrixDriver::LEDMatrixDriver(uint8_t N, uint8_t ssPin):
 	N(N),
 	spiSettings(5000000, MSBFIRST, SPI_MODE0),
 	frameBuffer(N*8, 0),
-	commandBuffer(N, 0),
 	ssPin(ssPin)
 {
 	pinMode(ssPin, OUTPUT);
@@ -56,10 +55,6 @@ void LEDMatrixDriver::setColumn(uint16_t x, uint8_t value)
 	}
 }
 
-LEDMatrixDriver::~LEDMatrixDriver()
-{
-
-}
 
 void LEDMatrixDriver::setEnabled(bool enabled)
 {
