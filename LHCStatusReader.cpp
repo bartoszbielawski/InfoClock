@@ -35,60 +35,43 @@ static const char httpGetRequestEnd[] PROGMEM =
 //subscription string
 static const char subscriptionRequest[] PROGMEM = R"_({"listOfSubscriptionsToAdd":["dip://dip/acc/LHC/RunControl/BeamMode","dip://dip/acc/LHC/RunControl/Page1","dip://dip/acc/LHC/Beam/Energy"]})_";
 
-//this path is reconfigured to match the currently processed element
-//X is replaced with the current update, Y is replaced with the item inside newValue element
-static char valuePath[] = "/root/updates/X/newValue/Y/value";
-
-//replace the X and Y with the two values
-void configurePath(char update, char value)
-{
-	valuePath[14] = update;
-	valuePath[25] = value;
-}
-
-static const char beamEnergyDip[] = "dip://dip/acc/LHC/Beam/Energy";
-static const char beamModeDip[] = 	"dip://dip/acc/LHC/RunControl/BeamMode";
-static const char page1Dip[] = 		"dip://dip/acc/LHC/RunControl/Page1";
-
-const char* lastKey = NULL;
-
 /*
  * BEAM ENERGY
  */
 
-void parseEnergy(const std::string& value)
+void LHCStatusReader::parseEnergy(const std::string& value)
 {
 	//0.12 GeV per LSB
+	float newBeamEnergy = atoi(value.c_str())+1;
+	newBeamEnergy *= 0.120;		//in GeV
 
-	float energy = atoi(value.c_str());
-	energy *= 0.120;		//in GeV
+	//don't update, don't print it...
+	if (newBeamEnergy == beamEnergy)
+		return;
 
-	if ((energy < 300) or (energy > 7800)) 		//450 GeV - nominal energy at injection
+	beamEnergy = newBeamEnergy;
+
+	if ((beamEnergy < 50) or (beamEnergy > 7800)) 		//450 GeV - nominal energy at injection
 	{
-		//65535 reported by the DIP service in some cases
-		DataStore::value(F("LHC.BeamEnergy")) = String();
+		beamEnergy = 0.0f;
 		return;
 	}
 
-	String beamEnergy(energy, 0);
-	beamEnergy += F(" GeV");
-
-	DataStore::value(F("LHC.BeamEnergy")) = beamEnergy;
-
-	logPrintfA(F("LSR"), F("E = %s"), beamEnergy.c_str());
+	String beamEnergys(beamEnergy, 0);
+	beamEnergys += F(" GeV");
+	logPrintfA(F("LSR"), F("E = %s"), beamEnergys.c_str());
 }
 
 /*
  * PAGE 1 COMMENT
  */
 
-void parsePage1Comment(const std::string& value)
+void LHCStatusReader::parsePage1Comment(const std::string& value)
 {
-	String page1Comment = value.c_str();
+	page1Comment = value.c_str();
 	page1Comment.trim();
-	page1Comment.replace('\n', '-');
-
-	DataStore::value(F("LHC.Page1Comment")) = page1Comment.c_str();
+	page1Comment.replace(F("\n\n"), F(" -- "));
+	page1Comment.replace('\n', ' ');
 
 	logPrintfA(F("LSR"), F("P1 Comment = %s"), page1Comment.c_str());
 }
@@ -97,74 +80,40 @@ void parsePage1Comment(const std::string& value)
  * BEAM MODE
  */
 
-void parseBeamMode(const std::string& value)
+void LHCStatusReader::parseBeamMode(const std::string& value)
 {
-	DataStore::value(F("LHC.BeamMode")) = value.c_str();
+	beamMode = value.c_str();
 	logPrintfA(F("LSR"), F("BM = %s"), value.c_str());
 }
 
-struct SubDesc
+
+
+bool LSRPathFilter(const std::string& path_, const std::string& value_)
 {
-		const char* dipAddress;
-		uint8_t 	newValueElement;
-		void 		(*fun)(const std::string& value);
-};
+	String path(path_.c_str());
 
+	bool isPublicationName = path.endsWith(F("publicationName"));
+	if (isPublicationName)
+		return true;
 
-static const SubDesc sds[] =
-{
-		{beamEnergyDip, '1', parseEnergy},
-		{beamModeDip, '3', parseBeamMode},
-		{page1Dip, '3', parsePage1Comment}
-};
-
-//this function is called when the JSON parser meets a leaf element
-static void onListenerMarch(const std::string& key, const std::string& value)
-{
-	//Serial.printf("K: %s V: %s\n", key.c_str(), value.c_str());
-	//first check values from descriptors and if it matches - set the new last element
-	//to match the update item and newValue item index
-	for (const auto& sd: sds)
-	{
-		if (value == sd.dipAddress)
-		{
-			lastKey = sd.dipAddress;
-			configurePath(key[14], sd.newValueElement);
-			return;
-		}
-	}
-
-	for (const auto& sd: sds)
-	{
-		if (lastKey == sd.dipAddress)
-		{
-			sd.fun(value);
-			return;
-		}
-	}
+	String value(value_.c_str());
+	return path.endsWith(F("value"));
 }
 
-
 LHCStatusReader::LHCStatusReader():
-TaskCRTP<LHCStatusReader>(&LHCStatusReader::connect),
-jsonListener(&jsonParser)
+		TaskCRTP<LHCStatusReader>(&LHCStatusReader::connect),
+		mc(LSRPathFilter)
 {
-	jsonListener.monitoredPaths().push_back("/root/updates/0/publicationName");
-	jsonListener.monitoredPaths().push_back("/root/updates/1/publicationName");
-	jsonListener.monitoredPaths().push_back("/root/updates/2/publicationName");
-	jsonListener.monitoredPaths().push_back(valuePath);
-	jsonListener.setCallback(onListenerMarch);
-	jsonParser.setListener(&jsonListener);
 	connection.setRxTimeout(30);	//no RX data for 30 seconds
-	sleep(30_s);
+	sleep(15_s);
 }
 
 void LHCStatusReader::reset()
 {
 	//reset variables
-	DataStore::value(F("LHC.Page1Comment")) = String();
-	DataStore::value(F("LHC.BeamMode")) = String();
-	DataStore::value(F("LHC.BeamEnergy")) = String();
+	page1Comment = "";
+	beamEnergy = 0.0f;
+	beamMode = "";
 
 	logPrintfX(F("LSR"), F("Reset"));
 
@@ -172,10 +121,11 @@ void LHCStatusReader::reset()
 	if (connection.connected())
 		connection.close();
 
-	jsonParser.reset();
 	wspWrapper.reset();
+	mc.reset();
 
-	idlePackets = 0;
+	idlePacketsRcvd = 0;
+	packetsRcvd = 0;
 
 	nextState = &LHCStatusReader::connect;
 	sleep(5_s);
@@ -263,8 +213,14 @@ void LHCStatusReader::subscribe()
 
 	sendWSPacket_P(0x81, sizeof(subscriptionRequest), k, subscriptionRequest, &connection);
 
-	//we can actually suspend the thread as it should be now processed in async way
-	suspend();
+
+	nextState = &LHCStatusReader::idle;
+}
+
+void LHCStatusReader::idle()
+{
+	logPrintfX(F("LSR"), "Packets: %d RC: %d", packetsRcvd, reconnects);
+	sleep(60_s);
 }
 
 void LHCStatusReader::readData(uint8_t* data, size_t size)
@@ -278,12 +234,18 @@ void LHCStatusReader::readData(uint8_t* data, size_t size)
 		if (data)
 		{
 			if (wspWrapper.getLength() > 5)
-				jsonParser.parse(c);
+			{
+				if (mc.parse(c) == AJSP::Parser::Result::DONE)
+				{
+					packetsRcvd++;
+					parseData();
+				}
+			}
 			else
 			{
-				idlePackets++;
-				totalIdlePackets++;
-				if (idlePackets > 5)
+				idlePacketsRcvd++;
+				totalIdlePacketsRcvd++;
+				if (idlePacketsRcvd > 5)
 				{
 					logPrintfA(F("LSR"), F("Idle message rcvd, restarting..."));
 					reset();	//we have started receiving these short messages, restart
@@ -295,6 +257,55 @@ void LHCStatusReader::readData(uint8_t* data, size_t size)
 	}
 }
 
+static const char beamEnergyDip[] PROGMEM = "dip://dip/acc/LHC/Beam/Energy";
+static const char beamModeDip[] PROGMEM = 	"dip://dip/acc/LHC/RunControl/BeamMode";
+static const char page1Dip[] PROGMEM = 		"dip://dip/acc/LHC/RunControl/Page1";
+
+struct SubDesc
+{
+		PGM_P 		dipAddress;
+		uint8_t 	newValueElement;
+		void 		(LHCStatusReader::*func)(const std::string& value);
+};
+
+
+static const SubDesc sds[] =
+{
+		{beamEnergyDip, 1, &LHCStatusReader::parseEnergy},
+		{beamModeDip, 3, &LHCStatusReader::parseBeamMode},
+		{page1Dip, 3, &LHCStatusReader::parsePage1Comment}
+};
+
+
+void LHCStatusReader::parseData()
+{
+	const auto& v = mc.getValues();
+
+	String key;
+	String value;
+
+	for (const auto& e: v)
+	{
+		value = e.second.c_str();
+		for (const auto& sd: sds)
+		{
+			String da(sd.dipAddress);
+			if (value.equals(da))
+			{
+				key = e.first.c_str();
+				key.replace(F("publicationName"), F("newValue/"));
+				key += String(sd.newValueElement);
+				key += String(F("/value"));
+				const auto j = v.find(key.c_str());
+				if (j != v.end())
+				{
+					(this->*sd.func)(j->second);
+				}
+			}
+		}
+	}
+	mc.reset();
+}
 
 
 //------------- WEBPAGE STUFF
@@ -303,26 +314,63 @@ void LHCStatusReader::readData(uint8_t* data, size_t size)
 static const char lhcStatusPage[] PROGMEM = R"_(
 <table>
 <tr><th>LHC Status</th></tr>
-<tr><td class="l">Beam mode:</td><td>$LHC.BeamMode$</td></tr>
-<tr><td class="l">Page 1 Comment:</td><td>$LHC.Page1Comment$</td></tr>
-<tr><td class="l">Energy:</td><td>$LHC.BeamEnergy$</td></tr>
+<tr><td class="l">Beam mode:</td><td>$mode$</td></tr>
+<tr><td class="l">Page 1 Comment:</td><td>$comment$</td></tr>
+<tr><td class="l">Energy:</td><td>$energy$</td></tr>
+<tr><td class="l">Packets:</td><td>$packets$</td></tr>
 </table>
 </body>
+<script>setTimeout(function(){window.location.reload(1);}, 15000);</script>
 </html>
 )_";
 
 FlashStream lhcStatusPageFS(lhcStatusPage);
 
-static void handleLHCStatus(ESP8266WebServer& webServer, void*)
+static void handleLHCStatus(ESP8266WebServer& webServer, void* t)
 {
+	LHCStatusReader* lsr = (LHCStatusReader*)t;
 	StringStream ss(2048);
 	macroStringReplace(pageHeaderFS, constString("LHC Status"), ss);
-	macroStringReplace(lhcStatusPageFS, dataSource, ss);
+
+	String packets(lsr->getPacketCount());
+
+	std::map<String, String> m =
+	{
+			{F("mode"), lsr->getBeamMode()},
+			{F("comment"), lsr->getPage1Comment()},
+			{F("energy"), lsr->getBeamEnergy()},
+			{F("packets"), packets}
+	};
+
+	macroStringReplace(lhcStatusPageFS, mapLookup(m), ss);
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-static RegisterPackage lhc("lhc", new LHCStatusReader, TaskDescriptor::CONNECTED,
-		{PageDescriptor("lhc", "LHC Status", handleLHCStatus)});
+static String getStateInfo(void* t)
+{
+	LHCStatusReader* lsr = (LHCStatusReader*)t;
+	String s = lsr->getBeamMode();
+	s += ": ";
+	s += lsr->getPage1Comment();
+	return s;
+}
 
-//static RegisterTask rt(new LHCStatusReader, TaskDescriptor::CONNECTED);
-//static RegisterPage rp("lhc", "LHC Status", handleLHCStatus);
+static String getEnergy(void* t)
+{
+	LHCStatusReader* lsr = (LHCStatusReader*)t;
+	String s = lsr->getBeamEnergy();
+	if (s == "0")
+		return String();
+
+	return s + " GeV";
+}
+
+static RegisterPackage lhc("lhc", new LHCStatusReader, TaskDescriptor::CONNECTED,
+		{
+				PageDescriptor("lhc", "LHC Status", handleLHCStatus)
+		},
+		{
+				{getStateInfo, 0.05_s, 1, true},
+				{getEnergy, 2_s, 1, false}
+		}
+);

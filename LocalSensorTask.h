@@ -18,9 +18,12 @@ class LocalSensorTask: public Tasks::Task
 {
 	public:
 		LocalSensorTask();
-		virtual ~LocalSensorTask();
+		virtual ~LocalSensorTask() = default;
 
 		virtual void run();
+
+		float temperature = 0.0f;
+
 	private:
 		OneWire oneWire;
 		DallasTemperature dallasTemperature;

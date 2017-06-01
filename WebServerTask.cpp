@@ -203,7 +203,6 @@ void WebServerTask::run()
 			this->handleMainPage();
 		});
 
-		//webServer.on("/owm", [this](){handleWeatherServiceConfig(webServer);});
 		webServer.on("/webmessage", [this](){handleWebMessage(webServer);});
 		webServer.on("/settings", [this] (){handleGeneralSettings(webServer);});
 

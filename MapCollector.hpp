@@ -12,14 +12,19 @@
 #include "PathConstructor.hpp"
 #include <functional>
 #include <map>
-#include "VectorCollector.hpp"
+
+template <class ... Types>
+bool True(Types ... args)
+{
+	return true;
+}
 
 class MapCollector: private AJSP::Listener
 {
     public:
-		using Predicate = std::function<bool(const std::string& path)>;
+		using Predicate = std::function<bool(const std::string& path, const std::string& value)>;
 
-        MapCollector(Predicate p = True<std::string>);
+        MapCollector(Predicate p = True<std::string, std::string>);
         ~MapCollector();
 
         void reset();

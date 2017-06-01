@@ -17,6 +17,7 @@
 
 using MessageProvider = std::function<String()>;
 
+
 struct DisplayState
 {
 		MessageProvider fun;
@@ -40,6 +41,8 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		void scrollMessage();
 		void refreshMessage();
 
+		void addRegularMessage(const DisplayState& ds);
+
 	private:
 		void nextDisplay();
 
@@ -48,6 +51,7 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		SDD scroll;
 		DisplayState ds;
 
+		std::vector<DisplayState> regularMessages;
 		std::vector<DisplayState> priorityMessages;
 		bool		priorityMessagePlayed = false;
 };

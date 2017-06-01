@@ -19,6 +19,8 @@ class LambdaTask: public Tasks::Task
 		virtual void run()
 		{
 			f();
+			suspend();
+			//TODO: the task should be deleted!
 		}
 
 		virtual ~LambdaTask() = default;

@@ -21,7 +21,7 @@ struct TaskDescriptor
 {
 		const static uint8_t ENABLED = 1;
 		const static uint8_t CONNECTED = 2;
-		const static uint8_t SLOW = 3;
+		const static uint8_t SLOW = 4;
 
 		TaskDescriptor(Tasks::Task* task, uint8_t flags):
 			task(task), flags(flags){}
@@ -55,10 +55,20 @@ struct RegisterPage
 };
 
 
+struct DisplayLineDescriptor
+{
+		std::function<String(void*)> provider;
+		uint16_t	period;
+		uint16_t 	cycles;
+		bool		scrolling;		//refresh till it's done
+};
+
+
 struct RegisterPackage
 {
 		RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags,
-				std::initializer_list<PageDescriptor> pages);
+				std::initializer_list<PageDescriptor> pages,
+				std::initializer_list<DisplayLineDescriptor> displayLines);
 };
 
 void setupTasks();

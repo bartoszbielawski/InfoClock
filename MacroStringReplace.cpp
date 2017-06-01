@@ -84,7 +84,7 @@ void macroStringReplace(FlashStream& fs, Lookup lookup, Stream& outputStream)
 	}
 }
 
-Lookup constString(String c)
+Lookup constString(const String& c)
 {
 	return [c](const char* argument) {return c;};
 }

@@ -18,38 +18,34 @@
 
 #include "config.h"
 
-static MessageProvider getFromDataStore(const String& name)
-{
-	//TODO: check: capture expression copies value or reference?
-	return [name]() {return DataStore::valueOrDefault(name, String());};
-}
+//static MessageProvider getFromDataStore(const String& name)
+//{
+//	//TODO: check: capture expression copies value or reference?
+//	return [name]() {return DataStore::valueOrDefault(name, String());};
+//}
 
-
-static const std::vector<DisplayState> displayStates =
-{
-	{getTime, 										1_s,	10,	false},
-	{getDate, 										2_s,	1,	false},
-	{getFromDataStore(("webmessage")),				0.05_s,	1,	true},		//webmessage
-	{getTime, 										1_s,	5,	false},
-	{getFromDataStore(("Local.Temperature")),		2_s,	1,	false},
-	{getFromDataStore(("OWM.Temperature")),			2_s,	1,  false},
-	{getFromDataStore(("OWM.Pressure")),			2_s,	1,	false},
-	{getTime, 										1_s,	5,	false},
-	{getFromDataStore(("LHC.Page1Comment")),		0.025_s,1,	true},
-	{getFromDataStore(("LHC.BeamMode")),		  	0.05_s,	1, 	true},
-	{getFromDataStore(("LHC.BeamEnergy")),			2_s, 1, false},
-};
 
 DisplayTask::DisplayTask(uint32_t deviceCount):
 		TaskCRTP(&DisplayTask::nextMessage),
-		ledMatrixDriver(deviceCount, LED_CS), scroll(ledMatrixDriver)
+		ledMatrixDriver(deviceCount, LED_CS), scroll(ledMatrixDriver),
+		regularMessages({
+			{getTime, 										1_s,	10,	false},
+			{getDate, 										2_s,	1,	false},
+//			{getFromDataStore(("webmessage")),				0.05_s,	1,	true},		//webmessage
+			})
 {
 	init();
 }
 
+
+void DisplayTask::addRegularMessage(const DisplayState& ds)
+{
+	regularMessages.push_back(ds);
+}
+
 void DisplayTask::init()
 {
-	index = displayStates.size()-1;
+	index = regularMessages.size()-1;
 }
 
 void DisplayTask::reset()
@@ -132,10 +128,10 @@ void DisplayTask::nextDisplay()
 	do
 	{
 		index++;
-		index %= displayStates.size();
+		index %= regularMessages.size();
 	}
-	while (displayStates[index].fun().length() == 0);
+	while (regularMessages[index].fun().length() == 0);
 
-	ds = displayStates[index];
+	ds = regularMessages[index];
 	logPrintfX(F("DT"), F("New message from RQ = %s"), ds.fun().c_str());
 }

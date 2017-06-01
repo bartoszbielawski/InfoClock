@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "tasks_utils.h"
 #include "config.h"
+#include "web_utils.h"
 
 LocalSensorTask::LocalSensorTask():
 	oneWire(ONE_WIRE_TEMP),
@@ -31,27 +32,56 @@ void LocalSensorTask::run()
 	float t = dallasTemperature.getTempCByIndex(0);
 	if (t == -127.0f)
 	{
+		temperature = 0.0f;
 		logPrintfX(F("LST"), F("Sensor not found..."));
 		dallasTemperature.requestTemperatures();
 		sleep(10_s);
 		return;
 	}
 
-	String s(t, 1);
-	String p = "\x81 ";
-	p += s;
-	p += (char)0x80;
-	p += 'C';
-	DataStore::value(F("Local.Temperature")) = p;
-	logPrintfX(F("LST"), F("T = %s"), p.c_str());
+	temperature = t;
+
+	logPrintfX(F("LST"), F("T = %s deg C"), String(t, 1).c_str());
 	dallasTemperature.requestTemperatures();
 	sleep(10_s);
 }
 
-LocalSensorTask::~LocalSensorTask()
+String getLocalTemperature(void* t)
 {
-
+	LocalSensorTask* lst = static_cast<LocalSensorTask*>(t);
+	String p = "\x81 ";
+	p += String(lst->temperature, 1);
+	p += (char)0x80;
+	p += "C";
+	return p;
 }
 
-static RegisterTask r(new LocalSensorTask, TaskDescriptor::SLOW);
+static const char lstStatusPage[] PROGMEM = R"_(
+<table>
+<tr><th>Local Sensor Task</th></tr>
+<tr><td class="l">Temperature:</td><td>$t$ &#8451;</td></tr>
+</table></form></body>
+<script>setTimeout(function(){window.location.reload(1);}, 15000);</script>
+</html>
+)_";
 
+FlashStream lstStatusPageFS(lstStatusPage);
+
+void handleLSTStatus(ESP8266WebServer& webServer, void* t)
+{
+	LocalSensorTask* lst = static_cast<LocalSensorTask*>(t);
+	StringStream ss(2048);
+	macroStringReplace(pageHeaderFS, constString(F("LST Status")), ss);
+
+	macroStringReplace(lstStatusPageFS, constString(String(lst->temperature)), ss);
+	webServer.send(200, textHtml, ss.buffer);
+}
+
+static RegisterPackage r("LST", new LocalSensorTask, TaskDescriptor::SLOW,
+		{
+			PageDescriptor("lst", "Local Sensors", &handleLSTStatus),
+		},
+		{
+			{getLocalTemperature, 2_s, 1, false}
+		}
+);

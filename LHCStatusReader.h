@@ -13,6 +13,7 @@
 #include "CustomWebSocketPacketWrapper.h"
 #include "PathListener.h"
 #include "ESPAsyncTCP.h"
+#include "MapCollector.hpp"
 
 class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 {
@@ -25,18 +26,38 @@ class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 
 		//this is not a state any more
 		void readData(uint8_t* data, size_t size);
+		//not a state really
+		void parseData();
+
+		void idle();
 
 		virtual void reset();
 
+		void parseEnergy(const std::string&);
+		void parsePage1Comment(const std::string&);
+		void parseBeamMode(const std::string& value);
+
 		virtual ~LHCStatusReader() = default;
 
+		const String& getBeamMode() const {return beamMode;}
+		const String& getPage1Comment() const {return page1Comment;}
+		String 		  getBeamEnergy() const {String e(beamEnergy, 0); return e;}
+		uint32_t      getPacketCount() const {return packetsRcvd;}
+
 	private:
+		float beamEnergy = 0.0f;
+		String beamMode;
+		String page1Comment;
+
+ 		/* connection variables */
 		AsyncClient connection;
 		CustomWebSocketPacketWrapper wspWrapper;
-		AJSP::Parser jsonParser;
-		PathListener jsonListener;
-		uint32_t idlePackets = 0;
-		uint32_t totalIdlePackets = 0;
+		MapCollector mc;
+
+		/* connection stats */
+		uint32_t packetsRcvd = 0;
+		uint32_t idlePacketsRcvd = 0;
+		uint32_t totalIdlePacketsRcvd = 0;
 		uint32_t reconnects = 0;
 };
 

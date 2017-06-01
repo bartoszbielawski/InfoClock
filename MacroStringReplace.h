@@ -79,7 +79,7 @@ class StringStream: public Stream
 
 using Lookup = std::function<String(const char*)>;
 
-Lookup constString(String c);
+Lookup constString(const String& c);
 
 void macroStringReplace(FlashStream& fs, Lookup lookup, Stream& outputStream);
 

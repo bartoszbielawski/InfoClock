@@ -61,6 +61,8 @@ void AJSP::Parser::reset()
 
 	lastKey = rootElementName;
 	offset = 0;
+
+	stack.clear();
 	stack.emplace_back(Entity::VALUE, State::NONE);
 }
 

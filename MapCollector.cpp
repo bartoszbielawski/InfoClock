@@ -28,7 +28,7 @@ void MapCollector::reset()
 void MapCollector::value(const std::string& value, Parser::Entity entity)
 {
 	const std::string& path = _parser.getCurrentPath();
-	if (!_predicate(path))
+	if (!_predicate(path, std::string()))
 		return;
 
 	_values[path] = value;

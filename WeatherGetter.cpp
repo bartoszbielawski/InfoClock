@@ -26,49 +26,12 @@ using namespace std;
 
 const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.5/weather?%s&APPID=%s&units=metric";
 
-String processTemperature(const string& temperature)
-{
-	float f = atof(temperature.c_str());
-
-	f *= 10.0f;
-	f = roundf(f);
-	f /= 10.0f;
-
-	String s(f, 1);
-	String p;
-	p += (char)0x82;
-	p += ' ';
-	p += s;
-	p += '\x80';
-	p += 'C';
-	return p;
-}
-
-String processPressure(const string& pressure)
-{
-	if (pressure.empty())
-	{
-		return String();
-	}
-
-	float f = atof(pressure.c_str());
-	f += 0.5;
-
-	String result((int)f);
-	result += " hPa";
-
-	return result;
-}
-
-
 static const vector<String> prefixes{
 	"main",
-	//"wind",
-	//"sys/sun",
 	"name"
 };
 
-bool jsonPathFilter(const string& key)
+bool jsonPathFilter(const string& key, const string& /*value*/)
 {
 	String s(key.c_str());
 
@@ -93,9 +56,9 @@ WeatherGetter::WeatherGetter()
 
 void WeatherGetter::reset()
 {
-	DataStore::value(F("OWM.Temperature")) = String();
-	DataStore::value(F("OWM.Pressure")) = String();
-	DataStore::value(F("OWM.Location")) = String();
+	temperature = 0.0f;
+	pressure = 0;
+	localization = "";
 }
 
 void WeatherGetter::run()
@@ -145,13 +108,9 @@ void WeatherGetter::run()
 
 	auto& results = mc.getValues();
 
-	pressure = processPressure(results["/root/main/pressure"]).toInt();
-	temperature = String(results["/root/main/temp"].c_str()).toFloat();
+	pressure = atoi(results["/root/main/pressure"].c_str());
+	temperature = atof(results["/root/main/temp"].c_str());
 	localization = results["/root/name"].c_str();
-
-	DataStore::value(F("OWM.Pressure")) = processPressure(results["/root/main/pressure"]);
-	DataStore::value(F("OWM.Temperature")) = processTemperature(results["/root/main/temp"]);
-	DataStore::value(F("OWM.Location")) = String(results["/root/name"].c_str());
 
 	//print all we have acquired - useful for adding new fields
 	for (const auto& e: results)
@@ -171,7 +130,7 @@ void WeatherGetter::run()
 }
 
 static const char owmConfigPage[] PROGMEM = R"_(
-<form method="post" action="owm" autocomplete="on">
+<form method="post" action="owmc$n$" autocomplete="on">
 <table>
 <tr><th>OpenWeatherMap</th></tr>
 <tr><td class="l">ID:</td><td><input type="text" name="owmId" value="$owmId$"></td></tr>
@@ -205,6 +164,7 @@ void handleOWMConfig(ESP8266WebServer& webServer, void* t)
 	macroStringReplace(pageHeaderFS, constString("OWM Settings"), ss);
 
 	std::map<String, String> m = {
+			{F("n"),			String(wg->getId())},
 			{F("owmId"), 		readConfig(configIdName)},
 			{F("owmKey"), 		readConfig(configKeyName)},
 			{F("owmPeriod"), 	readConfig(configPeriodName)},
@@ -219,16 +179,19 @@ static const char owmStatusPage[] PROGMEM = R"_(
 <tr><th>$loc$</th></tr>
 <tr><td class="l">Temperature:</td><td>$t$ &#8451;</td></tr>
 <tr><td class="l">Pressure:</td><td>$p$ hPa</td></tr>
-</table></form></body></html>
+</table></form></body>
+<script>setTimeout(function(){window.location.reload(1);}, 15000);</script>
+</html>
 )_";
 
 FlashStream owmStatusPageFS(owmStatusPage);
+
 
 void handleOWMStatus(ESP8266WebServer& webServer, void* t)
 {
 	WeatherGetter* wg = static_cast<WeatherGetter*>(t);
 	StringStream ss(2048);
-	macroStringReplace(pageHeaderFS, constString("OWM Status"), ss);
+	macroStringReplace(pageHeaderFS, constString(F("OWM Status")), ss);
 
 	std::map<String, String> m =
 	{
@@ -240,9 +203,38 @@ void handleOWMStatus(ESP8266WebServer& webServer, void* t)
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-static RegisterPackage r1("OWM1", new WeatherGetter, TaskDescriptor::CONNECTED,
+String getWeatherDescription(void* t)
 {
-	PageDescriptor("owmc1", "OWM Config", &handleOWMConfig),
-	PageDescriptor("owms1", "OWM Status", &handleOWMStatus)
-});
+	WeatherGetter* wg = static_cast<WeatherGetter*>(t);
+	String r(wg->localization);
+	r += ": ";
+	r += (char)0x82;		//external temperature symbol
+	r += String(wg->temperature, 1);
+	r += '\x80';
+	r += 'C';
+	r += " ";
+	r += wg->pressure;
+	r += " hPa";
+	return r;
+}
+
+static RegisterPackage r1("OWM1", new WeatherGetter, TaskDescriptor::CONNECTED,
+	{
+		PageDescriptor("owmc1", "OWM Config 1", &handleOWMConfig),
+		PageDescriptor("owms1", "OWM Status 1", &handleOWMStatus)
+	},
+	{
+		{getWeatherDescription, 0.1_s, 1, true}
+	}
+);
+
+static RegisterPackage r2("OWM2", new WeatherGetter, TaskDescriptor::CONNECTED,
+	{
+		PageDescriptor("owmc2", "OWM Config 2", &handleOWMConfig),
+		PageDescriptor("owms2", "OWM Status 2", &handleOWMStatus)
+	},
+	{
+		{getWeatherDescription, 0.1_s, 1, true}
+	}
+);
 

@@ -82,7 +82,8 @@ RegisterPage::RegisterPage(const String& url, const String& label, std::function
 }
 
 RegisterPackage::RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags,
-						 std::initializer_list<PageDescriptor> pages)
+						 std::initializer_list<PageDescriptor> pages,
+						 std::initializer_list<DisplayLineDescriptor> displayLines)
 {
 	addTask(t, flags);
 	for (auto& pd: pages)
@@ -91,6 +92,15 @@ RegisterPackage::RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags
 			pd.callback(w, t);
 		});
 	}
+
+	for (auto& dld: displayLines)
+	{
+		DisplayState ds = {[t, dld](){return dld.provider(t);}, dld.period, dld.cycles, dld.scrolling};
+		getDisplayTask().addRegularMessage(ds);
+	}
+
+	//add after each...
+	getDisplayTask().addRegularMessage({getTime, 1_s, 5,	false});
 }
 
 
