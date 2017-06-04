@@ -31,7 +31,6 @@ DisplayTask::DisplayTask(uint32_t deviceCount):
 		regularMessages({
 			{getTime, 										1_s,	10,	false},
 			{getDate, 										2_s,	1,	false},
-//			{getFromDataStore(("webmessage")),				0.05_s,	1,	true},		//webmessage
 			})
 {
 	init();

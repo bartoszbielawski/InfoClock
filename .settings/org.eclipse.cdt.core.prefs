@@ -184,10 +184,10 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.DT
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.DTS/value=3600
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.LOCAL/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.LOCAL/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.LOCAL/value=1496358325
+environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.LOCAL/value=1496531562
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.UTC/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.UTC/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.UTC/value=1496351125
+environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.UTC/value=1496524362
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.ZONE/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.ZONE/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.ZONE/value=3600
@@ -214,7 +214,7 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.NAME/operatio
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NAME/value=WeMos D1 R2 & mini
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.AUTH/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.AUTH/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.AUTH/value=TRUE
+environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.AUTH/value=password
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.PORT/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.PORT/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.PORT/value=8266

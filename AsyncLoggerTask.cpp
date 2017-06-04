@@ -22,6 +22,6 @@ void AsyncLoggerTask::run()
 		syslogSend(msg.first, msg.second.c_str());
 		messages.pop();
 	}
-	_wait(1_s);
+	_wait(0.5_s);
 }
 

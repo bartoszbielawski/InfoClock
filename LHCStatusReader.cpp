@@ -111,6 +111,7 @@ LHCStatusReader::LHCStatusReader():
 void LHCStatusReader::reset()
 {
 	//reset variables
+	valid = false;
 	page1Comment = "";
 	beamEnergy = 0.0f;
 	beamMode = "";
@@ -304,6 +305,7 @@ void LHCStatusReader::parseData()
 			}
 		}
 	}
+	valid = true;
 	mc.reset();
 }
 
@@ -316,7 +318,7 @@ static const char lhcStatusPage[] PROGMEM = R"_(
 <tr><th>LHC Status</th></tr>
 <tr><td class="l">Beam mode:</td><td>$mode$</td></tr>
 <tr><td class="l">Page 1 Comment:</td><td>$comment$</td></tr>
-<tr><td class="l">Energy:</td><td>$energy$</td></tr>
+<tr><td class="l">Energy:</td><td>$energy$ GeV</td></tr>
 <tr><td class="l">Packets:</td><td>$packets$</td></tr>
 </table>
 </body>
@@ -338,7 +340,7 @@ static void handleLHCStatus(ESP8266WebServer& webServer, void* t)
 	{
 			{F("mode"), lsr->getBeamMode()},
 			{F("comment"), lsr->getPage1Comment()},
-			{F("energy"), lsr->getBeamEnergy()},
+			{F("energy"), String(lsr->getBeamEnergy())},
 			{F("packets"), packets}
 	};
 
@@ -349,20 +351,22 @@ static void handleLHCStatus(ESP8266WebServer& webServer, void* t)
 static String getStateInfo(void* t)
 {
 	LHCStatusReader* lsr = (LHCStatusReader*)t;
-	String s = lsr->getBeamMode();
-	s += ": ";
-	s += lsr->getPage1Comment();
-	return s;
+	const String& bm = lsr->getBeamMode();
+	const String& p1c = lsr->getPage1Comment();
+	if (bm.length() && p1c.length())
+		return bm + ":" + p1c;
+
+	return String();
 }
 
 static String getEnergy(void* t)
 {
 	LHCStatusReader* lsr = (LHCStatusReader*)t;
-	String s = lsr->getBeamEnergy();
-	if (s == "0")
+	auto s = lsr->getBeamEnergy();
+	if (s == 0)
 		return String();
 
-	return s + " GeV";
+	return String(s, 0) + " GeV";
 }
 
 static RegisterPackage lhc("lhc", new LHCStatusReader, TaskDescriptor::CONNECTED,

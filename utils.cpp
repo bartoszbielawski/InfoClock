@@ -241,7 +241,6 @@ void readConfigFromFlash()
 String readConfig(const String& name)
 {
 	auto value = DataStore::value(name);
-	//logPrintf("RC: %s = %s", name.c_str(), value.c_str());
 	return value;
 }
 
@@ -283,6 +282,9 @@ String dataSource(const char* name)
 
 	if (strcmp(name, "essid") == 0)
 		return WiFi.SSID();
+
+	if (strcmp(name, "mac") == 0)
+		return WiFi.macAddress();
 
 	if (strcmp(name, "uptime") == 0)
 	{

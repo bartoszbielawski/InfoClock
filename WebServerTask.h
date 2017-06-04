@@ -22,19 +22,29 @@ public:
 
 	virtual void reset();
 
-	virtual ~WebServerTask();
+	virtual ~WebServerTask() = default;
 
 
 	void registerPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph);
 
 	bool started = false;
 
+	String webmessage;
+	String webmessageIP;
+
 private:
 	void handleMainPage();
+	void handleStatus();
+	void handleReset();
+	void handleWebMessage();
+	void handleGeneralSettings();
+
 	String generateLinks();
 
 	ESP8266WebServer webServer;
 	std::vector<std::pair<String, String>> registeredPages;
+
+
 
 };
 

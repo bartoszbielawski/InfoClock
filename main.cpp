@@ -36,17 +36,15 @@ void setup()
 
 	setupTasks();
 
-	String macAddress = WiFi.macAddress();
-	DataStore::value("mac") = macAddress;
-
 	logPrintfX(F("MAIN"), F("\n\n"));
-	logPrintfX(F("MAIN"), F("MAC Address: %s"), macAddress.c_str());
+	logPrintfX(F("MAIN"), F("MAC Address: %s"), WiFi.macAddress().c_str());
 
 	getDisplayTask().pushMessage("Initializing...", 2_s);
 	getDisplayTask().pushMessage(versionString, 0.4_s, true);
 
-	timezone = DataStore::value(F("timezone")).toInt();
-	syslogServer = DataStore::value(F("syslogServer"));
+	timezone = readConfig(F("timezone")).toInt();
+	syslogServer = readConfig(F("syslogServer"));
+
 	configTime(timezone, 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
 
 	configureOTA();

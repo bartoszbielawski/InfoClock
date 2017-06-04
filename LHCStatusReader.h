@@ -41,10 +41,11 @@ class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 
 		const String& getBeamMode() const {return beamMode;}
 		const String& getPage1Comment() const {return page1Comment;}
-		String 		  getBeamEnergy() const {String e(beamEnergy, 0); return e;}
+		float 		  getBeamEnergy() const {return beamEnergy;}
 		uint32_t      getPacketCount() const {return packetsRcvd;}
 
 	private:
+		bool valid = false;
 		float beamEnergy = 0.0f;
 		String beamMode;
 		String page1Comment;
