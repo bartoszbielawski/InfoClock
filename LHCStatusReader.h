@@ -15,6 +15,8 @@
 #include "ESPAsyncTCP.h"
 #include "MapCollector.hpp"
 
+class ESP8266WebServer;
+
 class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 {
 	public:
@@ -33,18 +35,13 @@ class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 
 		virtual void reset();
 
-		void parseEnergy(const std::string&);
-		void parsePage1Comment(const std::string&);
-		void parseBeamMode(const std::string& value);
-
 		virtual ~LHCStatusReader() = default;
 
-		const String& getBeamMode() const {return beamMode;}
-		const String& getPage1Comment() const {return page1Comment;}
-		float 		  getBeamEnergy() const {return beamEnergy;}
-		uint32_t      getPacketCount() const {return packetsRcvd;}
-
+		void parseEnergy(const std::string&);
+		void parsePage1Comment(const std::string&);
+		void parseBeamMode(const std::string&);
 	private:
+
 		bool valid = false;
 		float beamEnergy = 0.0f;
 		String beamMode;
@@ -60,6 +57,11 @@ class LHCStatusReader: public Tasks::TaskCRTP<LHCStatusReader>
 		uint32_t idlePacketsRcvd = 0;
 		uint32_t totalIdlePacketsRcvd = 0;
 		uint32_t reconnects = 0;
+
+		void handleStatusPage(ESP8266WebServer& ws);
+
+		String getEnergy();
+		String getStateInfo();
 };
 
 #endif /* LHCSTATUSREADER_H_ */

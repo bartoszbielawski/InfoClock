@@ -106,6 +106,11 @@ LHCStatusReader::LHCStatusReader():
 {
 	connection.setRxTimeout(30);	//no RX data for 30 seconds
 	sleep(15_s);
+
+	getWebServerTask().registerPage("lhc", "LHC Status",
+			[this](ESP8266WebServer& ws) {handleStatusPage(ws);});
+
+	getDisplayTask().addRegularMessage({[this](){return getEnergy();}, 2_s, 1, false});
 }
 
 void LHCStatusReader::reset()
@@ -328,53 +333,40 @@ static const char lhcStatusPage[] PROGMEM = R"_(
 
 FlashStream lhcStatusPageFS(lhcStatusPage);
 
-static void handleLHCStatus(ESP8266WebServer& webServer, void* t)
+void LHCStatusReader::handleStatusPage(ESP8266WebServer& webServer)
 {
-	LHCStatusReader* lsr = (LHCStatusReader*)t;
 	StringStream ss(2048);
 	macroStringReplace(pageHeaderFS, constString("LHC Status"), ss);
 
-	String packets(lsr->getPacketCount());
-
 	std::map<String, String> m =
 	{
-			{F("mode"), lsr->getBeamMode()},
-			{F("comment"), lsr->getPage1Comment()},
-			{F("energy"), String(lsr->getBeamEnergy())},
-			{F("packets"), packets}
+			{F("mode"), beamMode},
+			{F("comment"), page1Comment},
+			{F("energy"), String(beamEnergy, 0)},
+			{F("packets"), String(packetsRcvd)}
 	};
 
 	macroStringReplace(lhcStatusPageFS, mapLookup(m), ss);
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-static String getStateInfo(void* t)
+// ----------------- DISPLAY STUFF -------------------
+
+String LHCStatusReader::getStateInfo()
 {
-	LHCStatusReader* lsr = (LHCStatusReader*)t;
-	const String& bm = lsr->getBeamMode();
-	const String& p1c = lsr->getPage1Comment();
-	if (bm.length() && p1c.length())
-		return bm + ":" + p1c;
+	if (beamMode.length() && page1Comment.length())
+		return beamMode + ": " + page1Comment;
 
 	return String();
 }
 
-static String getEnergy(void* t)
+String LHCStatusReader::getEnergy()
 {
-	LHCStatusReader* lsr = (LHCStatusReader*)t;
-	auto s = lsr->getBeamEnergy();
-	if (s == 0)
+	if (beamEnergy == 0)
 		return String();
 
-	return String(s, 0) + " GeV";
+	return String(beamEnergy, 0) + " GeV";
 }
 
-static RegisterPackage lhc("lhc", new LHCStatusReader, TaskDescriptor::CONNECTED,
-		{
-				PageDescriptor("lhc", "LHC Status", handleLHCStatus)
-		},
-		{
-				{getStateInfo, 0.05_s, 1, true},
-				{getEnergy, 2_s, 1, false}
-		}
-);
+static RegisterTask rt1(new LHCStatusReader, TaskDescriptor::CONNECTED);
+

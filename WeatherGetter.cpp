@@ -52,6 +52,24 @@ WeatherGetter::WeatherGetter()
 
 	reset();
 	sleep(30_s);
+
+	String url("owms");
+	url += getId();
+	String label("OWM Status ");
+	label += getId();
+	getWebServerTask().registerPage(url, label, [this](ESP8266WebServer& ws) {handleStatus(ws);});
+
+	url = "owmc";
+	url += getId();
+	label = "OWM Config";
+	label += getId();
+	getWebServerTask().registerPage(url, label, [this](ESP8266WebServer& ws) {handleConfig(ws);});
+
+	getDisplayTask().addRegularMessage({
+			[this](){return getWeatherDescription();},
+			0.05_s,
+			1,
+			true});
 }
 
 void WeatherGetter::reset()
@@ -142,19 +160,17 @@ static const char owmConfigPage[] PROGMEM = R"_(
 
 FlashStream owmConfigPageFS(owmConfigPage);
 
-void handleOWMConfig(ESP8266WebServer& webServer, void* t)
+void WeatherGetter::handleConfig(ESP8266WebServer& webServer)
 {
 	if (!handleAuth(webServer)) return;
-
-	WeatherGetter* wg = (WeatherGetter*)t;
 
 	auto location = webServer.arg(F("owmId"));
 	auto key   = webServer.arg(F("owmKey"));
 	auto period = webServer.arg(F("owmPeriod"));
 
-	auto configIdName = String(F("owmId"))+wg->getId();
-	auto configKeyName = String(F("owmKey"))+wg->getId();
-	auto configPeriodName = String(F("owmPeriod"))+wg->getId();
+	auto configIdName = String(F("owmId"))+getId();
+	auto configKeyName = String(F("owmKey"))+getId();
+	auto configPeriodName = String(F("owmPeriod"))+getId();
 
 	if (location.length()) 	writeConfig(configIdName, location);
 	if (key.length()) 		writeConfig(configKeyName, key);
@@ -164,7 +180,7 @@ void handleOWMConfig(ESP8266WebServer& webServer, void* t)
 	macroStringReplace(pageHeaderFS, constString("OWM Settings"), ss);
 
 	std::map<String, String> m = {
-			{F("n"),			String(wg->getId())},
+			{F("n"),			String(getId())},
 			{F("owmId"), 		readConfig(configIdName)},
 			{F("owmKey"), 		readConfig(configKeyName)},
 			{F("owmPeriod"), 	readConfig(configPeriodName)},
@@ -187,54 +203,37 @@ static const char owmStatusPage[] PROGMEM = R"_(
 FlashStream owmStatusPageFS(owmStatusPage);
 
 
-void handleOWMStatus(ESP8266WebServer& webServer, void* t)
+void WeatherGetter::handleStatus(ESP8266WebServer& webServer)
 {
-	WeatherGetter* wg = static_cast<WeatherGetter*>(t);
 	StringStream ss(2048);
 	macroStringReplace(pageHeaderFS, constString(F("OWM Status")), ss);
 
 	std::map<String, String> m =
 	{
-			{F("loc"), wg->localization},
-			{F("t"), String(wg->temperature)},
-			{F("p"), String(wg->pressure)}
+			{F("loc"), localization},
+			{F("t"), String(temperature)},
+			{F("p"), String(pressure)}
 	};
 	macroStringReplace(owmStatusPageFS, mapLookup(m), ss);
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-String getWeatherDescription(void* t)
+String WeatherGetter::getWeatherDescription()
 {
-	WeatherGetter* wg = static_cast<WeatherGetter*>(t);
-	String r(wg->localization);
+	String r = localization;
 	r += ": ";
 	r += (char)0x82;		//external temperature symbol
-	r += String(wg->temperature, 1);
+	r += String(temperature, 1);
 	r += '\x80';
 	r += 'C';
 	r += " ";
-	r += wg->pressure;
+	r += pressure;
 	r += " hPa";
 	return r;
 }
 
-static RegisterPackage r1("OWM1", new WeatherGetter, TaskDescriptor::CONNECTED,
-	{
-		PageDescriptor("owmc1", "OWM Config 1", &handleOWMConfig),
-		PageDescriptor("owms1", "OWM Status 1", &handleOWMStatus)
-	},
-	{
-		{getWeatherDescription, 0.1_s, 1, true}
-	}
-);
 
-static RegisterPackage r2("OWM2", new WeatherGetter, TaskDescriptor::CONNECTED,
-	{
-		PageDescriptor("owmc2", "OWM Config 2", &handleOWMConfig),
-		PageDescriptor("owms2", "OWM Status 2", &handleOWMStatus)
-	},
-	{
-		{getWeatherDescription, 0.1_s, 1, true}
-	}
-);
+
+static RegisterTask r1(new WeatherGetter, TaskDescriptor::CONNECTED);
+static RegisterTask r2(new WeatherGetter, TaskDescriptor::CONNECTED);
 

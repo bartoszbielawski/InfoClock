@@ -14,6 +14,8 @@
 #include "PathListener.h"
 #include "CounterCRTP.hpp"
 
+class ESP8266WebServer;
+
 class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
 {
 	public:
@@ -27,6 +29,10 @@ class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
 		String localization;
 
 		String taskName;
+	private:
+		 void handleConfig(ESP8266WebServer& ws);
+		 void handleStatus(ESP8266WebServer& ws);
+		 String getWeatherDescription();
 };
 
 #endif /* WEATHERGETTER_H_ */
