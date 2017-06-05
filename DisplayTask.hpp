@@ -11,7 +11,7 @@
 #ifndef DISPLAYTASK_HPP_
 #define DISPLAYTASK_HPP_
 
-#include "task.hpp"
+#include "C-Tasks/task.hpp"
 #include "LEDMatrixDriver.h"
 #include "SDD.hpp"
 

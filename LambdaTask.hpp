@@ -8,7 +8,7 @@
 #ifndef LAMBDATASK_HPP_
 #define LAMBDATASK_HPP_
 
-#include "task.hpp"
+#include "C-Tasks/task.hpp"
 #include <functional>
 
 class LambdaTask: public Tasks::Task

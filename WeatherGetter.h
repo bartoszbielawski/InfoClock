@@ -8,10 +8,9 @@
 #ifndef WEATHERGETTER_H_
 #define WEATHERGETTER_H_
 
-#include "task.hpp"
+#include "C-Tasks/task.hpp"
 #include "ESP8266HTTPClient.h"
-#include "AJSP.hpp"
-#include "PathListener.h"
+#include "AJSP/AJSP.hpp"
 #include "CounterCRTP.hpp"
 
 class ESP8266WebServer;
@@ -30,9 +29,12 @@ class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
 
 		String taskName;
 
-		 void handleConfig(ESP8266WebServer& ws);
-		 void handleStatus(ESP8266WebServer& ws);
-		 String getWeatherDescription();
+		//page handling
+		void handleConfig(ESP8266WebServer& ws);
+		void handleStatus(ESP8266WebServer& ws);
+
+		//display function
+		String getWeatherDescription();
 };
 
 #endif /* WEATHERGETTER_H_ */

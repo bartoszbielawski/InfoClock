@@ -8,12 +8,11 @@
 #ifndef LHCSTATUSREADER_H_
 #define LHCSTATUSREADER_H_
 
-#include "task.hpp"
-#include "AJSP.hpp"
+#include "C-Tasks/task.hpp"
+#include "AJSP/AJSP.hpp"
 #include "CustomWebSocketPacketWrapper.h"
-#include "PathListener.h"
 #include "ESPAsyncTCP.h"
-#include "MapCollector.hpp"
+#include "AJSP/MapCollector.hpp"
 
 class ESP8266WebServer;
 

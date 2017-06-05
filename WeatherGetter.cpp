@@ -10,7 +10,7 @@
 #include "config.h"
 #include "utils.h"
 #include "tasks_utils.h"
-#include "MapCollector.hpp"
+#include "AJSP\MapCollector.hpp"
 #include "WebServerTask.h"
 #include "web_utils.h"
 #include "CounterCRTP.hpp"

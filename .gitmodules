@@ -1,0 +1,6 @@
+[submodule "AJSP"]
+	path = AJSP
+	url = https://github.com/bartoszbielawski/AJSP
+[submodule "C-Tasks"]
+	path = C-Tasks
+	url = https://github.com/bartoszbielawski/C-Tasks

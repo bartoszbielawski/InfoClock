@@ -40,7 +40,7 @@ static os_timer_t myTimer;
 static void timerCallback(void*)
 {
 	for (auto& td: getTasks())
-		updateSleep(td.task);
+		updateSleepSingle(td.task);
 }
 
 WifiConnector& getWifiConnector();
@@ -114,7 +114,7 @@ void scheduleTasks()
 
 		if (!slow)
 		{
-			schedule(td.task);
+			scheduleSingle(td.task);
 			continue;
 		}
 

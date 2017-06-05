@@ -8,7 +8,7 @@
 #ifndef LOCALSENSORTASK_H_
 #define LOCALSENSORTASK_H_
 
-#include "task.hpp"
+#include "C-Tasks/task.hpp"
 #include "OneWire.h"
 #include "DallasTemperature.h"
 

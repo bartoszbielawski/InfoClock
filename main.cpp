@@ -5,10 +5,8 @@
 
 #include "config.h"
 
-#include "task.hpp"
 #include "tasks_utils.h"
 #include "utils.h"
-#include "DataStore.h"
 #include "OTA.hpp"
 #include "SyslogSender.hxx"
 
