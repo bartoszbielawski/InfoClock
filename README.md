@@ -1,23 +1,27 @@
-# InfoClock
+# InfoClock v 0.2.5
 
-A small clock project that displays some information on a LED display
+A small and configurable clock project that displays some information on a LED display.
 
-CPU:      ESP8266 (WeMos D1 Mini or NodeMCU)
+## Features
+* LED display for displaying information
+* Temperature/pressure display using OpenWeatherMap
+* Local temperature display
+* Embedded web server for configuration and monitoring
+* Can log messages using syslog
+* LHC Status display 
+* Modular approach makes it easy to add new modules (tasks).
 
-Display:  8x 8x8 pixel MAX7219-based display
-Bought here:
-https://www.aliexpress.com/item/Free-Shipping-MAX7219-Dot-Matrix-Module-For-Arduino-Microcontroller-4-In-One-Display-with-5P-Line/32597603008.html
+## Parts:
+* CPU:      ESP8266 (WeMos D1 Mini or NodeMCU)
+* Display:  8x8 pixel MAX7219-based display (currently 8 modules)
+* DS18B20:  local temperature sensor
 
-The current setup is 2 panels of 2x4 displays. Number of displays can be set in config.h
-
-
-Required libraries:
+## Required libraries:
 * ESP8266HTTPClient
 * ESP8266WebServer
 * ESP8266Wifi
-* LedControl
 * ESPAsyncTCP (for the LHC Reader)
 
 And libraries already included:
-* AJSP (Another Json Streaming Parser)
+* AJSP (Another JSON Streaming Parser)
 * C++Tasks

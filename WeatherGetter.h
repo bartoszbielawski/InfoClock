@@ -23,13 +23,13 @@ class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
 		virtual ~WeatherGetter() {}
 		virtual void reset();
 		virtual void run();
-
+	private:
 		int16_t pressure;
 		float temperature;
 		String localization;
 
 		String taskName;
-	private:
+
 		 void handleConfig(ESP8266WebServer& ws);
 		 void handleStatus(ESP8266WebServer& ws);
 		 String getWeatherDescription();
