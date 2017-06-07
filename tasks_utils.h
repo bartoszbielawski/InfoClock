@@ -8,7 +8,7 @@
 #ifndef TASKS_UTILS_H_
 #define TASKS_UTILS_H_
 
-#include "C-Tasks/task.hpp"
+#include <task.hpp>
 
 #include "WebServerTask.h"
 #include "DisplayTask.hpp"

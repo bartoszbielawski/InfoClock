@@ -8,11 +8,9 @@
 #ifndef WEBSERVERTASK_H_
 #define WEBSERVERTASK_H_
 
-#include "C-Tasks/task.hpp"
+#include <task.hpp>
 #include "Arduino.h"
 #include "ESP8266WebServer.h"
-
-//extern String webMessage;
 
 class WebServerTask: public Tasks::Task {
 public:

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>InfoClockZ</name>
+	<name>InfoClock</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -39,12 +39,22 @@
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/variants/d1_mini</locationURI>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/variants/nodemcu</locationURI>
+		</link>
+		<link>
+			<name>libraries/AJSP-master</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/AJSP-master/src</locationURI>
 		</link>
 		<link>
 			<name>libraries/ArduinoOTA</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ArduinoOTA</locationURI>
+		</link>
+		<link>
+			<name>libraries/C-Tasks-master</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/C-Tasks-master/src</locationURI>
 		</link>
 		<link>
 			<name>libraries/DallasTemperature</name>

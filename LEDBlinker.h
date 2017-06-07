@@ -8,7 +8,7 @@
 #ifndef LEDBLINKER_H_
 #define LEDBLINKER_H_
 
-#include "C-Tasks/task.hpp"
+#include <task.hpp>
 
 class LEDBlinker: public Tasks::Task
 {

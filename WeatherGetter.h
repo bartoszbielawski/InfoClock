@@ -8,9 +8,8 @@
 #ifndef WEATHERGETTER_H_
 #define WEATHERGETTER_H_
 
-#include "C-Tasks/task.hpp"
+#include <task.hpp>
 #include "ESP8266HTTPClient.h"
-#include "AJSP/AJSP.hpp"
 #include "CounterCRTP.hpp"
 
 class ESP8266WebServer;
