@@ -17,11 +17,14 @@ A small and configurable clock project that displays some information on a LED d
 * DS18B20:  local temperature sensor
 
 ## Required libraries:
+
+### Global:
 * ESP8266HTTPClient
 * ESP8266WebServer
 * ESP8266Wifi
-* ESPAsyncTCP (for the LHC Reader)
 
-And libraries already included:
-* AJSP (Another JSON Streaming Parser)
-* C++Tasks
+### Local:
+* ESPAsyncTCP (for the LHC Reader) (https://github.com/me-no-dev/ESPAsyncTCP)
+* AJSP (https://github.com/bartoszbielawski/InfoClock.git)
+* C++Tasks (https://github.com/bartoszbielawski/C-Tasks)
+* LEDMatrixDisplay (https://github.com/bartoszbielawski/LEDMatrixDriver)
