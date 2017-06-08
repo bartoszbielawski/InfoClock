@@ -2,7 +2,7 @@
  * Author: Bartosz Bielawski
  */
 
-#include "LEDMatrixDriver.h"
+#include <LEDMatrixDriver.hpp>
 #include "SDD.hpp"
 #include "config.h"
 

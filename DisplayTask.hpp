@@ -12,7 +12,7 @@
 #define DISPLAYTASK_HPP_
 
 #include <task.hpp>
-#include "LEDMatrixDriver.h"
+#include <LEDMatrixDriver.hpp>
 #include "SDD.hpp"
 
 using MessageProvider = std::function<String()>;

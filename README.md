@@ -1,4 +1,4 @@
-# InfoClock v 0.2.5
+# InfoClock v 0.2.7
 
 A small and configurable clock project that displays some information on a LED display.
 

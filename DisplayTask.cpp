@@ -10,7 +10,6 @@
 
 #include "pyfont.h"
 #include "myTestFont.h"
-#include "LEDMatrixDriver.h"
 
 #include "utils.h"
 #include "tasks_utils.h"
