@@ -10,6 +10,11 @@
 #include "pgmspace.h"
 #include "Arduino.h"
 
+extern "C"
+{
+#include "user_interface.h"
+};
+
 WifiConnector::WifiConnector(Callback callback): TaskCRTP(&WifiConnector::lateInit), callback(callback)
 {
 }
@@ -56,10 +61,12 @@ void WifiConnector::initAP()
 
 void WifiConnector::initSTA(const String& essid)
 {
-
 	WiFi.softAPdisconnect();
 	WiFi.disconnect();
 	WiFi.mode(WIFI_STA);
+
+	//set the lowest possible mode
+	wifi_set_phy_mode(PHY_MODE_11N);
 
 	String pwd   = readConfig(F("wifiPassword"));
 
@@ -73,6 +80,7 @@ void WifiConnector::initSTA(const String& essid)
 
 void WifiConnector::monitorClientStatus()
 {
+	//WiFi.printDiag(Serial);
 	auto status = WiFi.status();
 
 	//check the status, notify about state change

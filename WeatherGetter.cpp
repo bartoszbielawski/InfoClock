@@ -24,7 +24,7 @@
 
 using namespace std;
 
-const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.5/weather?%s&APPID=%s&units=metric";
+const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.5/weather?id=%d&APPID=%s&units=metric";
 
 static const vector<String> prefixes{
 	"main",
@@ -47,58 +47,77 @@ bool jsonPathFilter(const string& key, const string& /*value*/)
 
 WeatherGetter::WeatherGetter()
 {
-	taskName = "WG";
-	taskName += counter;
+	getWebServerTask().registerPage(F("owms"), F("OWM Status"), [this](ESP8266WebServer& ws) {handleStatus(ws);});
+	getWebServerTask().registerPage(F("owmc"), F("OWM Config"), [this](ESP8266WebServer& ws) {handleConfig(ws);});
 
-	reset();
-	sleep(30_s);
-
-	String url("owms");
-	url += getId();
-	String label("OWM Status ");
-	label += getId();
-	getWebServerTask().registerPage(url, label, [this](ESP8266WebServer& ws) {handleStatus(ws);});
-
-	url = "owmc";
-	url += getId();
-	label = "OWM Config";
-	label += getId();
-	getWebServerTask().registerPage(url, label, [this](ESP8266WebServer& ws) {handleConfig(ws);});
-
-	getDisplayTask().addRegularMessage({
-			[this](){return getWeatherDescription();},
-			0.05_s,
-			1,
-			true});
+	//wait for the network
+	suspend();
 }
 
 void WeatherGetter::reset()
 {
-	temperature = 0.0f;
-	pressure = 0;
-	localization = "";
+	weathers.clear();
+
+	String ids = readConfig(F("owmId"));
+	apiKey = readConfig(F("owmKey"));
+
+	//generate list of "weathers" to be checked
+	int32_t from = 0;
+	int32_t to;
+
+	do
+	{
+		auto commaIndex = ids.indexOf(",", from);
+		to = commaIndex == -1 ? ids.length(): commaIndex;
+
+		String s = ids.substring(from, to);
+		logPrintfX(F("WG"), "ID: %s", s.c_str());
+
+		from = to+1;
+
+		weathers.emplace_back(s.toInt());
+	}
+	while (from < ids.length());
+
+	logPrintfX(F("WG"), "Found %d IDs", weathers.size());
+
+	getDisplayTask().removeRegularMessages(this);
+
+	for (int i = 0; i < weathers.size(); ++i)
+	{
+		logPrintfX(F("WG"), "Adding screen message %d", i);
+		getDisplayTask().addRegularMessage({
+						this,
+						[this, i](){return getWeatherDescription(i);},
+						0.05_s,
+						1,
+						true});
+	}
+
+
+	currentWeatherIndex = 0;
 }
 
 void WeatherGetter::run()
 {
-	String idn(F("owmId"));
-	String keyn(F("owmKey"));
-	idn += counter;
-	keyn += counter;
-	auto location = readConfig(idn);
-	auto key = readConfig(keyn);
-
-	if (location.length() == 0 or key.length() == 0)
+	//if no weathers are configured or apiKey is missing...
+	if (weathers.size() == 0 or apiKey.length() == 0)
 	{
-		logPrintfX(taskName, F("Service not configured... "));
+		logPrintfX(F("WG"), F("Service not configured... "));
 		sleep(60_s);
 		return;
 	}
 
-	char localBuffer[256];
-	snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, location.c_str(), key.c_str());
+	Weather& w = weathers[currentWeatherIndex];
 
-	logPrintfX(taskName, F("URL = %s"), localBuffer);
+
+	char localBuffer[256];
+	snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, w.locationId, apiKey.c_str());
+
+	logPrintfX(F("WG"), F("URL[%d] = %s"), currentWeatherIndex, localBuffer);
+
+	currentWeatherIndex++;
+	currentWeatherIndex %= weathers.size();
 
 	HTTPClient httpClient;
 	httpClient.begin(localBuffer);
@@ -107,7 +126,7 @@ void WeatherGetter::run()
 
 	if (httpCode != HTTP_CODE_OK)
 	{
-		logPrintfX(taskName, F("HTTP failed with code %d"), httpCode);
+		logPrintfX(F("WG"), F("HTTP failed with code %d"), httpCode);
 		sleep(60_s);
 		httpClient.end();
 		return;
@@ -126,21 +145,26 @@ void WeatherGetter::run()
 
 	auto& results = mc.getValues();
 
-	pressure = atoi(results["/root/main/pressure"].c_str());
-	temperature = atof(results["/root/main/temp"].c_str());
-	localization = results["/root/name"].c_str();
+	w.pressure = atoi(results["/root/main/pressure"].c_str());
+	w.temperature = atof(results["/root/main/temp"].c_str());
+	w.location = results["/root/name"].c_str();
 
 	//print all we have acquired - useful for adding new fields
-	for (const auto& e: results)
-	{
-		logPrintfX(taskName, F("%s = %s"), e.first.c_str(), e.second.c_str());
-	}
+	//	for (const auto& e: results)
+	//	{
+	//		logPrintfX(F("WG"), F("%s = %s"), e.first.c_str(), e.second.c_str());
+	//	}
 
 	httpClient.end();
 
-	String periodParamName(F("owmPeriod"));
-	periodParamName += counter;
-	int period = readConfig(periodParamName).toInt() * MS_PER_CYCLE;
+
+	if (currentWeatherIndex != 0)
+	{
+		sleep(5_s);		//one readout every 5 seconds, then longer break...
+		return;
+	}
+
+	int period = readConfig(F("owmPeriod")).toInt() * MS_PER_CYCLE;
 	if (period == 0)
 		period = 600_s;
 
@@ -148,7 +172,7 @@ void WeatherGetter::run()
 }
 
 static const char owmConfigPage[] PROGMEM = R"_(
-<form method="post" action="owmc$n$" autocomplete="on">
+<form method="post" action="owmc" autocomplete="on">
 <table>
 <tr><th>OpenWeatherMap</th></tr>
 <tr><td class="l">ID:</td><td><input type="text" name="owmId" value="$owmId$"></td></tr>
@@ -168,9 +192,9 @@ void WeatherGetter::handleConfig(ESP8266WebServer& webServer)
 	auto key   = webServer.arg(F("owmKey"));
 	auto period = webServer.arg(F("owmPeriod"));
 
-	auto configIdName = String(F("owmId"))+getId();
-	auto configKeyName = String(F("owmKey"))+getId();
-	auto configPeriodName = String(F("owmPeriod"))+getId();
+	auto configIdName = String(F("owmId"));
+	auto configKeyName = String(F("owmKey"));
+	auto configPeriodName = String(F("owmPeriod"));
 
 	if (location.length()) 	writeConfig(configIdName, location);
 	if (key.length()) 		writeConfig(configKeyName, key);
@@ -180,7 +204,6 @@ void WeatherGetter::handleConfig(ESP8266WebServer& webServer)
 	macroStringReplace(pageHeaderFS, constString("OWM Settings"), ss);
 
 	std::map<String, String> m = {
-			{F("n"),			String(getId())},
 			{F("owmId"), 		readConfig(configIdName)},
 			{F("owmKey"), 		readConfig(configKeyName)},
 			{F("owmPeriod"), 	readConfig(configPeriodName)},
@@ -188,52 +211,81 @@ void WeatherGetter::handleConfig(ESP8266WebServer& webServer)
 
 	macroStringReplace(owmConfigPageFS, mapLookup(m), ss);
 	webServer.send(200, textHtml, ss.buffer);
+
+	//reload display tasks
+	reset();
 }
 
 static const char owmStatusPage[] PROGMEM = R"_(
-<table>
 <tr><th>$loc$</th></tr>
 <tr><td class="l">Temperature:</td><td>$t$ &#8451;</td></tr>
 <tr><td class="l">Pressure:</td><td>$p$ hPa</td></tr>
+)_";
+
+static const char owmFooterPage[] PROGMEM = R"_(
 </table></form></body>
 <script>setTimeout(function(){window.location.reload(1);}, 15000);</script>
 </html>
 )_";
 
 FlashStream owmStatusPageFS(owmStatusPage);
-
+FlashStream owmFooterPageFS(owmFooterPage);
 
 void WeatherGetter::handleStatus(ESP8266WebServer& webServer)
 {
 	StringStream ss(2048);
+	logPrintfX(F("WG"), "OWM Status...");
 	macroStringReplace(pageHeaderFS, constString(F("OWM Status")), ss);
+	ss.print("<table>");
 
-	std::map<String, String> m =
+	for (auto& w: weathers)
 	{
-			{F("loc"), localization},
-			{F("t"), String(temperature)},
-			{F("p"), String(pressure)}
-	};
-	macroStringReplace(owmStatusPageFS, mapLookup(m), ss);
+		//don't show it if we didn't get anything yet...
+		if (!w.location.length())
+			continue;
+
+		std::map<String, String> m =
+		{
+				{F("loc"), w.location},
+				{F("t"), String(w.temperature)},
+				{F("p"), String(w.pressure)}
+		};
+		macroStringReplace(owmStatusPageFS, mapLookup(m), ss);
+	}
+
+	logPrintfX(F("WG"), "Sending footer...");
+	macroStringReplace(owmFooterPageFS, [](const char*) {return String();}, ss);
+	logPrintfX(F("WG"), "Total size: %d", ss.buffer.length());
+
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-String WeatherGetter::getWeatherDescription()
+String WeatherGetter::getWeatherDescription(uint32_t index)
 {
-	String r = localization;
+	String r;
+	if (index >= weathers.size())
+		return r;
+
+	const Weather& w = weathers[index];
+
+	r.reserve(64);
+
+	if (w.location.length() == 0)
+		return String();
+
+	r += w.location;
 	r += ": ";
 	r += (char)0x82;		//external temperature symbol
-	r += String(temperature, 1);
+	r += String(w.temperature, 1);
 	r += '\x80';
 	r += 'C';
 	r += " ";
-	r += pressure;
+	r += w.pressure;
 	r += " hPa";
 	return r;
 }
 
 
 
-static RegisterTask r1(new WeatherGetter, TaskDescriptor::CONNECTED);
-static RegisterTask r2(new WeatherGetter, TaskDescriptor::CONNECTED);
+static RegisterTask r1(new WeatherGetter, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
 

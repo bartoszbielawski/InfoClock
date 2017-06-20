@@ -28,8 +28,8 @@ DisplayTask::DisplayTask(uint32_t deviceCount):
 		TaskCRTP(&DisplayTask::nextMessage),
 		ledMatrixDriver(deviceCount, LED_CS), scroll(ledMatrixDriver),
 		regularMessages({
-			{getTime, 										1_s,	10,	false},
-			{getDate, 										2_s,	1,	false},
+			{this, getTime, 1_s,	10,	false},
+			{this, getDate, 2_s,	1,	false},
 			})
 {
 	init();
@@ -39,6 +39,15 @@ DisplayTask::DisplayTask(uint32_t deviceCount):
 void DisplayTask::addRegularMessage(const DisplayState& ds)
 {
 	regularMessages.push_back(ds);
+}
+
+void DisplayTask::removeRegularMessages(void* owner)
+{
+	regularMessages.erase(
+			std::remove_if(
+					regularMessages.begin(),
+					regularMessages.end(),
+					[owner] (const DisplayState& ds) {return ds.owner == owner;}));
 }
 
 void DisplayTask::init()
@@ -54,7 +63,7 @@ void DisplayTask::reset()
 
 void DisplayTask::pushMessage(const String& m, uint16_t sleep, bool scrolling)
 {
-	priorityMessages.push_back(DisplayState{[m](){return m;}, sleep, 1, scrolling});
+	priorityMessages.push_back(DisplayState{this, [m](){return m;}, sleep, 1, scrolling});
 
 	//wake up thread and interrupt the other display
 	//only if it's not a priority message
@@ -103,7 +112,7 @@ void DisplayTask::refreshMessage()
 
 	sleep(ds.period);
 	//this flag will alow slow tasks to execute only if there is a two second sleep ahead
-	slowTaskCanExecute = ds.period > 1_s;
+	slowTaskCanExecute = ds.period >= 1_s;
 	//logPrintfX(F("DT"), F("slowTask: %s"), slowTaskCanExecute ? "true": "false");
 }
 

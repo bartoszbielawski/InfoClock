@@ -33,7 +33,7 @@ WebServerTask::WebServerTask():
 		webServer(80)
 {
 	reset();
-	DisplayState ds{[this]() {return webmessage;}, 0.05_s, 1, true};
+	DisplayState ds{this, [this]() {return webmessage;}, 0.05_s, 1, true};
 	getDisplayTask().addRegularMessage(ds);
 }
 

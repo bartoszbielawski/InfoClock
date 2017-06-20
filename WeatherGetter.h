@@ -11,6 +11,7 @@
 #include <task.hpp>
 #include "ESP8266HTTPClient.h"
 #include "CounterCRTP.hpp"
+#include <vector>
 
 class ESP8266WebServer;
 
@@ -22,18 +23,31 @@ class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
 		virtual void reset();
 		virtual void run();
 	private:
-		int16_t pressure;
-		float temperature;
-		String localization;
+		struct Weather
+		{
+			Weather(uint32_t locationId):
+				locationId(locationId),
+				pressure(0),
+				temperature(0) {}
 
-		String taskName;
+			uint32_t locationId;
+			int16_t pressure;
+			float  temperature;
+			String location;
+		};
+
+		std::vector<Weather> weathers;
+
+		uint32_t currentWeatherIndex;
+
+		String apiKey;
 
 		//page handling
 		void handleConfig(ESP8266WebServer& ws);
 		void handleStatus(ESP8266WebServer& ws);
 
 		//display function
-		String getWeatherDescription();
+		String getWeatherDescription(uint32_t index);
 };
 
 #endif /* WEATHERGETTER_H_ */

@@ -95,12 +95,12 @@ RegisterPackage::RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags
 
 	for (auto& dld: displayLines)
 	{
-		DisplayState ds = {[t, dld](){return dld.provider(t);}, dld.period, dld.cycles, dld.scrolling};
+		DisplayState ds = {t, [t, dld](){return dld.provider(t);}, dld.period, dld.cycles, dld.scrolling};
 		getDisplayTask().addRegularMessage(ds);
 	}
 
 	//add after each...
-	getDisplayTask().addRegularMessage({getTime, 1_s, 5,	false});
+	getDisplayTask().addRegularMessage({t, getTime, 1_s, 5,	false});
 }
 
 

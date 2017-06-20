@@ -110,7 +110,8 @@ LHCStatusReader::LHCStatusReader():
 	getWebServerTask().registerPage("lhc", "LHC Status",
 			[this](ESP8266WebServer& ws) {handleStatusPage(ws);});
 
-	getDisplayTask().addRegularMessage({[this](){return getEnergy();}, 2_s, 1, false});
+	getDisplayTask().addRegularMessage({this, [this](){return getEnergy();}, 2_s, 1, false});
+	getDisplayTask().addRegularMessage({this, [this](){return getStateInfo();}, 0.025_s, 1, true});
 }
 
 void LHCStatusReader::reset()
@@ -368,5 +369,5 @@ String LHCStatusReader::getEnergy()
 	return String(beamEnergy, 0) + " GeV";
 }
 
-static RegisterTask rt1(new LHCStatusReader, TaskDescriptor::CONNECTED);
+static RegisterTask rt1(new LHCStatusReader, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
 

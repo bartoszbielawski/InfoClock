@@ -20,6 +20,7 @@ using MessageProvider = std::function<String()>;
 
 struct DisplayState
 {
+		void*		owner;
 		MessageProvider fun;
 		uint16_t	period;
 		uint16_t 	cycles;
@@ -42,6 +43,7 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		void refreshMessage();
 
 		void addRegularMessage(const DisplayState& ds);
+		void removeRegularMessages(void* owner);
 
 	private:
 		void nextDisplay();
