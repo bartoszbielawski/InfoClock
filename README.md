@@ -1,10 +1,10 @@
-# InfoClock v 0.2.7
+# InfoClock v 0.2.9
 
 A small and configurable clock project that displays some information on a LED display.
 
 ## Features
 * LED display for displaying information
-* Temperature/pressure display using OpenWeatherMap
+* Temperature and forecast display using OpenWeatherMap
 * Local temperature display
 * Embedded web server for configuration and monitoring
 * Can log messages using syslog
@@ -25,6 +25,8 @@ A small and configurable clock project that displays some information on a LED d
 
 ### Local:
 * ESPAsyncTCP (for the LHC Reader) (https://github.com/me-no-dev/ESPAsyncTCP)
-* AJSP (https://github.com/bartoszbielawski/InfoClock.git)
-* C++Tasks (https://github.com/bartoszbielawski/C-Tasks)
+
+### From Arduino library repo
+* AJSP (https://github.com/bartoszbielawski/InfoClock)
+* CPPTasks (https://github.com/bartoszbielawski/CPPTasks)
 * LEDMatrixDisplay (https://github.com/bartoszbielawski/LEDMatrixDriver)

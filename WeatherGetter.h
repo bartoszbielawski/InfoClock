@@ -27,13 +27,15 @@ class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
 		{
 			Weather(uint32_t locationId):
 				locationId(locationId),
-				pressure(0),
-				temperature(0) {}
+				temperature(0),
+				temperatureForecast(0) {}
 
 			uint32_t locationId;
-			int16_t pressure;
 			float  temperature;
+			float  temperatureForecast;
+			String description;
 			String location;
+
 		};
 
 		std::vector<Weather> weathers;

@@ -14,6 +14,7 @@
 #include "WebServerTask.h"
 #include "web_utils.h"
 #include "CounterCRTP.hpp"
+#include <exception>
 
 /*
  * 2660646 - Geneva
@@ -24,11 +25,23 @@
 
 using namespace std;
 
-const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.5/weather?id=%d&APPID=%s&units=metric";
+const static char urlTemplate[] PROGMEM =
+		"http://api.openweathermap.org/data/2.5/weather?id=%d&APPID=%s&units=metric";
+const static char urlForecastTemplate[] PROGMEM =
+		"http://api.openweathermap.org/data/2.5/forecast?id=%d&APPID=%s&units=metric&cnt=2";
+
+
+/* forecast path
+ /root/list/n/main/temp			--temperature
+ /root/list/n/weather/0/main	--description
+ /root/list/n/weather/0/description --
+ */
 
 static const vector<String> prefixes{
 	"main/temp",
-	"name"
+	"name",
+	"list/1/main/temp",
+	"list/1/weather/0/description"
 };
 
 bool jsonPathFilter(const string& key, const string& /*value*/)
@@ -53,7 +66,7 @@ WeatherGetter::WeatherGetter()
 	getDisplayTask().addRegularMessage({
 		this,
 		[this](){return getWeatherDescription();},
-		0.05_s,
+		0.035_s,
 		1,
 		true});
 
@@ -91,6 +104,34 @@ void WeatherGetter::reset()
 	currentWeatherIndex = 0;
 }
 
+
+
+int getHttpResponse(HTTPClient& httpClient, MapCollector& mc, const char* url)
+{
+	httpClient.begin(url);
+	int httpCode = httpClient.GET();
+
+	if (httpCode != 200)
+		return httpCode;
+
+	mc.reset();
+
+	String json = httpClient.getString();
+	for (size_t  i = 0; i < json.length(); ++i)
+	{
+		mc.parse(json[i]);
+	}
+
+	httpClient.end();
+
+	return httpCode;
+}
+
+
+
+
+
+
 void WeatherGetter::run()
 {
 	//if no weathers are configured or apiKey is missing...
@@ -102,54 +143,63 @@ void WeatherGetter::run()
 	}
 
 	Weather& w = weathers[currentWeatherIndex];
-
-
-	char localBuffer[256];
-	snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, w.locationId, apiKey.c_str());
-
-	logPrintfX(F("WG"), F("URL[%d] = %s"), currentWeatherIndex, localBuffer);
+	logPrintfX(F("WG"), "Reading weather for id = %d", w.locationId);
 
 	currentWeatherIndex++;
 	currentWeatherIndex %= weathers.size();
 
+	//locals needed for the rest of the code
+	MapCollector mc(jsonPathFilter);
 	HTTPClient httpClient;
-	httpClient.begin(localBuffer);
+	httpClient.setReuse(true);
+	char localBuffer[256];
+	int code = 0;
 
-	int httpCode = httpClient.GET();
-
-	if (httpCode != HTTP_CODE_OK)
+	while (true)
 	{
-		logPrintfX(F("WG"), F("HTTP failed with code %d"), httpCode);
-		sleep(60_s);
+		//get weather
+		snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, w.locationId, apiKey.c_str());
+		logPrintfX(F("WG"), "URL: %s", localBuffer);
+		code = getHttpResponse(httpClient, mc, localBuffer);
+		if (code != 200)
+			break;
+
+		auto& results = mc.getValues();
+		w.temperature = atof(results["/root/main/temp"].c_str());
+		w.location = results["/root/name"].c_str();
+
+//		for (const auto& p: results)
+//		{
+//			logPrintfX(F("WG"), "%s = %s", p.first.c_str(), p.second.c_str());
+//		}
+
+		//get forecast
+		snprintf_P(localBuffer, sizeof(localBuffer), urlForecastTemplate, w.locationId, apiKey.c_str());
+		logPrintfX(F("WG"), "URL: %s", localBuffer);
+		code = getHttpResponse(httpClient, mc, localBuffer);
+		if (code != 200)
+			break;
+
+		w.temperatureForecast = atof(results["/root/list/1/main/temp"].c_str());
+		w.description = results["/root/list/1/weather/0/description"].c_str();
+
+//		for (const auto& p: results)
+//		{
+//			logPrintfX(F("WG"), "%s = %s", p.first.c_str(), p.second.c_str());
+//		}
+
+
 		httpClient.end();
+
+		//oops, forgot to break...
+		break;
+	}
+	if (code != 200)
+	{
+		logPrintfX(F("WG"), F("HTTP failed with code %d"), code);
+		sleep(60_s);
 		return;
 	}
-
-	//fetch the response
-	String json = httpClient.getString();
-
-	//prepare the parser - provide filtering function
-	MapCollector mc(jsonPathFilter);
-
-	for (size_t  i = 0; i < json.length(); ++i)
-	{
-		mc.parse(json[i]);
-	}
-
-	auto& results = mc.getValues();
-
-	w.pressure = atoi(results["/root/main/pressure"].c_str());
-	w.temperature = atof(results["/root/main/temp"].c_str());
-	w.location = results["/root/name"].c_str();
-
-	//print all we have acquired - useful for adding new fields
-	for (const auto& e: results)
-	{
-		logPrintfX(F("WG"), F("%s = %s"), e.first.c_str(), e.second.c_str());
-	}
-
-	httpClient.end();
-
 
 	if (currentWeatherIndex != 0)
 	{
@@ -157,7 +207,7 @@ void WeatherGetter::run()
 		return;
 	}
 
-	int period = readConfig(F("owmPeriod")).toInt() * MS_PER_CYCLE;
+	int period = readConfig(F("owmPeriod")).toInt() * 1_s;
 	if (period == 0)
 		period = 600_s;
 
@@ -212,7 +262,8 @@ void WeatherGetter::handleConfig(ESP8266WebServer& webServer)
 static const char owmStatusPage[] PROGMEM = R"_(
 <tr><th>$loc$</th></tr>
 <tr><td class="l">Temperature:</td><td>$t$ &#8451;</td></tr>
-<tr><td class="l">Pressure:</td><td>$p$ hPa</td></tr>
+<tr><td class="l">Temperature (forecast):</td><td>$tf$ &#8451;</td></tr>
+<tr><td class="l">Weather (forecast):</td><td>$df$</td></tr>
 )_";
 
 static const char owmFooterPage[] PROGMEM = R"_(
@@ -241,7 +292,8 @@ void WeatherGetter::handleStatus(ESP8266WebServer& webServer)
 		{
 				{F("loc"), w.location},
 				{F("t"), String(w.temperature)},
-				{F("p"), String(w.pressure)}
+				{F("tf"), String(w.temperatureForecast)},
+				{F("df"), w.description},
 		};
 		macroStringReplace(owmStatusPageFS, mapLookup(m), ss);
 	}
@@ -267,13 +319,19 @@ String WeatherGetter::getWeatherDescription()
 
 		r += w.location;
 		r += " ";
-		r += (char)0x82;		//external temperature symbol
 		r += String(w.temperature, 1);
 		r += '\x80';
 		r += 'C';
-//		r += " ";
-//		r += w.pressure;
-//		r += " hPa";
+		r += " (";
+		r += String(w.temperatureForecast, 1);
+		r += '\x80';
+		r += 'C';
+		r += ", ";
+		r += w.description;
+		r += ")";
+		//		r += " ";
+		//		r += w.pressure;
+		//		r += " hPa";
 
 		r += " -- ";
 	}
