@@ -27,7 +27,7 @@ using namespace std;
 const static char urlTemplate[] PROGMEM = "http://api.openweathermap.org/data/2.5/weather?id=%d&APPID=%s&units=metric";
 
 static const vector<String> prefixes{
-	"main",
+	"main/temp",
 	"name"
 };
 
@@ -49,6 +49,13 @@ WeatherGetter::WeatherGetter()
 {
 	getWebServerTask().registerPage(F("owms"), F("OWM Status"), [this](ESP8266WebServer& ws) {handleStatus(ws);});
 	getWebServerTask().registerPage(F("owmc"), F("OWM Config"), [this](ESP8266WebServer& ws) {handleConfig(ws);});
+
+	getDisplayTask().addRegularMessage({
+		this,
+		[this](){return getWeatherDescription();},
+		0.05_s,
+		1,
+		true});
 
 	//wait for the network
 	suspend();
@@ -80,20 +87,6 @@ void WeatherGetter::reset()
 	while (from < ids.length());
 
 	logPrintfX(F("WG"), "Found %d IDs", weathers.size());
-
-	getDisplayTask().removeRegularMessages(this);
-
-	for (int i = 0; i < weathers.size(); ++i)
-	{
-		logPrintfX(F("WG"), "Adding screen message %d", i);
-		getDisplayTask().addRegularMessage({
-						this,
-						[this, i](){return getWeatherDescription(i);},
-						0.05_s,
-						1,
-						true});
-	}
-
 
 	currentWeatherIndex = 0;
 }
@@ -150,10 +143,10 @@ void WeatherGetter::run()
 	w.location = results["/root/name"].c_str();
 
 	//print all we have acquired - useful for adding new fields
-	//	for (const auto& e: results)
-	//	{
-	//		logPrintfX(F("WG"), F("%s = %s"), e.first.c_str(), e.second.c_str());
-	//	}
+	for (const auto& e: results)
+	{
+		logPrintfX(F("WG"), F("%s = %s"), e.first.c_str(), e.second.c_str());
+	}
 
 	httpClient.end();
 
@@ -260,28 +253,36 @@ void WeatherGetter::handleStatus(ESP8266WebServer& webServer)
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-String WeatherGetter::getWeatherDescription(uint32_t index)
+String WeatherGetter::getWeatherDescription()
 {
 	String r;
-	if (index >= weathers.size())
-		return r;
+	r.reserve(256);
 
-	const Weather& w = weathers[index];
+	for (size_t i = 0; i < weathers.size(); ++i)
+	{
+		const Weather& w = weathers[i];
 
-	r.reserve(64);
+		if (w.location.length() == 0)
+			continue;
 
-	if (w.location.length() == 0)
-		return String();
+		r += w.location;
+		r += " ";
+		r += (char)0x82;		//external temperature symbol
+		r += String(w.temperature, 1);
+		r += '\x80';
+		r += 'C';
+//		r += " ";
+//		r += w.pressure;
+//		r += " hPa";
 
-	r += w.location;
-	r += ": ";
-	r += (char)0x82;		//external temperature symbol
-	r += String(w.temperature, 1);
-	r += '\x80';
-	r += 'C';
-	r += " ";
-	r += w.pressure;
-	r += " hPa";
+		r += " -- ";
+	}
+
+	if (r.endsWith(" -- "))
+	{
+		r.remove(r.length() - 4);	//remove the end
+	}
+
 	return r;
 }
 

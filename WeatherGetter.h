@@ -47,7 +47,7 @@ class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
 		void handleStatus(ESP8266WebServer& ws);
 
 		//display function
-		String getWeatherDescription(uint32_t index);
+		String getWeatherDescription();
 };
 
 #endif /* WEATHERGETTER_H_ */
