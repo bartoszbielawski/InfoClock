@@ -197,7 +197,7 @@ void WeatherGetter::run()
 	if (code != 200)
 	{
 		logPrintfX(F("WG"), F("HTTP failed with code %d"), code);
-		sleep(60_s);
+		sleep(600_s);
 		return;
 	}
 

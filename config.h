@@ -12,11 +12,12 @@
 
 const static uint8_t LBLUE = D4;
 
-//SPI DISPLAY
-const static uint8_t LED_CS = D8;
-//Not used anymore as hardware SPI is used now
-//LED_MOSI = D7
-//LED_CLK = D5
+//SPI display configuration
+//commented pins are hardware SPI
+//LED_CLK = D5 - to clock (CLK)
+//LED_MOSI = D7 - to data in (DIN)
+const static uint8_t LED_CS = D8;		//to SS
+
 
 const static int32_t DISPLAYS = 8;
 const static uint8_t INTENSITY = 2;

@@ -186,6 +186,11 @@ void WebServerTask::handleGeneralSettings()
 		if (pwd.length())
 			writeConfig(F("wifiPassword"), pwd);
 
+		pwd = webServer.arg(F("configPassword"));
+
+		if (pwd.length())
+			writeConfig(F("configPassword"), pwd);
+
 		writeConfig(F("timezone"), webServer.arg(F("timezone")));
 
 		auto ss = webServer.arg(F("syslogServer"));

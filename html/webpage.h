@@ -26,6 +26,8 @@ static const char pageHeader[] PROGMEM = R"_(
 static const char generalSettingsPage[] PROGMEM = R"_(
 <form method="post" action="settings" autocomplete="on">
 <table>
+<tr><th>Password</th></tr>
+<tr><td class="l">Password:</td><td><input name="configPassword" type="password"></td></tr>
 <tr><th>WiFi settings</th></tr>
 <tr><td class="l">ESSID:</td><td><input name="essid" type="text" value="$essid$"></td></tr>
 <tr><td class="l">Password:</td><td><input name="wifiPassword" type="password"></td></tr>
@@ -75,7 +77,7 @@ static const char mainPage[] PROGMEM = R"_(
 <html>
   <head>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
-    <title>ESP Display</title>
+    <title>InfoClock</title>
     <style>
       a {text-align: center; display: block; font-size: 150%; color: #353; text-decoration: none; background-color: #DFD;
              padding: 4px; border: 1px solid #383; border-radius: 10px; max-width: 400px}
@@ -84,7 +86,7 @@ static const char mainPage[] PROGMEM = R"_(
       </style>
   </head>
   <body>
-   <h2>ESP Display</h2>
+   <h2>InfoClock</h2>
    <a href="/status">Device status</a>
    <a href="/settings">General settings</a>
    <a href="/webmessage">Web Message</a>
