@@ -27,6 +27,7 @@ DisplayTask::DisplayTask(uint32_t deviceCount):
 			})
 {
 	init();
+	ledMatrixDriver.setIntensity(intensity);
 }
 
 
@@ -105,7 +106,7 @@ void DisplayTask::refreshMessage()
 		nextState = &DisplayTask::nextMessage;
 
 	sleep(ds.period);
-	//this flag will alow slow tasks to execute only if there is a two second sleep ahead
+	//this flag will allow slow tasks to execute only if there is a two second sleep ahead
 	slowTaskCanExecute = ds.period >= 1_s;
 	//logPrintfX(F("DT"), F("slowTask: %s"), slowTaskCanExecute ? "true": "false");
 }
@@ -144,7 +145,7 @@ static const char displayConfigPage[] PROGMEM = R"_(
 <table>
 <tr><th>Display Config</th></tr>
 <tr><td class="l">Segments:</td><td>$segments$</td></tr>
-<tr><td class="l">Brightness:</td><td>$brightness$</td></tr>
+<tr><td class="l">Brightness:</td><td><input name="brightness" type="text" value="$brightness$"></td></tr>
 <tr><td/><td><input type="submit"></td></tr>
 </table>
 </form>
@@ -159,12 +160,13 @@ void DisplayTask::handleConfigPage(ESP8266WebServer& webServer)
 	if (!handleAuth(webServer))
 		return;
 
-	auto a = webServer.arg(F("segments"));
+	auto a = webServer.arg(F("brightness"));
 	if (a.length())
 	{
-
+		auto i = a.toInt();
+		intensity = i;
+		ledMatrixDriver.setIntensity(i);
 	}
-	a = webServer.arg(F("brightness"));
 
 	StringStream ss(2048);
 
@@ -173,7 +175,7 @@ void DisplayTask::handleConfigPage(ESP8266WebServer& webServer)
 	std::map<String, String> m =
 		{
 				{F("segments"), String(this->ledMatrixDriver.getSegments())},
-				{F("brightness"), String(this->ledMatrixDriver.getSegments())}
+				{F("brightness"), String(this->intensity)}
 		};
 
 	macroStringReplace(displayConfigPageFS, mapLookup(m), ss);

@@ -15,6 +15,7 @@
 #include <LEDMatrixDriver.hpp>
 #include "SDD.hpp"
 #include "web_utils.h"
+#include "config.h"
 
 using MessageProvider = std::function<String()>;
 
@@ -53,6 +54,7 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		LEDMatrixDriver ledMatrixDriver;
 		SDD scroll;
 		DisplayState ds;
+		int8_t intensity = INTENSITY;
 
 		std::vector<DisplayState> regularMessages;
 		std::vector<DisplayState> priorityMessages;
