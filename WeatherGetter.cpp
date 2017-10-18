@@ -63,6 +63,11 @@ WeatherGetter::WeatherGetter()
 	getWebServerTask().registerPage(F("owms"), F("OWM Status"), [this](ESP8266WebServer& ws) {handleStatus(ws);});
 	getWebServerTask().registerPage(F("owmc"), F("OWM Config"), [this](ESP8266WebServer& ws) {handleConfig(ws);});
 
+	auto& dt = getDisplayTask();
+
+	getWebServerTask().registerPage(F("dispConf"), F("Display Config"),
+		[&dt]  (ESP8266WebServer& ws) mutable {dt.handleConfigPage(ws);});
+
 	getDisplayTask().addRegularMessage({
 		this,
 		[this](){return getWeatherDescription();},

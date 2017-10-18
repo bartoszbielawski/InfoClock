@@ -17,12 +17,6 @@
 
 #include "config.h"
 
-//static MessageProvider getFromDataStore(const String& name)
-//{
-//	//TODO: check: capture expression copies value or reference?
-//	return [name]() {return DataStore::valueOrDefault(name, String());};
-//}
-
 
 DisplayTask::DisplayTask(uint32_t deviceCount):
 		TaskCRTP(&DisplayTask::nextMessage),
@@ -142,3 +136,47 @@ void DisplayTask::nextDisplay()
 	ds = regularMessages[index];
 	logPrintfX(F("DT"), F("New message from RQ = %s"), ds.fun().c_str());
 }
+
+
+//------------- HTML stuff
+static const char displayConfigPage[] PROGMEM = R"_(
+<form method="post" action="dispConf">
+<table>
+<tr><th>Display Config</th></tr>
+<tr><td class="l">Segments:</td><td>$segments$</td></tr>
+<tr><td class="l">Brightness:</td><td>$brightness$</td></tr>
+<tr><td/><td><input type="submit"></td></tr>
+</table>
+</form>
+</body>
+</html>
+)_";
+
+FlashStream displayConfigPageFS(displayConfigPage);
+
+void DisplayTask::handleConfigPage(ESP8266WebServer& webServer)
+{
+	if (!handleAuth(webServer))
+		return;
+
+	auto a = webServer.arg(F("segments"));
+	if (a.length())
+	{
+
+	}
+	a = webServer.arg(F("brightness"));
+
+	StringStream ss(2048);
+
+	macroStringReplace(pageHeaderFS, constString(F("Display Config")), ss);
+
+	std::map<String, String> m =
+		{
+				{F("segments"), String(this->ledMatrixDriver.getSegments())},
+				{F("brightness"), String(this->ledMatrixDriver.getSegments())}
+		};
+
+	macroStringReplace(displayConfigPageFS, mapLookup(m), ss);
+	webServer.send(200, textHtml, ss.buffer);
+}
+

@@ -184,10 +184,10 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.DT
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.DTS/value=3600
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.LOCAL/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.LOCAL/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.LOCAL/value=1499722760
+environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.LOCAL/value=1508368378
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.UTC/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.UTC/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.UTC/value=1499715560
+environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.UTC/value=1508361178
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.ZONE/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.ZONE/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.EXTRA.TIME.ZONE/value=3600
@@ -212,12 +212,6 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.JANTJE.VARIAN
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NAME/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NAME/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.NAME/value=WeMos D1 R2 & mini
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.AUTH/delimiter=;
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.AUTH/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.AUTH/value=TRUE
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.PORT/delimiter=;
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.PORT/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.NETWORK.PORT/value=8266
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.PACKAGES/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.PACKAGES/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.PACKAGES/value=${eclipse_home}/arduinoPlugin/packages
@@ -382,7 +376,7 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.SERIAL.PORT.F
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.SERIAL.PORT.FILE/value=${A.SERIAL.PORT}
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.SERIAL.PORT/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.SERIAL.PORT/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.SERIAL.PORT/value=esp8266-16bcdf.local
+environment/project/io.sloeber.core.toolChain.release.2108554339/A.SERIAL.PORT/value=${JANTJE.COM_PORT}
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.SOFTWARE/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.SOFTWARE/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.SOFTWARE/value=baeyens
@@ -400,7 +394,7 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.CMD/value=esptool.exe
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.NETWORK.PASSWORD/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.NETWORK.PASSWORD/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.NETWORK.PASSWORD/value=${A.NETWORK.AUTH}
+environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.NETWORK.PASSWORD/value=${A.TOOLS.ESPTOOL.NETWORK.AUTH}
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.NETWORK_CMD/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.NETWORK_CMD/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.NETWORK_CMD/value=python.exe
@@ -409,7 +403,7 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.PATH/value=${A.RUNTIME.TOOLS.ESPTOOL.PATH}
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.UPLOAD.NETWORK_PATTERN/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.UPLOAD.NETWORK_PATTERN/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.UPLOAD.NETWORK_PATTERN/value="${A.TOOLS.ESPTOOL.NETWORK_CMD}" "${A.RUNTIME.PLATFORM.PATH}/tools/espota.py" -i "${A.SERIAL.PORT}" -p "${A.NETWORK.PORT}" "--auth\=${A.TOOLS.ESPTOOL.NETWORK.PASSWORD}" -f "${A.BUILD.PATH}/${A.BUILD.PROJECT_NAME}.bin"
+environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.UPLOAD.NETWORK_PATTERN/value="${A.TOOLS.ESPTOOL.NETWORK_CMD}" "${A.RUNTIME.PLATFORM.PATH}/tools/espota.py" -i "${A.SERIAL.PORT}" -p "${A.TOOLS.ESPTOOL.NETWORK.PORT}" "--auth\=${A.TOOLS.ESPTOOL.NETWORK.PASSWORD}" -f "${A.BUILD.PATH}/${A.BUILD.PROJECT_NAME}.bin"
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.UPLOAD.PARAMS.QUIET/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.UPLOAD.PARAMS.QUIET/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.ESPTOOL.UPLOAD.PARAMS.QUIET/value=
@@ -428,9 +422,6 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.MKSPIFF
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.MKSPIFFS.PATH/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.MKSPIFFS.PATH/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.TOOLS.MKSPIFFS.PATH/value=${A.RUNTIME.TOOLS.MKSPIFFS.PATH}
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.FORCE_RESET_BEFORE_UPLOAD/delimiter=;
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.FORCE_RESET_BEFORE_UPLOAD/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.FORCE_RESET_BEFORE_UPLOAD/value=FALSE
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.MAXIMUM_DATA_SIZE/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.MAXIMUM_DATA_SIZE/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.MAXIMUM_DATA_SIZE/value=81920
@@ -449,9 +440,6 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.TOOL/v
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.WAIT_FOR_UPLOAD_PORT/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.WAIT_FOR_UPLOAD_PORT/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD.WAIT_FOR_UPLOAD_PORT/value=true
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD_CLASS.TOOL/delimiter=;
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD_CLASS.TOOL/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/A.UPLOAD_CLASS.TOOL/value=arduinoUploader
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.VERSION/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.VERSION/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/A.VERSION/value=2.2.0
@@ -469,7 +457,7 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.BOARD_NA
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.BOARD_NAME/value=WeMos D1 R2 & mini
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.COM_PORT/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.COM_PORT/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.COM_PORT/value=esp8266-16bcdf.local at 192.168.1.139 (ESP8266_NODEMCU)null 8266
+environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.COM_PORT/value=COM9
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.ECLIPSE_LOCATION/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.ECLIPSE_LOCATION/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.ECLIPSE_LOCATION/value=
@@ -517,7 +505,7 @@ environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.SIZE.SWI
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.SIZE.SWITCH/value=${A.RECIPE.SIZE.PATTERN}
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.UPLOAD.PATTERN/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.UPLOAD.PATTERN/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.UPLOAD.PATTERN/value=${A.TOOLS.ESP8266OTA.UPLOAD.PATTERN}
+environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.UPLOAD.PATTERN/value=${A.TOOLS.ESPTOOL.UPLOAD.PATTERN}
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.UPLOAD.PROTOCOL/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.UPLOAD.PROTOCOL/operation=replace
 environment/project/io.sloeber.core.toolChain.release.2108554339/JANTJE.UPLOAD.PROTOCOL/value=Default

@@ -14,6 +14,7 @@
 #include <task.hpp>
 #include <LEDMatrixDriver.hpp>
 #include "SDD.hpp"
+#include "web_utils.h"
 
 using MessageProvider = std::function<String()>;
 
@@ -56,6 +57,9 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		std::vector<DisplayState> regularMessages;
 		std::vector<DisplayState> priorityMessages;
 		bool		priorityMessagePlayed = false;
+
+	public:
+		void handleConfigPage(ESP8266WebServer& webServer);
 };
 
 

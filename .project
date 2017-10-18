@@ -92,9 +92,9 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ESPAsyncTCP-master/src</locationURI>
 		</link>
 		<link>
-			<name>libraries/LEDMatrixDriver-0.1.0</name>
+			<name>libraries/LEDMatrixDriver</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/LEDMatrixDriver-0.1.0/src</locationURI>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/LEDMatrixDriver/0.1.1</locationURI>
 		</link>
 		<link>
 			<name>libraries/OneWire</name>

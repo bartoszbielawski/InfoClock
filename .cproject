@@ -36,8 +36,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/C-Tasks-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/AJSP-master}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver-0.1.0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/ESPAsyncTCP-master}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.cpp.sketch.input.246267131" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
@@ -60,8 +61,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/C-Tasks-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/AJSP-master}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver-0.1.0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/ESPAsyncTCP-master}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.c.sketch.input.2064562763" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
 							</tool>
@@ -84,8 +86,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/C-Tasks-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/AJSP-master}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver-0.1.0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/ESPAsyncTCP-master}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.S.sketch.input.1669961913" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
 							</tool>
