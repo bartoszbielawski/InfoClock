@@ -13,7 +13,6 @@
 #include <MapCollector.hpp>
 #include "WebServerTask.h"
 #include "web_utils.h"
-#include "CounterCRTP.hpp"
 #include <exception>
 
 /*

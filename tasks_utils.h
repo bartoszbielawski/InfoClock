@@ -12,7 +12,6 @@
 
 #include "WebServerTask.h"
 #include "DisplayTask.hpp"
-#include "AsyncLoggerTask.h"
 
 #include <initializer_list>
 
@@ -79,7 +78,6 @@ void scheduleTasks();
 
 WebServerTask& getWebServerTask();
 DisplayTask& getDisplayTask();
-AsyncLoggerTask& getLoggerTask();
 
 extern bool slowTaskCanExecute;
 

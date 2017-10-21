@@ -1,7 +1,7 @@
 /*
- * LHCStatusReader.cpp
+ * LHCStatusReaderNew.cpp
  *
- *  Created on: 11.01.2017
+ *  Created on: 19.10.2017
  *      Author: Bartosz Bielawski
  */
 
@@ -23,8 +23,8 @@ LHCStatusReaderNew::LHCStatusReaderNew()
 	getWebServerTask().registerPage("lhc", "LHC Status",
 			[this](ESP8266WebServer& ws) {handleStatusPage(ws);});
 
-	getDisplayTask().addRegularMessage({this, [this](){return getEnergy();}, 2_s, 1, false});
 	getDisplayTask().addRegularMessage({this, [this](){return getStateInfo();}, 0.025_s, 1, true});
+	getDisplayTask().addRegularMessage({this, [this](){return getEnergy();}, 2_s, 1, false});
 	sleep(15_s);
 }
 

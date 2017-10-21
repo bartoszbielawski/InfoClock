@@ -10,12 +10,11 @@
 
 #include <task.hpp>
 #include "ESP8266HTTPClient.h"
-#include "CounterCRTP.hpp"
 #include <vector>
 
 class ESP8266WebServer;
 
-class WeatherGetter: public Tasks::Task, public CounterCRTP<WeatherGetter>
+class WeatherGetter: public Tasks::Task
 {
 	public:
 		WeatherGetter();

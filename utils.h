@@ -27,15 +27,9 @@ uint32_t getUpTime();
 
 const char* generateRandomUUID();
 
-
-class AsyncClient;
-
-void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, AsyncClient* client);
-
 class __FlashStringHelper;
 
 void logPrintfX(const String& app, const String& format, ...);
-void logPrintfA(const String& app, const String& format, ...);
 
 //void logPrintfX(const __FlashStringHelper* app, const __FlashStringHelper* format, ...);
 //void logPrintfX(const __FlashStringHelper* app, const char* format, ...);

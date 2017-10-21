@@ -18,7 +18,6 @@
 #include "DataStore.h"
 #include "WiFiUdp.h"
 #include "SyslogSender.hxx"
-#include "ESPAsyncTCP.h"
 #include "ESP8266WiFi.h"
 #include "tasks_utils.h"
 
@@ -133,41 +132,6 @@ const char* generateRandomUUID()
 	return UUID;
 }
 
-void sendWSPacket_P(uint8_t header, uint16_t size, const uint8_t* key, PGM_P payload, AsyncClient* client)
-{
-	//header, length, key, payload
-	uint32_t totalSize = 1 + (size >= 0x7E ? 3: 1) + 4 + size;
-	//logPrintf("SWS: total packet size: %d", totalSize);
-
-	std::unique_ptr<uint8_t[]> ptr(new uint8_t[totalSize]);
-	uint8_t* pckt = ptr.get();
-
-	//logPrintf("SWS: header...");
-	*pckt++ = header;
-
-	//logPrintf("SWS: len...");
-	if (size >= 0x7E)
-	{
-		*pckt++ = 0xFE;
-		*pckt++ = size >> 8;
-		*pckt++ = size & 0xFF;
-	}
-	else
-	{
-		*pckt++ = (size & 0x7F) | 0x80;
-	}
-
-	//logPrintf("SWS: key...");
-	for (int i = 0; i < 4; i++)
-		*pckt++ = key[i];
-
-	//logPrintf("SWS: body...");
-	for (int i = 0; i < size; i++)
-		*pckt++ = pgm_read_byte(payload+i) ^ key[i % 4];
-
-	client->write((const char*)ptr.get(), totalSize);
-	//logPrintf("SWS: done!...");
-}
 
 void logPPrintf(char* format, ...)
 {
@@ -196,21 +160,6 @@ void logPrintfX(const String& app, const String& format, ...)
 	va_end(argList);
 }
 
-void logPrintfA(const String& app, const String& format, ...)
-{
-	char localBuffer[256];
-	String a(app);
-	va_list argList;
-	va_start(argList, format);
-	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - %s: ", getDateTime(), a.c_str());
-	vsnprintf(localBuffer+bytes, sizeof(localBuffer)-bytes, format.c_str(), argList);
-
-	Serial.println(localBuffer);
-
-	getLoggerTask().log(app.c_str(), localBuffer+bytes);
-
-	va_end(argList);
-}
 
 bool checkFileSystem()
 {

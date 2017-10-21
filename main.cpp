@@ -27,7 +27,7 @@ void setup()
 		SPIFFS.format();
 		SPIFFS.begin();
 		writeConfig(F("configPassword"), "password");
-		logPrintfX(F("MAIN"), F("Formatting filesystem, the default password is %s"), readConfig(F("configPassword")).c_str());
+		logPrintfX(F("MAIN"), F("Formatting file system, the default password is %s"), readConfig(F("configPassword")).c_str());
 	}
 
 	readConfigFromFlash();
