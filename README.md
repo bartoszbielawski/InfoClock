@@ -1,4 +1,4 @@
-# InfoClock v 0.2.9
+# InfoClock v 0.3.0
 
 A small and configurable clock project that displays some information on a LED display.
 
@@ -8,7 +8,7 @@ A small and configurable clock project that displays some information on a LED d
 * Local temperature display
 * Embedded web server for configuration and monitoring
 * Can log messages using syslog
-* LHC Status display 
+* LHC Status display (using data from ALICE)
 * Modular approach makes it easy to add new modules (tasks).
 
 ## Parts:
@@ -22,9 +22,6 @@ A small and configurable clock project that displays some information on a LED d
 * ESP8266HTTPClient
 * ESP8266WebServer
 * ESP8266Wifi
-
-### Local:
-* ESPAsyncTCP (for the LHC Reader) (https://github.com/me-no-dev/ESPAsyncTCP)
 
 ### From Arduino library repo
 * AJSP (https://github.com/bartoszbielawski/InfoClock)
