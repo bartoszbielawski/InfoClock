@@ -20,6 +20,7 @@
 #include "SyslogSender.hxx"
 #include "ESP8266WiFi.h"
 #include "tasks_utils.h"
+#include "LambdaTask.hpp"
 
 extern "C" {
 #include "user_interface.h"
@@ -187,10 +188,22 @@ void readConfigFromFlash()
 	}
 }
 
+String readConfigWithDefault(const String& name, const String& def)
+{
+	auto v = readConfig(name);
+	return v.length() != 0 ? v: def;
+}
+
 String readConfig(const String& name)
 {
-	auto value = DataStore::value(name);
-	return value;
+	static bool once = true;
+	if (once)
+	{
+		readConfigFromFlash();
+		once = false;
+	}
+
+	return DataStore::value(name);
 }
 
 void writeConfig(const String& name, const String& value)
@@ -254,4 +267,13 @@ String dataSource(const char* name)
 	}
 
 	return "?";
+}
+
+void rebootClock()
+{
+	getDisplayTask().pushMessage("Rebooting...", 5_s, false);
+	logPrintfX(F("WS"), F("Rebooting in 5 seconds..."));
+	LambdaTask* lt = new LambdaTask([](){ESP.restart();});
+	addTask(lt, TaskDescriptor::ENABLED);
+	lt->sleep(5_s);
 }

@@ -22,6 +22,11 @@ using MessageProvider = std::function<String()>;
 
 struct DisplayState
 {
+//		DisplayState(void* owner, MessageProvider fun,
+//				     uint16_t period, uint16_t cycles, bool scrolling):
+//				    	 owner(owner), fun(fun), period(period), cycles(cycles),
+//						 scrolling(scrolling) {}
+
 		void*		owner;
 		MessageProvider fun;
 		uint16_t	period;
@@ -33,7 +38,7 @@ struct DisplayState
 class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 {
 	public:
-		DisplayTask(uint32_t deviceCount);
+		DisplayTask();
 
 		void init();
 		virtual void reset();
@@ -47,6 +52,8 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		void addRegularMessage(const DisplayState& ds);
 		void removeRegularMessages(void* owner);
 
+		void addClock();
+
 	private:
 		void nextDisplay();
 
@@ -54,7 +61,6 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		LEDMatrixDriver ledMatrixDriver;
 		SDD scroll;
 		DisplayState ds;
-		int8_t intensity = INTENSITY;
 
 		std::vector<DisplayState> regularMessages;
 		std::vector<DisplayState> priorityMessages;

@@ -43,9 +43,12 @@ T min(T a, T b)
 class String;
 
 void readConfigFromFlash();
+String readConfigWithDefault(const String& name, const String& def);
 String readConfig(const String& name);
 void   writeConfig(const String& name, const String& value);
 
+
+void rebootClock();
 
 int32_t getTimeZone();
 uint32_t getUpTime();

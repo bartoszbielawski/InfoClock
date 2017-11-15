@@ -18,16 +18,25 @@
 #include "config.h"
 
 
-DisplayTask::DisplayTask(uint32_t deviceCount):
+DisplayTask::DisplayTask():
 		TaskCRTP(&DisplayTask::nextMessage),
-		ledMatrixDriver(deviceCount, LED_CS), scroll(ledMatrixDriver),
+		ledMatrixDriver(
+				readConfigWithDefault(F("segments"),"8").toInt(), LED_CS),
+				scroll(ledMatrixDriver),
 		regularMessages({
 			{this, getTime, 1_s,	10,	false},
 			{this, getDate, 2_s,	1,	false},
 			})
 {
 	init();
-	ledMatrixDriver.setIntensity(intensity);
+	ledMatrixDriver.setIntensity(readConfig(F("brightness")).toInt());
+}
+
+
+void DisplayTask::addClock()
+{
+	DisplayState ds = {this, getTime, 1_s, 10,	false};
+	regularMessages.push_back(ds);
 }
 
 
@@ -144,7 +153,7 @@ static const char displayConfigPage[] PROGMEM = R"_(
 <form method="post" action="dispConf">
 <table>
 <tr><th>Display Config</th></tr>
-<tr><td class="l">Segments:</td><td>$segments$</td></tr>
+<tr><td class="l">Segments:</td><td>  <input name="segments"   type="text" value="$segments$"></td></tr>
 <tr><td class="l">Brightness:</td><td><input name="brightness" type="text" value="$brightness$"></td></tr>
 <tr><td/><td><input type="submit"></td></tr>
 </table>
@@ -160,12 +169,19 @@ void DisplayTask::handleConfigPage(ESP8266WebServer& webServer)
 	if (!handleAuth(webServer))
 		return;
 
-	auto a = webServer.arg(F("brightness"));
-	if (a.length())
+	auto brightness = webServer.arg(F("brightness"));
+	auto segments = webServer.arg(F("segments"));
+
+	if (brightness.length())
 	{
-		auto i = a.toInt();
-		intensity = i;
-		ledMatrixDriver.setIntensity(i);
+		//reload value and save it
+		ledMatrixDriver.setIntensity(brightness.toInt());
+		writeConfig(F("brightness"), brightness);
+	}
+	if (segments.length())
+	{
+		writeConfig(F("segments"), segments);
+		//NOTE: this will not be applied until the device is rebooted
 	}
 
 	StringStream ss(2048);
@@ -174,8 +190,8 @@ void DisplayTask::handleConfigPage(ESP8266WebServer& webServer)
 
 	std::map<String, String> m =
 		{
-				{F("segments"), String(this->ledMatrixDriver.getSegments())},
-				{F("brightness"), String(this->intensity)}
+				{F("segments"),   readConfigWithDefault(F("segments"), F("8"))},
+				{F("brightness"), readConfig(F("brightness"))}
 		};
 
 	macroStringReplace(displayConfigPageFS, mapLookup(m), ss);

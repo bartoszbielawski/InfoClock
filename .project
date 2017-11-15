@@ -87,11 +87,6 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266mDNS</locationURI>
 		</link>
 		<link>
-			<name>libraries/ESPAsyncTCP-master</name>
-			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ESPAsyncTCP-master/src</locationURI>
-		</link>
-		<link>
 			<name>libraries/LEDMatrixDriver</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/LEDMatrixDriver/0.1.1</locationURI>

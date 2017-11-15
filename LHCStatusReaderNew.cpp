@@ -25,6 +25,7 @@ LHCStatusReaderNew::LHCStatusReaderNew()
 
 	getDisplayTask().addRegularMessage({this, [this](){return getStateInfo();}, 0.025_s, 1, true});
 	getDisplayTask().addRegularMessage({this, [this](){return getEnergy();}, 2_s, 1, false});
+	getDisplayTask().addClock();
 	sleep(15_s);
 }
 

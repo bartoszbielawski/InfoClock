@@ -131,11 +131,7 @@ void WebServerTask::handleReset()
 {
 	if (!handleAuth(webServer)) return;
 
-	getDisplayTask().pushMessage("Rebooting...", 5_s, false);
-	LambdaTask* lt = new LambdaTask([](){ESP.restart();});
-	addTask(lt, TaskDescriptor::ENABLED);
-	logPrintfX(F("WS"), F("Rebooting in 5 seconds..."));
-	lt->sleep(5_s);
+	rebootClock();
 
 	webServer.sendHeader("Location", String("/"), true);
 	webServer.send(302, "text/plain", "");

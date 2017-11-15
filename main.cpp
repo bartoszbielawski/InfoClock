@@ -30,7 +30,7 @@ void setup()
 		logPrintfX(F("MAIN"), F("Formatting file system, the default password is %s"), readConfig(F("configPassword")).c_str());
 	}
 
-	readConfigFromFlash();
+	//readConfigFromFlash();
 
 	setupTasks();
 

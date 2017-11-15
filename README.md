@@ -1,15 +1,16 @@
-# InfoClock v 0.3.1
+# InfoClock v 0.4.0
 
 A small and configurable clock project that displays some information on a LED display.
 
 ## Features
 * LED display for displaying information
 * Temperature and forecast display using OpenWeatherMap
-* Local temperature display
+* Local temperature display (DS18B20)
 * Embedded web server for configuration and monitoring
 * Can log messages using syslog
 * LHC Status display (using data from ALICE)
-* Modular approach makes it easy to add new modules (tasks).
+* Currency exchange rate from http://fixer.io
+* Modular approach makes it easy to add new modules (tasks)
 
 ## Parts:
 * CPU:      ESP8266 (WeMos D1 Mini or NodeMCU)

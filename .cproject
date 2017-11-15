@@ -36,7 +36,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/C-Tasks-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/AJSP-master}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/ESPAsyncTCP-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver/src}&quot;"/>
 								</option>
@@ -61,7 +60,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/C-Tasks-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/AJSP-master}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/ESPAsyncTCP-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver/src}&quot;"/>
 								</option>
@@ -86,7 +84,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/C-Tasks-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/AJSP-master}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/ESPAsyncTCP-master}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/InfoClock/libraries/LEDMatrixDriver/src}&quot;"/>
 								</option>

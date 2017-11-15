@@ -97,7 +97,7 @@ RegisterPackage::RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags
 	}
 
 	//add after each...
-	getDisplayTask().addRegularMessage({t, getTime, 1_s, 5,	false});
+	getDisplayTask().addClock();
 }
 
 
@@ -200,6 +200,6 @@ WebServerTask& getWebServerTask()
 
 DisplayTask& getDisplayTask()
 {
-	static DisplayTask displayTask(DISPLAYS);
+	static DisplayTask displayTask;
 	return displayTask;
 }
