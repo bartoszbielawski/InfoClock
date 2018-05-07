@@ -2,6 +2,8 @@
 
 A small and configurable clock project that displays some information on a LED display.
 
+Configured for use with PlatformIO
+
 ## Features
 * LED display for displaying information
 * Temperature and forecast display using OpenWeatherMap
