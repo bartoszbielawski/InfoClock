@@ -87,7 +87,7 @@ void WeatherGetter::reset()
 	apiKey = readConfig(F("owmKey"));
 
 	//generate list of "weathers" to be checked
-	int32_t from = 0;
+	uint32_t from = 0;
 	int32_t to;
 
 	do

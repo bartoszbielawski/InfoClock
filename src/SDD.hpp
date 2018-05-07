@@ -38,5 +38,5 @@ class SDD
 
 		const static int endDelay = 20;
 		int              delayCounter = 0;
-		int              physicalDisplayLen;
+		uint32_t         physicalDisplayLen;
 };

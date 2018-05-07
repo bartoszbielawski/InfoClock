@@ -96,7 +96,7 @@ void SDD::renderString(const String &message, const PyFont& font)
 
 void SDD::refreshDisplay()
 {
-	for (int  i = 0; i < physicalDisplayLen; ++i)
+	for (uint32_t  i = 0; i < physicalDisplayLen; ++i)
 	{
 		ledMatrixDriver.setColumn(i, buffer[i+startColumn]);
 	}

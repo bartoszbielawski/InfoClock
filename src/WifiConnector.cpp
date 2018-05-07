@@ -35,6 +35,7 @@ void WifiConnector::lateInit()
 		case States::AP:
 			initAP();
 			break;
+		default:
 		case States::CLIENT:
 			initSTA(essid);
 			break;
