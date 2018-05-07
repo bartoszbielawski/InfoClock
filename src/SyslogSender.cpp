@@ -6,7 +6,7 @@
  */
 
 
-#include "SyslogSender.hxx"
+#include "SyslogSender.h"
 #include "WiFiUdp.h"
 #include "DataStore.h"
 #include "utils.h"

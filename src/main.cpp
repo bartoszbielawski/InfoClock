@@ -8,7 +8,7 @@
 #include "tasks_utils.h"
 #include "utils.h"
 #include "OTA.hpp"
-#include "SyslogSender.hxx"
+#include "SyslogSender.h"
 
 #include "DisplayTask.hpp"
 

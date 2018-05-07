@@ -17,7 +17,7 @@
 #include "FS.h"
 #include "DataStore.h"
 #include "WiFiUdp.h"
-#include "SyslogSender.hxx"
+#include "SyslogSender.h"
 #include "ESP8266WiFi.h"
 #include "tasks_utils.h"
 #include "LambdaTask.hpp"
