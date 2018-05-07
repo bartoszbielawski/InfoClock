@@ -9,9 +9,9 @@
 using namespace std;
 
 SDD::SDD(LEDMatrixDriver &ledMatrixDriver):
-						  ledMatrixDriver(ledMatrixDriver),
-						  buffer(ledMatrixDriver.getSegments() * 8),
-						  physicalDisplayLen(ledMatrixDriver.getSegments() * 8)
+						buffer(ledMatrixDriver.getSegments() * 8),
+						ledMatrixDriver(ledMatrixDriver),  
+						physicalDisplayLen(ledMatrixDriver.getSegments() * 8)
 {
 	ledMatrixDriver.setEnabled(true);
 }

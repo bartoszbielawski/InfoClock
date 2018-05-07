@@ -26,8 +26,8 @@ extern "C" {
 #include "user_interface.h"
 }
 
-int operator"" _s(long double seconds) {return seconds * 1000 / MS_PER_CYCLE;}
-int operator"" _s(unsigned long long int seconds) {return seconds * 1000 / MS_PER_CYCLE;}
+uint16_t operator"" _s(long double seconds) {return seconds * 1000 / MS_PER_CYCLE;}
+uint16_t operator"" _s(unsigned long long int seconds) {return seconds * 1000 / MS_PER_CYCLE;}
 
 static char dateTimeBuffer[] = "1970-01-01T00:00:00";
 

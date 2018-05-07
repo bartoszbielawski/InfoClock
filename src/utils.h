@@ -13,8 +13,8 @@
 
 extern int32_t timezone;
 
-int operator"" _s(long double seconds);
-int operator"" _s(unsigned long long int seconds);
+uint16_t operator"" _s(long double seconds);
+uint16_t operator"" _s(unsigned long long int seconds);
 
 const char* getDateTime();
 
