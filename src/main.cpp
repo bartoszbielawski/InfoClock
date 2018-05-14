@@ -19,14 +19,14 @@ using namespace Tasks;
 
 void setup()
 {
-	Serial.begin(921600);
+	Serial.begin(SERIAL_BAUD_RATE);
 
 	//the filesystem is not ready yet - format it and save some settings
 	if (!SPIFFS.begin())
 	{
 		SPIFFS.format();
 		SPIFFS.begin();
-		writeConfig(F("configPassword"), "password");
+		writeConfig(F("configPassword"), DEFAULT_PASSWORD);
 		logPrintfX(F("MAIN"), F("Formatting file system, the default password is %s"), readConfig(F("configPassword")).c_str());
 	}
 

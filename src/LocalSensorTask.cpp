@@ -24,7 +24,9 @@ LocalSensorTask::LocalSensorTask():
 
 	//initialize and request the temperature right away
 	dallasTemperature.begin();
+	dallasTemperature.setWaitForConversion(false);
 	dallasTemperature.requestTemperatures();
+	sleep(10_s);
 }
 
 void LocalSensorTask::run()
@@ -34,14 +36,13 @@ void LocalSensorTask::run()
 	{
 		temperature = 0.0f;
 		logPrintfX(F("LST"), F("Sensor not found..."));
-		dallasTemperature.requestTemperatures();
-		sleep(10_s);
-		return;
+	}
+	else
+	{	
+		temperature = t;
+		logPrintfX(F("LST"), F("T = %s deg C"), String(t, 1).c_str());
 	}
 
-	temperature = t;
-
-	logPrintfX(F("LST"), F("T = %s deg C"), String(t, 1).c_str());
 	dallasTemperature.requestTemperatures();
 	sleep(10_s);
 }

@@ -9,9 +9,9 @@
 
 #include "web_utils.h"
 #include "utils.h"
-#include "MacroStringReplace.h"
-#include "html/webpage.h"
 #include "ESP8266WebServer.h"
+#include "config.h"
+#include <html/webpage.h>
 
 FlashStream pageHeaderFS(pageHeader);
 
@@ -20,7 +20,7 @@ const char textHtml[] = "text/html";
 
 bool handleAuth(ESP8266WebServer& webServer)
 {
-	bool authed = webServer.authenticate("user", readConfig(F("configPassword")).c_str());
+	bool authed = webServer.authenticate(DEFAULT_USER, readConfig(F("configPassword")).c_str());
 	if (!authed)
 		webServer.requestAuthentication();
 
