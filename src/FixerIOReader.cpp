@@ -134,6 +134,6 @@ void FixerIOReader::handleConfig(ESP8266WebServer& webServer)
 }
 
 
-static RegisterTask fiot(new FixerIOReader, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
+//static RegisterTask fiot(new FixerIOReader, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
 
 
