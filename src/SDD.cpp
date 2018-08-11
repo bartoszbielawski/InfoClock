@@ -2,6 +2,7 @@
  * Author: Bartosz Bielawski
  */
 
+#include <Adafruit_GFX.h>
 #include <LEDMatrixDriver.hpp>
 #include "SDD.hpp"
 #include "config.h"
@@ -100,5 +101,9 @@ void SDD::refreshDisplay()
 	{
 		ledMatrixDriver.setColumn(i, buffer[i+startColumn]);
 	}
-	ledMatrixDriver.display();
+
+	for (int i = 0; i < LED_DISPLAYS; i++)
+	{
+		ledMatrixDriver.display();
+	}
 }

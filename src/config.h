@@ -18,6 +18,8 @@ const static uint8_t LBLUE = D4;
 //LED_MOSI = D7 - to data in (DIN)
 const static uint8_t LED_CS = D8;		//to SS
 
+#define LED_DISPLAYS 1
+
 const static int32_t MS_PER_CYCLE = 10;
 
 //Local Sensor Task
@@ -25,7 +27,7 @@ const static uint8_t ONE_WIRE_TEMP = D3;
 //use this define if you have no free ground pin and want to use some DIO
 #define OW_GND D2
 
-const static char versionString[] = "v 0.4.0";
+const static char versionString[] = "v 0.4.1";
 
 const static int SERIAL_BAUD_RATE = 921600;
 
