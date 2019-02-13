@@ -1,4 +1,4 @@
-# InfoClock v 0.4.0
+# InfoClock v 0.4.2
 
 A small and configurable clock project that displays some information on a LED display.
 
@@ -10,8 +10,9 @@ Configured for use with PlatformIO
 * Local temperature display (DS18B20)
 * Embedded web server for configuration and monitoring
 * Can log messages using syslog
-* LHC Status display (using data from ALICE)
-* Currency exchange rate from http://fixer.io
+* LHC Status display (using data from ALICE) (currently disabled, the LHC is off for maintenance)
+* Brexit countdown!
+* Currency exchange rate from http://fixer.io (disabled - broken due to API changes)
 * Modular approach makes it easy to add new modules (tasks)
 
 ## Parts:
@@ -25,6 +26,7 @@ Configured for use with PlatformIO
 * ESP8266HTTPClient
 * ESP8266WebServer
 * ESP8266Wifi
+* Adarfuit GFX
 
 ### From Arduino library repo
 * AJSP (https://github.com/bartoszbielawski/InfoClock)
