@@ -148,5 +148,5 @@ String LHCStatusReaderNew::getEnergy()
 	return beamEnergy;
 }
 
-static RegisterTask rt1(new LHCStatusReaderNew, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
+//static RegisterTask rt1(new LHCStatusReaderNew, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
 

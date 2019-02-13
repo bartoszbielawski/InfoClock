@@ -12,6 +12,8 @@
 
 #include "DisplayTask.hpp"
 
+#include "BrexitCountdownDisplay.h"
+
 #include "ArduinoOTA.h"
 
 using namespace Tasks;
@@ -37,8 +39,11 @@ void setup()
 	logPrintfX(F("MAIN"), F("\n\n"));
 	logPrintfX(F("MAIN"), F("MAC Address: %s"), WiFi.macAddress().c_str());
 
-	getDisplayTask().pushMessage("Initializing...", 2_s);
-	getDisplayTask().pushMessage(versionString, 0.4_s, true);
+	auto& displayTask = getDisplayTask();
+
+	displayTask.pushMessage("Initializing...", 2_s);
+	displayTask.pushMessage(versionString, 0.4_s, true);
+	displayTask.addRegularMessage({&displayTask, getBrexitDowncountMessage, 0.05_s, 1, true});
 
 	timezone = readConfig(F("timezone")).toInt();
 	syslogServer = readConfig(F("syslogServer"));
