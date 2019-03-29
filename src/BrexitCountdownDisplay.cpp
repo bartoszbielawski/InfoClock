@@ -2,7 +2,7 @@
 #include <time.h>
 #include <utils.h>
 
-const static time_t BREXIT_DATE = 1553904000;
+const static time_t BREXIT_DATE = 1553904000 + (14 * 24 * 3600);
 
 String getBrexitDowncountMessage()
 {
@@ -33,7 +33,7 @@ String getBrexitDowncountMessage()
 
     char buffer[128];
 
-    snprintf(buffer, sizeof(buffer), "Brexit in %dd-%02dh-%02dm-%02ds", days, hours, minutes, seconds);
+    snprintf(buffer, sizeof(buffer), "Brexit (probably, make up your mind, will you?) in %dd-%02dh-%02dm-%02ds", days, hours, minutes, seconds);
 
     logPrintfX(F("BDC"), F("%s"), buffer);
 
