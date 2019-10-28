@@ -3,7 +3,10 @@
 #include <utils.h>
 
 //2019-10-31
-const static time_t BREXIT_DATE = 1572566340;
+//const static time_t BREXIT_DATE = 1572566340;
+
+//2020-01-31
+const static time_t BREXIT_DATE = 1580515199 + 3600;
 
 String getBrexitDowncountMessage()
 {
