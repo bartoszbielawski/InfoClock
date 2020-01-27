@@ -10,7 +10,7 @@
 
 #include "MacroStringReplace.h"
 
-class ESP8266WebServer;
+#include <ESP8266WebServer.h>
 
 bool handleAuth(ESP8266WebServer& webServer);
 extern FlashStream pageHeaderFS;

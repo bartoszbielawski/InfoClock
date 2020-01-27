@@ -6,7 +6,7 @@
 //const static time_t BREXIT_DATE = 1572566340;
 
 //2020-01-31
-const static time_t BREXIT_DATE = 1580515199 + 3600;
+const static time_t BREXIT_DATE = 1580515199;
 
 String getBrexitDowncountMessage()
 {
@@ -37,7 +37,7 @@ String getBrexitDowncountMessage()
 
     char buffer[256];
 
-    snprintf(buffer, sizeof(buffer), "Brexit (probably) in %dd-%02dh-%02dm-%02ds", days, hours, minutes, seconds);
+    snprintf(buffer, sizeof(buffer), "Brexit in %dd-%02dh-%02dm-%02ds", days, hours, minutes, seconds);
 
     logPrintfX(F("BDC"), F("%s"), buffer);
 

@@ -42,9 +42,10 @@ void LHCStatusReaderNew::reset()
 void LHCStatusReaderNew::run()
 {
 	HTTPClient httpClient;
+	WiFiClient wifiClient;
 
 	logPrintfX(F("LSRX"), F("Reading LHC Status"));
-	httpClient.begin(pageUrl);
+	httpClient.begin(wifiClient, pageUrl);
 
 	int httpCode = httpClient.GET();
 	if (httpCode != 200)

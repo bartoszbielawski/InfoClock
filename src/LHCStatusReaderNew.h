@@ -10,8 +10,7 @@
 
 #include <tasks.hpp>
 
-class ESP8266WebServer;
-
+#include <ESP8266WebServer.h>
 class LHCStatusReaderNew: public Tasks::Task
 {
 	public:

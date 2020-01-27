@@ -48,6 +48,7 @@ String FixerIOReader::getRate()
 
 void FixerIOReader::run()
 {
+	WiFiClient wifiClient;
 	HTTPClient httpClient;
 
 	logPrintfX(F("FIOR"), F("Reading conversion rate status"));
@@ -58,7 +59,7 @@ void FixerIOReader::run()
 
 	logPrintfX(F("FIOR"), url);
 
-	httpClient.begin(url);
+	httpClient.begin(wifiClient, url);
 
 	int httpCode = httpClient.GET();
 	if (httpCode != 200)

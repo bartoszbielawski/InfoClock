@@ -12,8 +12,7 @@
 #include "ESP8266HTTPClient.h"
 #include <vector>
 
-class ESP8266WebServer;
-
+#include <ESP8266WebServer.h>
 class WeatherGetter: public Tasks::Task
 {
 	public:

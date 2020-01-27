@@ -114,6 +114,7 @@ void WeatherGetter::reset()
 int getHttpResponse(HTTPClient& httpClient, MapCollector& mc, const char* url)
 {
 	httpClient.begin(url);
+
 	int httpCode = httpClient.GET();
 
 	if (httpCode != 200)

@@ -11,7 +11,7 @@
 #include <Arduino.h>
 #include <tasks.hpp>
 
-class ESP8266WebServer;
+#include <ESP8266WebServer.h>
 
 class FixerIOReader: public Tasks::Task
 {
