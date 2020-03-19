@@ -12,7 +12,7 @@
 
 #include "DisplayTask.hpp"
 
-#include "BrexitCountdownDisplay.h"
+#include "StatelessCounter.h"
 
 #include "ArduinoOTA.h"
 
@@ -43,7 +43,7 @@ void setup()
 
 	displayTask.pushMessage("Initializing...", 2_s);
 	displayTask.pushMessage(versionString, 0.4_s, true);
-	displayTask.addRegularMessage({&displayTask, getBrexitDowncountMessage, 0.05_s, 1, true});
+	displayTask.addRegularMessage({&displayTask, getMessage, 0.05_s, 1, true});
 
 	timezone = readConfig(F("timezone")).toInt();
 	syslogServer = readConfig(F("syslogServer"));

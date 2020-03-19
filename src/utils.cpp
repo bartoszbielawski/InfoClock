@@ -35,6 +35,9 @@ static uint32_t startUpTime = 0;
 
 uint32_t getUpTime()
 {
+	if (!startUpTime)
+		return 0;
+		
 	return	time(nullptr) - startUpTime;
 }
 
@@ -42,7 +45,7 @@ String getTime()
 {
 	time_t now = time(nullptr);
 
-	if (now == 0)
+	if (now < 1000000)
 	{
 		return "??:??:??";
 	}

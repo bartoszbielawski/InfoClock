@@ -3,6 +3,6 @@
 
 #include <Arduino.h>
 
-String getBrexitDowncountMessage();
+String getMessage();
 
 #endif
