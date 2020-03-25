@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <memory>
+#include <utility>
 
 #include "utils.h"
 #include "config.h"
@@ -175,21 +176,56 @@ bool checkFileSystem()
 	return alreadyFormatted;
 }
 
-void readConfigFromFlash()
+std::pair<String, String> splitLine(String&& line)
 {
-	SPIFFS.begin();
-	auto dir = SPIFFS.openDir(F("/config"));
+    std::pair<String, String> result;
 
-	while (dir.next())
-	{
-		auto f = dir.openFile("r");
-		auto value = f.readStringUntil('\n');
-		//skip the /config/ part of the path
-		auto name = dir.fileName().substring(8);
-		DataStore::value(name) = value;
-		//logPrintf(F("RCFF: %s = %s"), name.c_str(), value.c_str());
-	}
+    line.trim();     
+
+    if (line.length() == 0)
+        return result;
+
+    if (line[0] == '#')
+        return result;
+
+    auto pos = line.indexOf('=');   //find the first character
+
+    if (pos == -1)
+    {
+        result.first = line;
+        return result;
+    }
+
+    result.first = line.substring(0, pos);
+    line.remove(0, pos+1);          //remove the equal sign as well
+    result.second = line;
+    return result;
 }
+
+void readConfigFromFS()
+{
+    logPrintfX("UTL", F("Reading configuration values from the flash..."));
+    //the FS has to be initialized already...
+	SPIFFS.begin();
+    auto file = SPIFFS.open("/config.txt", "r");
+    if (!file)
+        return;
+    
+	//remove all the data that's already present
+	DataStore::clear();
+	
+    while (file.available())
+    {   
+	    auto p = splitLine( file.readStringUntil('\n'));
+        if (not p.second.length())
+            continue;
+            
+        logPrintfX("UTL", F("Config: %s = %s"), p.first.c_str(), p.second.c_str());
+		DataStore::value(p.first) = p.second;
+    }
+	SPIFFS.end();
+}  
+
 
 String readConfigWithDefault(const String& name, const String& def)
 {
@@ -202,7 +238,7 @@ String readConfig(const String& name)
 	static bool once = true;
 	if (once)
 	{
-		readConfigFromFlash();
+		readConfigFromFS();
 		once = false;
 	}
 

@@ -11,8 +11,7 @@
 #include <tasks.hpp>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-
-
+#include <ESP8266WebServer.h>
 
 class LocalSensorTask: public Tasks::Task
 {
@@ -24,6 +23,10 @@ class LocalSensorTask: public Tasks::Task
 
 		float temperature = 0.0f;
 
+		void handlePage(ESP8266WebServer& webserver);
+
+		String formatTemperature();		
+		
 	private:
 		OneWire oneWire;
 		DallasTemperature dallasTemperature;

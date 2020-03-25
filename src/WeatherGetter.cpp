@@ -60,13 +60,6 @@ bool jsonPathFilter(const string& key, const string& /*value*/)
 WeatherGetter::WeatherGetter()
 {
 	getWebServerTask().registerPage(F("owms"), F("OWM Status"), [this](ESP8266WebServer& ws) {handleStatus(ws);});
-	getWebServerTask().registerPage(F("owmc"), F("OWM Config"), [this](ESP8266WebServer& ws) {handleConfig(ws);});
-
-	//TODO: wait, what?
-	auto& dt = getDisplayTask();
-
-	getWebServerTask().registerPage(F("dispConf"), F("Display Config"),
-		[&dt]  (ESP8266WebServer& ws) mutable {dt.handleConfigPage(ws);});
 
 	getDisplayTask().addRegularMessage({
 		this,
@@ -132,10 +125,6 @@ int getHttpResponse(HTTPClient& httpClient, MapCollector& mc, const char* url)
 
 	return httpCode;
 }
-
-
-
-
 
 
 void WeatherGetter::run()
@@ -218,51 +207,6 @@ void WeatherGetter::run()
 		period = 600_s;
 
 	sleep(period);
-}
-
-static const char owmConfigPage[] PROGMEM = R"_(
-<form method="post" action="owmc" autocomplete="on">
-<table>
-<tr><th>OpenWeatherMap</th></tr>
-<tr><td class="l">ID:</td><td><input type="text" name="owmId" value="$owmId$"></td></tr>
-<tr><td class="l">Key:</td><td><input type="text" name="owmKey" value="$owmKet$"></td></tr>
-<tr><td class="l">Refresh period (s):</td><td><input type="text" name="owmPeriod" value="$owmPeriod$"></td></tr>
-<tr><td/><td><input type="submit"></td></tr>
-</table></form></body></html>
-)_";
-
-FlashStream owmConfigPageFS(owmConfigPage);
-
-void WeatherGetter::handleConfig(ESP8266WebServer& webServer)
-{
-	if (!handleAuth(webServer)) return;
-
-	auto location = webServer.arg(F("owmId"));
-	auto key   = webServer.arg(F("owmKey"));
-	auto period = webServer.arg(F("owmPeriod"));
-
-	auto configIdName = String(F("owmId"));
-	auto configKeyName = String(F("owmKey"));
-	auto configPeriodName = String(F("owmPeriod"));
-
-	if (location.length()) 	writeConfig(configIdName, location);
-	if (key.length()) 		writeConfig(configKeyName, key);
-	if (period.length())	writeConfig(configPeriodName, period);
-
-	StringStream ss(2048);
-	macroStringReplace(pageHeaderFS, constString("OWM Settings"), ss);
-
-	std::map<String, String> m = {
-			{F("owmId"), 		readConfig(configIdName)},
-			{F("owmKey"), 		readConfig(configKeyName)},
-			{F("owmPeriod"), 	readConfig(configPeriodName)},
-	};
-
-	macroStringReplace(owmConfigPageFS, mapLookup(m), ss);
-	webServer.send(200, textHtml, ss.buffer);
-
-	//reload display tasks
-	reset();
 }
 
 static const char owmStatusPage[] PROGMEM = R"_(

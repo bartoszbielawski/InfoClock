@@ -29,7 +29,7 @@ const static uint8_t ONE_WIRE_TEMP = D3;
 
 const static char versionString[] = "v 0.4.4";
 
-const static int SERIAL_BAUD_RATE = 921600;
+const static int SERIAL_BAUD_RATE = 115200;
 
 const static char DEFAULT_PASSWORD[] = "password";
 const static char DEFAULT_USER[] = "user";

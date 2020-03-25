@@ -23,20 +23,13 @@ void setup()
 {
 	Serial.begin(SERIAL_BAUD_RATE);
 
-	//the filesystem is not ready yet - format it and save some settings
-	if (!SPIFFS.begin())
-	{
-		SPIFFS.format();
-		SPIFFS.begin();
-		writeConfig(F("configPassword"), DEFAULT_PASSWORD);
-		logPrintfX(F("MAIN"), F("Formatting file system, the default password is %s"), readConfig(F("configPassword")).c_str());
-	}
-
-	//readConfigFromFlash();
-
+	delay(5000);
+	
+	checkFileSystem();
+	//readConfigFromFS();
+	
 	setupTasks();
 
-	logPrintfX(F("MAIN"), F("\n\n"));
 	logPrintfX(F("MAIN"), F("MAC Address: %s"), WiFi.macAddress().c_str());
 
 	auto& displayTask = getDisplayTask();
@@ -58,3 +51,4 @@ void loop()
 	scheduleTasks();
 	ArduinoOTA.handle();
 }
+

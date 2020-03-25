@@ -20,7 +20,7 @@ namespace DataStore
 	const String& valueOrDefault(const String& key, const String& def);
 	std::vector<String> availableKeys();
 	void erase(const String& key);
-
+	void clear();
 
 	template <class S, class T>
 	class DataStore
@@ -62,6 +62,11 @@ namespace DataStore
 			void erase(const S& key)
 			{
 				data.erase(key);
+			}
+
+			void clear()
+			{
+				data.clear();
 			}
 
 		private:

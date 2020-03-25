@@ -38,6 +38,7 @@ private:
 	void handleReset();
 	void handleWebMessage();
 	void handleGeneralSettings();
+	void handleConfig();
 
 	String generateLinks();
 

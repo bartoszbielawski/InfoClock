@@ -37,3 +37,9 @@ void DataStore::erase(const String& key)
 {
 	dataStore().erase(key);
 }
+
+void DataStore::clear()
+{
+	dataStore().clear();
+}
+

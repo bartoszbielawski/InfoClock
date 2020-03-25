@@ -37,8 +37,6 @@ WebServerTask::WebServerTask():
 	getDisplayTask().addRegularMessage(ds);
 }
 
-
-
 void WebServerTask::registerPage(const String& url, const String& label,
 		std::function<void(ESP8266WebServer& ws)> ph)
 {
@@ -76,10 +74,9 @@ void WebServerTask::run()
 		});
 
 		webServer.on("/webmessage", [this](){handleWebMessage();});
-		webServer.on("/settings", [this] (){handleGeneralSettings();});
-
 		webServer.on("/status", 	[this](){handleStatus();});
 		webServer.on("/reset", [this]{handleReset();});
+		webServer.on("/config", [this]{handleConfig();});
 
 		webServer.begin();
 
@@ -145,9 +142,10 @@ void WebServerTask::handleWebMessage()
 	if (!handleAuth(webServer))
 		return;
 
-	auto wm = webServer.arg(F("webmessage"));
-	if (wm.length())
+	if (webServer.method() == HTTP_POST)
 	{
+		auto wm = webServer.arg(F("webmessage"));
+		
 		webmessage = wm;
 		webmessageIP = webServer.client().remoteIP().toString();
 		logPrintfX(F("WST"),
@@ -164,41 +162,54 @@ void WebServerTask::handleWebMessage()
 	webServer.send(200, textHtml, ss.buffer);
 }
 
+FlashStream configPageFS(configPage);
 
-FlashStream generalSettingsFS(generalSettingsPage);
+static const char default_config[] PROGMEM = R"_(
+				essid=your_wifi_name
+				wifiPassword=your_wifi_password
+				timezone=3600
+				configPassword=dupa
+				#syslogServer=syslog.lan)_";
 
-void WebServerTask::handleGeneralSettings()
+void WebServerTask::handleConfig()
 {
-	if (!handleAuth(webServer)) return;
+	if (!handleAuth(webServer))
+		return;
 
-	auto submitted = webServer.arg(F("submitted"));
-	if (submitted.length())
+	String content;
+
+	if (webServer.method() == HTTP_GET)
 	{
-		logPrintfX(F("WST"), F("Saving data..."));
-		writeConfig(F("essid"), webServer.arg(F("essid")));
+		//read config from the file
+		SPIFFS.begin();
+		auto file = SPIFFS.open("/config.txt", "r");
+		if (!file)
+			content = "";
+		else
+		{
+			content = file.readString();
+			file.close();
+		}
+	
+		SPIFFS.end();
 
-		//we don't send the current value so we have to check if it is present
-		auto pwd = webServer.arg(F("wifiPassword"));
-		if (pwd.length())
-			writeConfig(F("wifiPassword"), pwd);
-
-		pwd = webServer.arg(F("configPassword"));
-
-		if (pwd.length())
-			writeConfig(F("configPassword"), pwd);
-
-		writeConfig(F("timezone"), webServer.arg(F("timezone")));
-
-		auto ss = webServer.arg(F("syslogServer"));
-		writeConfig(F("syslogServer"), ss);
-		//the new syslog settings will be used after reboot
+		readConfigFromFS();
 	}
-
+	else
+	{
+		//POST
+		//load content from variable
+		content = webServer.arg(F("content"));
+		SPIFFS.begin();
+		auto file = SPIFFS.open("/config.txt", "w+");
+		file.print(content);
+		file.close();
+		SPIFFS.end();
+	}
+	
 	StringStream ss(2048);
-
-	macroStringReplace(pageHeaderFS, constString("WiFi Settings"), ss);
-	macroStringReplace(generalSettingsFS, dataSource, ss);
-
+	macroStringReplace(configPageFS, constString(content), ss);
 	webServer.send(200, textHtml, ss.buffer);
 }
+
 
