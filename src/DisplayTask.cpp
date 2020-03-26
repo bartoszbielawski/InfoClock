@@ -145,56 +145,5 @@ void DisplayTask::nextDisplay()
 
 	ds = regularMessages[index];
 	logPrintfX(F("DT"), F("New message from RQ = %s"), ds.fun().c_str());
+	ledMatrixDriver.setIntensity(readConfig(F("brightness")).toInt());
 }
-
-
-//------------- HTML stuff
-static const char displayConfigPage[] PROGMEM = R"_(
-<form method="post" action="dispConf">
-<table>
-<tr><th>Display Config</th></tr>
-<tr><td class="l">Segments:</td><td>  <input name="segments"   type="text" value="$segments$"></td></tr>
-<tr><td class="l">Brightness:</td><td><input name="brightness" type="text" value="$brightness$"></td></tr>
-<tr><td/><td><input type="submit"></td></tr>
-</table>
-</form>
-</body>
-</html>
-)_";
-
-FlashStream displayConfigPageFS(displayConfigPage);
-
-void DisplayTask::handleConfigPage(ESP8266WebServer& webServer)
-{
-	if (!handleAuth(webServer))
-		return;
-
-	auto brightness = webServer.arg(F("brightness"));
-	auto segments = webServer.arg(F("segments"));
-
-	if (brightness.length())
-	{
-		//reload value and save it
-		ledMatrixDriver.setIntensity(brightness.toInt());
-		writeConfig(F("brightness"), brightness);
-	}
-	if (segments.length())
-	{
-		writeConfig(F("segments"), segments);
-		//NOTE: this will not be applied until the device is rebooted
-	}
-
-	StringStream ss(2048);
-
-	macroStringReplace(pageHeaderFS, constString(F("Display Config")), ss);
-
-	std::map<String, String> m =
-		{
-				{F("segments"),   readConfigWithDefault(F("segments"), F("8"))},
-				{F("brightness"), readConfig(F("brightness"))}
-		};
-
-	macroStringReplace(displayConfigPageFS, mapLookup(m), ss);
-	webServer.send(200, textHtml, ss.buffer);
-}
-

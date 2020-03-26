@@ -294,7 +294,5 @@ String WeatherGetter::getWeatherDescription()
 	return r;
 }
 
-
-
 static RegisterTask r1(new WeatherGetter, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
 

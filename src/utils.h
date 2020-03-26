@@ -46,8 +46,6 @@ void readConfigFromFS();
 bool checkFileSystem();
 String readConfigWithDefault(const String& name, const String& def);
 String readConfig(const String& name);
-void   writeConfig(const String& name, const String& value);
-
 
 void rebootClock();
 
@@ -55,5 +53,14 @@ int32_t getTimeZone();
 uint32_t getUpTime();
 
 String dataSource(const char* name);
+
+namespace fs
+{
+	class File;
+};
+
+String readLine(fs::File& file);
+
+std::vector<String> tokenize(const String& s);
 
 #endif /* UTILS_H_ */

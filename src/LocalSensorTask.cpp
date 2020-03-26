@@ -41,11 +41,11 @@ LocalSensorTask::LocalSensorTask():
 	dallasTemperature.requestTemperatures();
 	
 
-	getWebServerTask().registerPage(F("/lst"), "Local Sensors", 
+	getWebServerTask().registerPage(F("lst"), "Local Sensors", 
 		[this](ESP8266WebServer& webServer) {handlePage(webServer);}
 	);
 
-	getDisplayTask().addRegularMessage({this, [this](){return formatTemperature();}, 2_s, 1, false});
+	getDisplayTask().addRegularMessage({this, [this](){return formatTemperature();}, 3_s, 1, false});
 
 	sleep(10_s);
 }
@@ -63,6 +63,11 @@ void LocalSensorTask::run()
 	}
 
 	temperature = t;
+
+	if (DataStore::value("lstMqtt").toInt())
+	{
+		DataStore::value("lstTemperature") = String(t, 1);
+	}
 	dallasTemperature.requestTemperatures();
 	sleep(10_s);
 }
@@ -71,14 +76,19 @@ void LocalSensorTask::handlePage(ESP8266WebServer& webServer)
 {
 	StringStream ss(2048);
 	macroStringReplace(pageHeaderFS, constString(F("LST Status")), ss);
-	macroStringReplace(lstStatusPageFS, constString(String(temperature)), ss);
+
+	String tempString(F("Sensor missing"));
+	if (temperature > -127.0f)
+		tempString = String(temperature);
+
+	macroStringReplace(lstStatusPageFS, constString(String(tempString)), ss);
 	webServer.send(200, textHtml, ss.buffer);
 }
 
 String LocalSensorTask::formatTemperature()
 {
 	if (temperature == -127.0f)	
-		return "No sensor found!";
+		return "No sensor detected!";
 
 	String p = "\x81 ";
 	p += String(temperature, 1);
@@ -87,14 +97,4 @@ String LocalSensorTask::formatTemperature()
 	return p;
 }
 
-
-
-
-// static RegisterPackage r("LST", new LocalSensorTask, TaskDescriptor::SLOW,
-// 		{
-// 			PageDescriptor("lst", "Local Sensors", &handleLSTStatus),
-// 		},
-// 		{
-// 			
-// 		}
-// );
+static RegisterTask lstr(new LocalSensorTask, 0);

@@ -12,7 +12,7 @@
 
 #include "DisplayTask.hpp"
 
-#include "StatelessCounter.h"
+#include "StatelessMessages.h"
 
 #include "ArduinoOTA.h"
 
@@ -26,7 +26,8 @@ void setup()
 	delay(5000);
 	
 	checkFileSystem();
-	//readConfigFromFS();
+	
+	readConfigFromFS();
 	
 	setupTasks();
 

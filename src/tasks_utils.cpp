@@ -73,6 +73,16 @@ RegisterTask::RegisterTask(Tasks::Task* t, uint8_t flags)
 	task = t;
 }
 
+template <class T>
+using TaskMemberWebCallback = void (T::*)(ESP8266WebServer&);
+
+template <class T>
+void registerPage(const String& url, const String& label, T* task, TaskMemberWebCallback<T> callback)
+{
+	getWebServerTask().registerPage(url, label,
+	[task, callback](ESP8266WebServer& ws) {task->*callback(ws);});
+}
+
 RegisterPage::RegisterPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph)
 {
 	getWebServerTask().registerPage(url, label, ph);

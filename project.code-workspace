@@ -9,6 +9,10 @@
 		{
 			"name": "LEDMatrixDriverTest",
 			"path": "/Users/bbielaws/Documents/PlatformIO/Projects/LEDMatrixDriverTest"
+		},
+		{
+			"name": "ClearFlash",
+			"path": "/Users/bbielaws/Documents/PlatformIO/Projects/ClearFlash"
 		}
 	],
 	"settings": {

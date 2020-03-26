@@ -20,6 +20,8 @@ class MQTTTask: public Tasks::Task
 
 		virtual void run();
 
+		virtual void reset();
+
         String getMessage() const {return message;}
 
 	private:
@@ -27,6 +29,8 @@ class MQTTTask: public Tasks::Task
         PubSubClient mqttClient;
         String message;
 
+		time_t lastReport = 0;
+		
         void callback(const char* topic, byte* payload, unsigned int length);
 };
 

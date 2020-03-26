@@ -164,13 +164,6 @@ void WebServerTask::handleWebMessage()
 
 FlashStream configPageFS(configPage);
 
-static const char default_config[] PROGMEM = R"_(
-				essid=your_wifi_name
-				wifiPassword=your_wifi_password
-				timezone=3600
-				configPassword=dupa
-				#syslogServer=syslog.lan)_";
-
 void WebServerTask::handleConfig()
 {
 	if (!handleAuth(webServer))
@@ -184,7 +177,7 @@ void WebServerTask::handleConfig()
 		SPIFFS.begin();
 		auto file = SPIFFS.open("/config.txt", "r");
 		if (!file)
-			content = "";
+			content = F("# The file is empty, please create a new one!");
 		else
 		{
 			content = file.readString();
@@ -192,8 +185,6 @@ void WebServerTask::handleConfig()
 		}
 	
 		SPIFFS.end();
-
-		readConfigFromFS();
 	}
 	else
 	{
@@ -205,6 +196,7 @@ void WebServerTask::handleConfig()
 		file.print(content);
 		file.close();
 		SPIFFS.end();
+		readConfigFromFS();
 	}
 	
 	StringStream ss(2048);

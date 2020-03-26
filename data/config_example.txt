@@ -1,0 +1,15 @@
+# GENERAL SETTINGS
+essid=your_essid_here
+wifiPassword=your_password_here
+segments=8
+brightness=5
+timezone=3600
+
+# OWM SETTINGS
+ownKey=your_owm_key_here
+owmId=your_ids_here
+
+# MQTT SETTINGS
+mqttServer=mqtt_server_name
+mqttUser=mqtt_server_name
+mqttPassword=mqtt_server_password

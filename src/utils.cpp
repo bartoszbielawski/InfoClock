@@ -22,6 +22,8 @@
 #include "ESP8266WiFi.h"
 #include "tasks_utils.h"
 #include "LambdaTask.hpp"
+#include <time_utils.h>
+#include <FS.h>
 
 extern "C" {
 #include "user_interface.h"
@@ -209,14 +211,19 @@ void readConfigFromFS()
 	SPIFFS.begin();
     auto file = SPIFFS.open("/config.txt", "r");
     if (!file)
-        return;
-    
+	{
+		logPrintfX(F("UTL"), F("The file is missing, please create your own config using the web interface!"));
+		return;
+	}
+        
+	logPrintfX(F("UTL"), "File size: %zu", file.size());
+
 	//remove all the data that's already present
 	DataStore::clear();
 	
     while (file.available())
     {   
-	    auto p = splitLine( file.readStringUntil('\n'));
+	    auto p = splitLine(readLine(file));
         if (not p.second.length())
             continue;
             
@@ -245,16 +252,6 @@ String readConfig(const String& name)
 	return DataStore::value(name);
 }
 
-void writeConfig(const String& name, const String& value)
-{
-	auto f = SPIFFS.open(String(F("/config/")) +name, "w+");
-	f.print(value);
-	f.print('\n');
-	f.close();
-	DataStore::value(name) = value;
-}
-
-
 int32_t getTimeZone()
 {
 	return readConfig("timezone").toInt();
@@ -275,11 +272,17 @@ String dataSource(const char* name)
 			return result;
 	}
 
+	if (strcmp(name, "ip") == 0)
+		return WiFi.localIP().toString();
+
 	if (strcmp(name, "heap") == 0)
 		return String(ESP.getFreeHeap()) + " B";
 
 	if (strcmp(name, "version") == 0)
 		return versionString;
+
+	if (strcmp(name, "build") == 0)
+		return __DATE__ __TIME__;
 
 	if (strcmp(name, "essid") == 0)
 		return WiFi.SSID();
@@ -289,20 +292,7 @@ String dataSource(const char* name)
 
 	if (strcmp(name, "uptime") == 0)
 	{
-		uint32_t ut = getUpTime();
-		uint32_t d = ut  / (24 * 3600);
-		ut -= d * 24 * 3600;
-		uint32_t h = ut / 3600;
-		ut -= h * 3600;
-		uint32_t m = ut / 60;
-		ut -= m * 60;
-		uint32_t s = ut;
-
-		char buf[64];
-
-		snprintf_P(buf, sizeof(buf), uptimeFormat, d, h, m, s);
-
-		return String(buf);
+		return formatDeltaTime(getUpTime(), DeltaTimePrecision::SECONDS);
 	}
 
 	return "?";
@@ -315,4 +305,46 @@ void rebootClock()
 	LambdaTask* lt = new LambdaTask([](){ESP.restart();});
 	addTask(lt, TaskDescriptor::ENABLED);
 	lt->sleep(5_s);
+}
+
+String readLine(fs::File& file)
+{
+	String result;
+
+	while (file.available())
+	{
+		int c = file.read();
+		if (c == '\n')
+			return result;
+
+		if (c == '\r')
+			return result;
+		
+		//cast it, otherwise a number is appended - not a char
+		result += (char)c;
+	}
+
+	return result;
+}
+
+std::vector<String> tokenize(const String& input)
+{
+	uint32_t from = 0;
+	int32_t to;
+
+	std::vector<String> results;
+
+	do
+	{
+		auto commaIndex = input.indexOf(",", from);
+		to = commaIndex == -1 ? input.length(): commaIndex;
+
+		String s = input.substring(from, to);
+		from = to+1;
+
+		results.emplace_back(s);
+	}
+	while (from < input.length());
+
+	return results;
 }
