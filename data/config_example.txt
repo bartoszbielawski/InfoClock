@@ -1,15 +1,27 @@
 # GENERAL SETTINGS
-essid=your_essid_here
-wifiPassword=your_password_here
-segments=8
+essid=essid
+wifiPassword=wifi_password
+segments=5
 brightness=5
 timezone=3600
 
 # OWM SETTINGS
-ownKey=your_owm_key_here
-owmId=your_ids_here
+owmEnabled=1
+ownKey=own_key
+owmId=2974936
 
 # MQTT SETTINGS
-mqttServer=mqtt_server_name
-mqttUser=mqtt_server_name
-mqttPassword=mqtt_server_password
+mqttEnabled=1
+mqttServer=server
+mqttUser=user
+mqttPassword=passwd
+mqttReports=lstTemperature
+
+# LHC Status Reader
+lhcEnabled=0
+
+# LED Blinker
+ledEnabled=1
+
+# Local Sensor Task
+lstEnabled=1

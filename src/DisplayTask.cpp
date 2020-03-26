@@ -43,6 +43,7 @@ void DisplayTask::addClock()
 void DisplayTask::addRegularMessage(const DisplayState& ds)
 {
 	regularMessages.push_back(ds);
+	addClock();
 }
 
 void DisplayTask::removeRegularMessages(void* owner)
@@ -117,7 +118,6 @@ void DisplayTask::refreshMessage()
 	sleep(ds.period);
 	//this flag will allow slow tasks to execute only if there is a two second sleep ahead
 	slowTaskCanExecute = ds.period >= 1_s;
-	//logPrintfX(F("DT"), F("slowTask: %s"), slowTaskCanExecute ? "true": "false");
 }
 
 

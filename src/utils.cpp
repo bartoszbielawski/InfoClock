@@ -23,6 +23,8 @@
 #include "tasks_utils.h"
 #include "LambdaTask.hpp"
 #include <time_utils.h>
+#include <DisplayTask.hpp>
+
 #include <FS.h>
 
 extern "C" {
@@ -242,24 +244,10 @@ String readConfigWithDefault(const String& name, const String& def)
 
 String readConfig(const String& name)
 {
-	static bool once = true;
-	if (once)
-	{
-		readConfigFromFS();
-		once = false;
-	}
-
 	return DataStore::value(name);
 }
 
-int32_t getTimeZone()
-{
-	return readConfig("timezone").toInt();
-}
-
 int32_t timezone = 0;
-
-static const char uptimeFormat[] PROGMEM = "%dd%dh%dm%ds";
 
 String dataSource(const char* name)
 {

@@ -12,18 +12,7 @@
 #include "config.h"
 #include "web_utils.h"
 #include "WebServerTask.h"
-#include <ESP8266WebServer.h>
-
-static const char lstStatusPage[] PROGMEM = R"_(
-<table>
-<tr><th>Local Sensor Task</th></tr>
-<tr><td class="l">Temperature:</td><td>$t$ &#8451;</td></tr>
-</table></form></body>
-<script>setTimeout(function(){window.location.reload(1);}, 15000);</script>
-</html>
-)_";
-
-FlashStream lstStatusPageFS(lstStatusPage);
+#include <DisplayTask.hpp>
 
 LocalSensorTask::LocalSensorTask():
 	oneWire(ONE_WIRE_TEMP),
@@ -40,12 +29,9 @@ LocalSensorTask::LocalSensorTask():
 	dallasTemperature.setWaitForConversion(false);
 	dallasTemperature.requestTemperatures();
 	
+	registerPage(F("lst"), "Local Sensors", [this](ESP8266WebServer& webServer) {handlePage(webServer);});
 
-	WebServerTask::getInstance().registerPage(F("lst"), "Local Sensors", 
-		[this](ESP8266WebServer& webServer) {handlePage(webServer);}
-	);
-
-	DisplayTask::getInstance().addRegularMessage({this, [this](){return formatTemperature();}, 3_s, 1, false});
+	addRegularMessage({this, [this](){return formatTemperature();}, 3_s, 1, false});
 
 	sleep(10_s);
 }
@@ -68,9 +54,22 @@ void LocalSensorTask::run()
 	{
 		DataStore::value("lstTemperature") = String(t, 1);
 	}
+
 	dallasTemperature.requestTemperatures();
 	sleep(10_s);
 }
+
+
+static const char lstStatusPage[] PROGMEM = R"_(
+<table>
+<tr><th>Local Sensor Task</th></tr>
+<tr><td class="l">Temperature:</td><td>$t$ &#8451;</td></tr>
+</table></form></body>
+<script>setTimeout(function(){window.location.reload(1);}, 15000);</script>
+</html>
+)_";
+
+FlashStream lstStatusPageFS(lstStatusPage);
 
 void LocalSensorTask::handlePage(ESP8266WebServer& webServer)
 {
@@ -96,5 +95,3 @@ String LocalSensorTask::formatTemperature()
 	p += "C";
 	return p;
 }
-
-static RegisterTask lstr(new LocalSensorTask, 0);

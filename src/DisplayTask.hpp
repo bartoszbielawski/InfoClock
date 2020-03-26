@@ -19,7 +19,6 @@
 
 using MessageProvider = std::function<String()>;
 
-
 struct DisplayState
 {
 		void*		owner;

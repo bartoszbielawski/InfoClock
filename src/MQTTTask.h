@@ -5,8 +5,8 @@
  *      Author: caladan
  */
 
-#ifndef MQTTSTUFF_H
-#define MQTTSTUFF_H
+#ifndef MQTTTASK_H
+#define MQTTTASK_H
 
 #include <tasks.hpp>
 #include <PubSubClient.h>
@@ -34,4 +34,4 @@ class MQTTTask: public Tasks::Task
         void callback(const char* topic, byte* payload, unsigned int length);
 };
 
-#endif /* MQTTSTUFF_H */
+#endif /* MQTTTASK_H */

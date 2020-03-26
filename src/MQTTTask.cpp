@@ -5,28 +5,20 @@
  *      Author: caladan
  */
 
-#include <MQTTStuff.h>
+#include <MQTTTask.h>
 #include "utils.h"
 #include "tasks_utils.h"
 #include <MapCollector.hpp>
 #include "WebServerTask.h"
 #include "web_utils.h"
-#include <exception>
-#include <DisplayTask.hpp>
 #include <DataStore.h>
 
 
 MQTTTask::MQTTTask():
     mqttClient(wifiClient)
 {
-    DisplayTask::getInstance().addRegularMessage({
-		this,
-		[this](){return getMessage();},
-		0.035_s,
-		1,
-		true});
+    addRegularMessage({this, [this](){return getMessage();}, 0.035_s, 1, true});
 
-    
     mqttClient.setCallback([this](const char* topic, byte* payload, unsigned int length)
     {
         callback(topic, payload, length);
@@ -66,14 +58,6 @@ void MQTTTask::reset()
     mqttClient.unsubscribe(topic);
     mqttClient.subscribe(topic);
     mqttClient.loop();
-
-    String reports = DataStore::value(F("mqttReports"));
-    if (reports.length())
-    {
-        auto varNames = tokenize(reports);
-        for (const auto& s: varNames)
-            logPrintfX(F("MQT"), "%s", s.c_str());
-    }
 }
 
 void MQTTTask::callback(const char* topic_raw, byte* payload, unsigned int length)
@@ -143,5 +127,3 @@ void MQTTTask::run()
     mqttClient.loop();
     sleep(0.05_s);
 }
-
-static RegisterTask rmqtt(new MQTTTask, TaskDescriptor::CONNECTED);

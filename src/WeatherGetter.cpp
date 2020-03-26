@@ -6,14 +6,11 @@
  */
 
 #include "WeatherGetter.h"
-#include "DataStore.h"
 #include "config.h"
 #include "utils.h"
 #include "tasks_utils.h"
 #include <MapCollector.hpp>
-#include "WebServerTask.h"
 #include "web_utils.h"
-#include <exception>
 
 /*
  * 2660646 - Geneva
@@ -59,14 +56,9 @@ bool jsonPathFilter(const string& key, const string& /*value*/)
 
 WeatherGetter::WeatherGetter()
 {
-	WebServerTask::getInstance().registerPage(F("owms"), F("OWM Status"), [this](ESP8266WebServer& ws) {handleStatus(ws);});
+	registerPage(F("owms"), F("OWM Status"), [this](ESP8266WebServer& ws) {handleStatus(ws);});
 
-	DisplayTask::getInstance().addRegularMessage({
-		this,
-		[this](){return getWeatherDescription();},
-		0.035_s,
-		1,
-		true});
+	addRegularMessage({this, [this](){return getWeatherDescription();}, 0.035_s, 1, true});
 
 	//wait for the network
 	suspend();
@@ -89,7 +81,7 @@ void WeatherGetter::reset()
 		to = commaIndex == -1 ? ids.length(): commaIndex;
 
 		String s = ids.substring(from, to);
-		logPrintfX(F("WG"), "ID: %s", s.c_str());
+		logPrintfX(F("WG"), F("ID: %s"), s.c_str());
 
 		from = to+1;
 
@@ -97,16 +89,16 @@ void WeatherGetter::reset()
 	}
 	while (from < ids.length());
 
-	logPrintfX(F("WG"), "Found %d IDs", weathers.size());
+	logPrintfX(F("WG"), F("Found %d IDs"), weathers.size());
 
 	currentWeatherIndex = 0;
 }
 
 
 
-int getHttpResponse(HTTPClient& httpClient, MapCollector& mc, const char* url)
+int getHttpResponse(WiFiClient& wifiClient, HTTPClient& httpClient, MapCollector& mc, const char* url)
 {
-	httpClient.begin(url);
+	httpClient.begin(wifiClient, url);
 
 	int httpCode = httpClient.GET();
 
@@ -145,6 +137,7 @@ void WeatherGetter::run()
 
 	//locals needed for the rest of the code
 	MapCollector mc(jsonPathFilter);
+	WiFiClient wifiClient;
 	HTTPClient httpClient;
 	httpClient.setReuse(true);
 	char localBuffer[256];
@@ -155,7 +148,7 @@ void WeatherGetter::run()
 		//get weather
 		snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, w.locationId, apiKey.c_str());
 		logPrintfX(F("WG"), "URL: %s", localBuffer);
-		code = getHttpResponse(httpClient, mc, localBuffer);
+		code = getHttpResponse(wifiClient, httpClient, mc, localBuffer);
 		if (code != 200)
 			break;
 
@@ -163,28 +156,15 @@ void WeatherGetter::run()
 		w.temperature = atof(results["/root/main/temp"].c_str());
 		w.location = results["/root/name"].c_str();
 
-//		for (const auto& p: results)
-//		{
-//			logPrintfX(F("WG"), "%s = %s", p.first.c_str(), p.second.c_str());
-//		}
-
 		//get forecast
 		snprintf_P(localBuffer, sizeof(localBuffer), urlForecastTemplate, w.locationId, apiKey.c_str());
 		logPrintfX(F("WG"), "URL: %s", localBuffer);
-		code = getHttpResponse(httpClient, mc, localBuffer);
+		code = getHttpResponse(wifiClient, httpClient, mc, localBuffer);
 		if (code != 200)
 			break;
 
 		w.temperatureForecast = atof(results["/root/list/1/main/temp"].c_str());
 		w.description = results["/root/list/1/weather/0/description"].c_str();
-
-//		for (const auto& p: results)
-//		{
-//			logPrintfX(F("WG"), "%s = %s", p.first.c_str(), p.second.c_str());
-//		}
-
-
-		httpClient.end();
 
 		//oops, forgot to break...
 		break;
@@ -228,7 +208,7 @@ FlashStream owmFooterPageFS(owmFooterPage);
 void WeatherGetter::handleStatus(ESP8266WebServer& webServer)
 {
 	StringStream ss(2048);
-	logPrintfX(F("WG"), "OWM Status...");
+	logPrintfX(F("WG"), F("OWM Status..."));
 	macroStringReplace(pageHeaderFS, constString(F("OWM Status")), ss);
 	ss.print("<table>");
 
@@ -248,9 +228,9 @@ void WeatherGetter::handleStatus(ESP8266WebServer& webServer)
 		macroStringReplace(owmStatusPageFS, mapLookup(m), ss);
 	}
 
-	logPrintfX(F("WG"), "Sending footer...");
+	logPrintfX(F("WG"), F("Sending footer..."));
 	macroStringReplace(owmFooterPageFS, [](const char*) {return String();}, ss);
-	logPrintfX(F("WG"), "Total size: %d", ss.buffer.length());
+	logPrintfX(F("WG"), F("Total size: %d"), ss.buffer.length());
 
 	webServer.send(200, textHtml, ss.buffer);
 }
@@ -293,6 +273,3 @@ String WeatherGetter::getWeatherDescription()
 
 	return r;
 }
-
-static RegisterTask r1(new WeatherGetter, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
-

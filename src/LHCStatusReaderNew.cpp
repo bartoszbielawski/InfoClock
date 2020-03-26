@@ -20,12 +20,11 @@ static const char pageUrl[] PROGMEM = "http://alicedcs.web.cern.ch/AliceDCS/moni
 
 LHCStatusReaderNew::LHCStatusReaderNew()
 {
-	WebServerTask::getInstance().registerPage("lhc", "LHC Status",
-			[this](ESP8266WebServer& ws) {handleStatusPage(ws);});
+	registerPage("lhc", "LHC Status", [this](ESP8266WebServer& ws) {handleStatusPage(ws);});
 
-	DisplayTask::getInstance().addRegularMessage({this, [this](){return getStateInfo();}, 0.025_s, 1, true});
-	DisplayTask::getInstance().addRegularMessage({this, [this](){return getEnergy();}, 2_s, 1, false});
-	DisplayTask::getInstance().addClock();
+	addRegularMessage({this, [this](){return getStateInfo();}, 0.025_s, 1, true});
+	addRegularMessage({this, [this](){return getEnergy();}, 2_s, 1, false});
+	//DisplayTask::getInstance().addClock();
 	sleep(15_s);
 }
 
@@ -44,13 +43,13 @@ void LHCStatusReaderNew::run()
 	HTTPClient httpClient;
 	WiFiClient wifiClient;
 
-	logPrintfX(F("LSRX"), F("Reading LHC Status"));
+	logPrintfX(F("LHC"), F("Reading LHC Status"));
 	httpClient.begin(wifiClient, pageUrl);
 
 	int httpCode = httpClient.GET();
 	if (httpCode != 200)
 	{
-		logPrintfX(F("LSRX"), F("HTTP code: %d"), httpCode);
+		logPrintfX(F("LHC"), F("HTTP code: %d"), httpCode);
 		reset();		//this resets variables
 		sleep(60_s);
 		return;
@@ -71,27 +70,27 @@ void LHCStatusReaderNew::run()
 			page1Comment.trim();
 			page1Comment.replace(F("\n\n"), F(" -- "));
 			page1Comment.replace('\n', ' ');
-			logPrintfX(F("LHCX"), F("Page1Comment: %s"), page1Comment.c_str());
+			logPrintfX(F("LHC"), F("Page1Comment: %s"), page1Comment.c_str());
 		}
 
 		if (title == F("BeamEnergy"))
 		{
 			beamEnergy = httpStream.readStringUntil('<');
 			beamEnergy.trim();
-			logPrintfX(F("LHCX"), F("BeamEnergy: %s"), beamEnergy.c_str());
+			logPrintfX(F("LHC"), F("BeamEnergy: %s"), beamEnergy.c_str());
 		}
 
 		if (title == F("LhcBeamMode"))
 		{
 			beamMode = httpStream.readStringUntil('<');
 			beamMode.trim();
-			logPrintfX(F("LHCX"), F("BeamMode: %s"), beamMode.c_str());
+			logPrintfX(F("LHC"), F("BeamMode: %s"), beamMode.c_str());
 		}
 	}
 
 	refreshTime = getDateTime();
 
-	logPrintfX(F("LSRX"), F("Done!"));
+	logPrintfX(F("LHC"), F("Done!"));
 	sleep(60_s);
 }
 
@@ -118,7 +117,7 @@ FlashStream lhcStatusPageNewFS(lhcStatusPage);
 void LHCStatusReaderNew::handleStatusPage(ESP8266WebServer& webServer)
 {
 	StringStream ss(2048);
-	macroStringReplace(pageHeaderFS, constString("LHC Status"), ss);
+	macroStringReplace(pageHeaderFS, constString(F("LHC Status")), ss);
 
 	std::map<String, String> m =
 	{
@@ -148,6 +147,4 @@ String LHCStatusReaderNew::getEnergy()
 	if (beamEnergy.toInt() > 7100) return String();
 	return beamEnergy;
 }
-
-//static RegisterTask rt1(new LHCStatusReaderNew, TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
 

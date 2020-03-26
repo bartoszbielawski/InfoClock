@@ -9,9 +9,10 @@
 #define WEB_UTILS_H_
 
 #include "MacroStringReplace.h"
-
 #include <ESP8266WebServer.h>
+#include <functional>
 
+void registerPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph);
 bool handleAuth(ESP8266WebServer& webServer);
 extern FlashStream pageHeaderFS;
 

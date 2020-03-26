@@ -5,7 +5,6 @@
  *      Author: Bartosz Bielawski
  */
 
-
 #include "Arduino.h"
 #include "time.h"
 #include "FS.h"
@@ -34,7 +33,7 @@ WebServerTask::WebServerTask():
 {
 	reset();
 	DisplayState ds{this, [this]() {return webmessage;}, 0.05_s, 1, true};
-	DisplayTask::getInstance().addRegularMessage(ds);
+	addRegularMessage(ds);
 }
 
 void WebServerTask::registerPage(const String& url, const String& label,
@@ -131,7 +130,7 @@ void WebServerTask::handleReset()
 	rebootClock();
 
 	webServer.sendHeader("Location", String("/"), true);
-	webServer.send(302, "text/plain", "");
+	webServer.send(302, textPlain, "");
 }
 
 
@@ -200,6 +199,7 @@ void WebServerTask::handleConfig()
 	}
 	
 	StringStream ss(2048);
+	macroStringReplace(pageHeaderFS, constString(F("Config")), ss);
 	macroStringReplace(configPageFS, constString(content), ss);
 	webServer.send(200, textHtml, ss.buffer);
 }

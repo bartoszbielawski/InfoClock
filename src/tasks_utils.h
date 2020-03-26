@@ -11,10 +11,8 @@
 #include <tasks.hpp>
 
 #include "WebServerTask.h"
-#include "DisplayTask.hpp"
-
-#include <initializer_list>
-
+#include <DataStore.h>
+#include <DisplayTask.hpp>
 
 struct TaskDescriptor
 {
@@ -29,13 +27,6 @@ struct TaskDescriptor
 		uint8_t flags;
 };
 
-struct RegisterTask
-{
-		RegisterTask(Tasks::Task* t, uint8_t flags = 0);
-		Tasks::Task* task;
-};
-
-
 using PageCallback = std::function<void(ESP8266WebServer&, void*)>;
 
 struct PageDescriptor
@@ -48,27 +39,7 @@ struct PageDescriptor
 		PageCallback callback;
 };
 
-struct RegisterPage
-{
-		RegisterPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph);
-};
-
-
-struct DisplayLineDescriptor
-{
-		std::function<String(void*)> provider;
-		uint16_t	period;
-		uint16_t 	cycles;
-		bool		scrolling;		//refresh till it's done
-};
-
-
-struct RegisterPackage
-{
-		RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags,
-				std::initializer_list<PageDescriptor> pages,
-				std::initializer_list<DisplayLineDescriptor> displayLines);
-};
+void addRegularMessage(const DisplayState& ds);
 
 void setupTasks();
 
@@ -77,6 +48,15 @@ Tasks::Task* addTask(Tasks::Task* t, uint8_t flags = 0);
 void addTask(const TaskDescriptor& td);
 void scheduleTasks();
 
+template <class T>
+void addOptionalTask(const String& variableName, uint8_t flags)
+{
+	bool enabled = DataStore::valueOrDefault(variableName, "0").toInt();
+	if (not enabled)
+		return;
+
+	addTask(new T, flags);
+}
 
 extern bool slowTaskCanExecute;
 

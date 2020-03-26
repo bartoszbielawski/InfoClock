@@ -17,6 +17,13 @@
 
 #include "WebServerTask.h"
 #include "WifiConnector.h"
+#include "DisplayTask.hpp"
+
+#include <LHCStatusReaderNew.h>
+#include <LEDBlinker.h>
+#include <MQTTTask.h>
+#include <WeatherGetter.h>
+#include <LocalSensorTask.h>
 
 //ESP8266 raw API
 extern "C" {
@@ -47,6 +54,12 @@ void setupTasks()
 	addTask(&WebServerTask::getInstance());
 	addTask(&DisplayTask::getInstance());
 
+	addOptionalTask<LHCStatusReaderNew>(F("lhcEnabled"), TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
+	addOptionalTask<LEDBlinker>(F("ledEnabled"), 0);
+	addOptionalTask<WeatherGetter>(F("owmEnabled"), TaskDescriptor::SLOW | TaskDescriptor::CONNECTED);
+	addOptionalTask<MQTTTask>(F("mqttEnabled"), TaskDescriptor::CONNECTED);
+	addOptionalTask<LocalSensorTask>(F("lstEnabled"), TaskDescriptor::SLOW);
+
 	os_timer_setfn(&myTimer, timerCallback, NULL);
 	os_timer_arm(&myTimer, MS_PER_CYCLE, true);
 }
@@ -62,13 +75,6 @@ Tasks::Task* addTask(Tasks::Task* t, uint8_t flags)
 	return t;
 }
 
-
-RegisterTask::RegisterTask(Tasks::Task* t, uint8_t flags)
-{
-	addTask(t, flags);
-	task = t;
-}
-
 template <class T>
 using TaskMemberWebCallback = void (T::*)(ESP8266WebServer&);
 
@@ -77,33 +83,6 @@ void registerPage(const String& url, const String& label, T* task, TaskMemberWeb
 {
 	WebServerTask::getInstance().registerPage(url, label,
 	[task, callback](ESP8266WebServer& ws) {task->*callback(ws);});
-}
-
-RegisterPage::RegisterPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph)
-{
-	WebServerTask::getInstance().registerPage(url, label, ph);
-}
-
-RegisterPackage::RegisterPackage(const char* name, Tasks::Task* t, uint8_t flags,
-						 std::initializer_list<PageDescriptor> pages,
-						 std::initializer_list<DisplayLineDescriptor> displayLines)
-{
-	addTask(t, flags);
-	for (auto& pd: pages)
-	{
-		WebServerTask::getInstance().registerPage(pd.url, pd.label, [t, pd] (ESP8266WebServer& w) {
-			pd.callback(w, t);
-		});
-	}
-
-	for (auto& dld: displayLines)
-	{
-		DisplayState ds = {t, [t, dld](){return dld.provider(t);}, dld.period, dld.cycles, dld.scrolling};
-		DisplayTask::getInstance().addRegularMessage(ds);
-	}
-
-	//add after each...
-	DisplayTask::getInstance().addClock();
 }
 
 
@@ -141,8 +120,8 @@ void scheduleTasks()
 	}
 }
 
-DisplayTask& getDisplayTask()
+
+void addRegularMessage(const DisplayState& ds)
 {
-	static DisplayTask displayTask;
-	return displayTask;
+	DisplayTask::getInstance().addRegularMessage(ds);
 }

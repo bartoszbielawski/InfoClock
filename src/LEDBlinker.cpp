@@ -7,9 +7,8 @@
 
 #include "LEDBlinker.h"
 #include "Arduino.h"
-#include "utils.h"
 #include "config.h"
-#include "tasks_utils.h"
+#include "utils.h"
 
 LEDBlinker::LEDBlinker()
 {
@@ -22,7 +21,3 @@ void LEDBlinker::run()
 	sleep(s ? 2_s - 1: 1);
 	s = !s;
 }
-
-static RegisterTask r(new LEDBlinker);
-
-
