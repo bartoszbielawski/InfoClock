@@ -2,7 +2,7 @@
  * Author: Bartosz Bielawski
  */
 
-#include <Adafruit_GFX.h>
+
 #include <LEDMatrixDriver.hpp>
 #include "SDD.hpp"
 #include "config.h"
