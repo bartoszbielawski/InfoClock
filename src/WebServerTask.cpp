@@ -34,7 +34,7 @@ WebServerTask::WebServerTask():
 {
 	reset();
 	DisplayState ds{this, [this]() {return webmessage;}, 0.05_s, 1, true};
-	getDisplayTask().addRegularMessage(ds);
+	DisplayTask::getInstance().addRegularMessage(ds);
 }
 
 void WebServerTask::registerPage(const String& url, const String& label,
@@ -204,4 +204,8 @@ void WebServerTask::handleConfig()
 	webServer.send(200, textHtml, ss.buffer);
 }
 
-
+WebServerTask& WebServerTask::getInstance()
+{
+	static WebServerTask webServer;
+	return webServer;
+}

@@ -49,6 +49,8 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 
 		void addClock();
 
+		static DisplayTask& getInstance();
+
 	private:
 		void nextDisplay();
 

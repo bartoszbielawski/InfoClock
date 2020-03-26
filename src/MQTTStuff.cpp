@@ -19,7 +19,7 @@
 MQTTTask::MQTTTask():
     mqttClient(wifiClient)
 {
-    getDisplayTask().addRegularMessage({
+    DisplayTask::getInstance().addRegularMessage({
 		this,
 		[this](){return getMessage();},
 		0.035_s,
@@ -87,7 +87,7 @@ void MQTTTask::callback(const char* topic_raw, byte* payload, unsigned int lengt
     if (topic.endsWith("push"))
     {
         String m = msg;
-        getDisplayTask().pushMessage(m, 0.05_s, true);
+        DisplayTask::getInstance().pushMessage(m, 0.05_s, true);
         message = String();
         logPrintfX(F("MQT"), F("New push message: %s"), msg);
     }

@@ -41,11 +41,11 @@ LocalSensorTask::LocalSensorTask():
 	dallasTemperature.requestTemperatures();
 	
 
-	getWebServerTask().registerPage(F("lst"), "Local Sensors", 
+	WebServerTask::getInstance().registerPage(F("lst"), "Local Sensors", 
 		[this](ESP8266WebServer& webServer) {handlePage(webServer);}
 	);
 
-	getDisplayTask().addRegularMessage({this, [this](){return formatTemperature();}, 3_s, 1, false});
+	DisplayTask::getInstance().addRegularMessage({this, [this](){return formatTemperature();}, 3_s, 1, false});
 
 	sleep(10_s);
 }

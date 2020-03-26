@@ -72,12 +72,11 @@ struct RegisterPackage
 
 void setupTasks();
 
+std::vector<TaskDescriptor>& getTasks();
 Tasks::Task* addTask(Tasks::Task* t, uint8_t flags = 0);
 void addTask(const TaskDescriptor& td);
 void scheduleTasks();
 
-WebServerTask& getWebServerTask();
-DisplayTask& getDisplayTask();
 
 extern bool slowTaskCanExecute;
 

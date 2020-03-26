@@ -147,3 +147,9 @@ void DisplayTask::nextDisplay()
 	logPrintfX(F("DT"), F("New message from RQ = %s"), ds.fun().c_str());
 	ledMatrixDriver.setIntensity(readConfig(F("brightness")).toInt());
 }
+
+DisplayTask& DisplayTask::getInstance()
+{
+	static DisplayTask displayTask;
+	return displayTask;
+}

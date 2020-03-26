@@ -59,9 +59,9 @@ bool jsonPathFilter(const string& key, const string& /*value*/)
 
 WeatherGetter::WeatherGetter()
 {
-	getWebServerTask().registerPage(F("owms"), F("OWM Status"), [this](ESP8266WebServer& ws) {handleStatus(ws);});
+	WebServerTask::getInstance().registerPage(F("owms"), F("OWM Status"), [this](ESP8266WebServer& ws) {handleStatus(ws);});
 
-	getDisplayTask().addRegularMessage({
+	DisplayTask::getInstance().addRegularMessage({
 		this,
 		[this](){return getWeatherDescription();},
 		0.035_s,

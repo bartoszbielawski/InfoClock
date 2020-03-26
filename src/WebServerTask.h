@@ -27,6 +27,8 @@ public:
 
 	void registerPage(const String& url, const String& label, std::function<void(ESP8266WebServer&)> ph);
 
+	static WebServerTask& getInstance();
+
 	bool started = false;
 
 	String webmessage;

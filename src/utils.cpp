@@ -300,7 +300,7 @@ String dataSource(const char* name)
 
 void rebootClock()
 {
-	getDisplayTask().pushMessage("Rebooting...", 5_s, false);
+	DisplayTask::getInstance().pushMessage("Rebooting...", 5_s, false);
 	logPrintfX(F("WS"), F("Rebooting in 5 seconds..."));
 	LambdaTask* lt = new LambdaTask([](){ESP.restart();});
 	addTask(lt, TaskDescriptor::ENABLED);

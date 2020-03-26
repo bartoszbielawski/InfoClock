@@ -20,12 +20,12 @@ static const char pageUrl[] PROGMEM = "http://alicedcs.web.cern.ch/AliceDCS/moni
 
 LHCStatusReaderNew::LHCStatusReaderNew()
 {
-	getWebServerTask().registerPage("lhc", "LHC Status",
+	WebServerTask::getInstance().registerPage("lhc", "LHC Status",
 			[this](ESP8266WebServer& ws) {handleStatusPage(ws);});
 
-	getDisplayTask().addRegularMessage({this, [this](){return getStateInfo();}, 0.025_s, 1, true});
-	getDisplayTask().addRegularMessage({this, [this](){return getEnergy();}, 2_s, 1, false});
-	getDisplayTask().addClock();
+	DisplayTask::getInstance().addRegularMessage({this, [this](){return getStateInfo();}, 0.025_s, 1, true});
+	DisplayTask::getInstance().addRegularMessage({this, [this](){return getEnergy();}, 2_s, 1, false});
+	DisplayTask::getInstance().addClock();
 	sleep(15_s);
 }
 

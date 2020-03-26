@@ -34,6 +34,8 @@ class WifiConnector: public Tasks::TaskCRTP<WifiConnector>
 		void monitorClientStatus();
 		bool getConnected() const;
 
+		static WifiConnector& getInstance();
+
 	private:
 		States				mainState = States::CLIENT;
 		Callback 			callback = nullptr;

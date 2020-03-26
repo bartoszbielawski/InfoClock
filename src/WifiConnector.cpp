@@ -9,6 +9,9 @@
 #include "WifiConnector.h"
 #include "pgmspace.h"
 #include "Arduino.h"
+#include <DataStore.h>
+#include <tasks_utils.h>
+#include <ArduinoOTA.h>
 
 extern "C"
 {
@@ -109,4 +112,60 @@ void WifiConnector::monitorClientStatus()
 
 bool WifiConnector::getConnected() const {return connected;}
 
+static void wifiConnectorCallback(WifiConnector::States state)
+{
+	switch (state)
+	{
+		case WifiConnector::States::NONE:
+			//suspend connected tasks
+			for (const auto& td: getTasks())
+			{
+				if (td.flags & TaskDescriptor::CONNECTED)
+					td.task->suspend();
+			}
+			return;
+
+		case WifiConnector::States::AP:
+		{
+			WebServerTask::getInstance().reset();
+
+			DisplayTask::getInstance().pushMessage(F("AP mode"), 10_s);
+			String ip = WiFi.softAPIP().toString();
+			DataStore::value("ip") = ip;
+			logPrintfX(F("WC"), F("IP = %s"), ip.c_str());
+			return;
+		}
+
+		case WifiConnector::States::CLIENT:
+		{
+			WebServerTask::getInstance().reset();
+
+			DisplayTask::getInstance().pushMessage(readConfig(F("essid")), 0.4_s, true);
+			String ip = WiFi.localIP().toString();
+			DisplayTask::getInstance().pushMessage(ip, 0.1_s, true);
+
+			DataStore::value(F("ip")) = ip;
+			logPrintfX(F("WC"), F("IP = %s"), ip.c_str());
+
+			ArduinoOTA.begin();
+
+			for (const auto& td: getTasks())
+			{
+				if (td.flags & TaskDescriptor::CONNECTED)
+				{
+					td.task->reset();
+					td.task->resume();
+				}
+			}
+			break;
+		}
+	}
+}
+
+
+WifiConnector& WifiConnector::getInstance()
+{
+	static WifiConnector wifiConnector(wifiConnectorCallback);
+	return wifiConnector;
+}
 

@@ -33,7 +33,7 @@ void setup()
 
 	logPrintfX(F("MAIN"), F("MAC Address: %s"), WiFi.macAddress().c_str());
 
-	auto& displayTask = getDisplayTask();
+	auto& displayTask = DisplayTask::getInstance();
 
 	displayTask.pushMessage("Initializing...", 2_s);
 	displayTask.pushMessage(versionString, 0.4_s, true);
