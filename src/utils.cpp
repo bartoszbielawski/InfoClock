@@ -270,7 +270,7 @@ String dataSource(const char* name)
 		return versionString;
 
 	if (strcmp(name, "build") == 0)
-		return __DATE__ __TIME__;
+		return __DATE__ " - " __TIME__;
 
 	if (strcmp(name, "essid") == 0)
 		return WiFi.SSID();

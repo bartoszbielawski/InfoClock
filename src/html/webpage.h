@@ -29,7 +29,7 @@ static const char webmessagePage[] PROGMEM = R"_(
     <table>
       <tr><th>Webmessage</th></tr>
       <tr><td class="l">Message:</td><td><input name="webmessage" type="text" value="$webmessage$"></td></tr>
-      <tr><td/><td><input type="submit"></td></tr>
+      <tr><td/><td><input type="submit" value="Save"></td></tr>
     </table>
     </form>
   </body>
@@ -41,7 +41,7 @@ static const char webmessagePage[] PROGMEM = R"_(
 static const char statusPage[] PROGMEM = R"_(
 <table>
 <tr><th>General</th><tr>
-<tr><td class="l">Version:</td><td>$version$</td></tr>
+<tr><td class="l">Version:</td><td>$version$ - $build$</td></tr>
 <tr><td class="l">Free heap:</td><td>$heap$</td></tr>
 <tr><td class="l">Up time:</td><td>$uptime$</td></tr>
 <tr><th>WiFi</th></tr>
@@ -80,11 +80,12 @@ static const char mainPage[] PROGMEM = R"_(
 
 
 static const char configPage[] PROGMEM = R"_(
-   <h2>InfoClock</h2>
-      <form action="/config" method="POST">
-        <textarea cols="80" rows="20" autofocus="true" name="content">$configFileContents$</textarea><br>
-        <input type="submit" value="Save"/>
-        <input type="hidden" name="submitted" value="true">
+   <form action="/config" method="POST">
+   <table>
+      <tr><th>Config</th><th width="50%"/><th/></tr>
+      <tr><td colspan="3"><textarea cols="60" rows="40" autofocus="true" name="content">$configFileContents$</textarea></td></tr>
+      <tr><td/><td/><td><input type="submit" value="Save"></td></tr>
+    </table>
     </form>
   </body>
 </html>
