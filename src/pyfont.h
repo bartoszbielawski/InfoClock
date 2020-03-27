@@ -17,14 +17,18 @@ struct PyFont
 
     uint8_t getCharSize(char ch) const
     {
+        if ((ch < baseChar) || (ch > (chars + baseChar)))
+            ch = baseChar;
     	uint16_t o = ((uint8_t)ch)-baseChar;
         return sizes[o];
     }
 
     const uint8_t* getCharData(char ch) const
     {
-      uint16_t o = ((uint8_t)ch)-baseChar;
-      return data + offsets[o];
+        if ((ch < baseChar) || (ch > (chars + baseChar)))
+            ch = baseChar;
+        uint16_t o = ((uint8_t)ch)-baseChar;
+        return data + offsets[o];
     }
 };
 
