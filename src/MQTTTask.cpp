@@ -52,7 +52,7 @@ void MQTTTask::reset()
     logPrintfX(F("MQT"), "Connected!");
     
     char topic[64];
-    snprintf(topic, sizeof(topic), "/%s/+", clientId.c_str());
+    snprintf(topic, sizeof(topic), "%s/+", clientId.c_str());
 
     logPrintfX(F("MQT"), "Subscribing to %s...", topic);
     mqttClient.unsubscribe(topic);
@@ -92,7 +92,7 @@ void MQTTTask::callback(const char* topic_raw, byte* payload, unsigned int lengt
 
         char returnedTopic[128];
         auto clientId = DataStore::valueOrDefault(F("mqttClientId"), F("InfoClock"));
-        snprintf(returnedTopic, sizeof(returnedTopic), "/%s/publish/%s", clientId.c_str(), msg);
+        snprintf(returnedTopic, sizeof(returnedTopic), "%s/publish/%s", clientId.c_str(), msg);
         mqttClient.publish(returnedTopic, dataSource(msg).c_str());
         mqttClient.loop();
     }
@@ -117,7 +117,7 @@ void MQTTTask::run()
             {
                 char topic[128];
                 logPrintfX(F("MQT"), F("Reporting %s..."), s.c_str());
-                snprintf(topic, sizeof(topic), "/%s/publish/%s", clientId.c_str(), s.c_str());
+                snprintf(topic, sizeof(topic), "%s/publish/%s", clientId.c_str(), s.c_str());
                 mqttClient.publish(topic, dataSource(s.c_str()).c_str());
             }
         }

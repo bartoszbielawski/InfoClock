@@ -24,7 +24,6 @@ DisplayTask::DisplayTask():
 				readConfigWithDefault(F("segments"),"8").toInt(), LED_CS),
 				scroll(ledMatrixDriver),
 		regularMessages({
-			{this, getTime, 1_s,	10,	false},
 			{this, getDate, 2_s,	1,	false},
 			})
 {
@@ -35,7 +34,7 @@ DisplayTask::DisplayTask():
 
 void DisplayTask::addClock()
 {
-	DisplayState ds = {this, getTime, 1_s, 10,	false};
+	DisplayState ds = {this, getTime, 1_s, 5,	false};
 	regularMessages.push_back(ds);
 }
 

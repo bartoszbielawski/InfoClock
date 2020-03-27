@@ -7,7 +7,7 @@ timezone=3600
 
 # OWM SETTINGS
 owmEnabled=1
-ownKey=own_key
+owmKey=own_key
 owmId=2974936
 
 # MQTT SETTINGS

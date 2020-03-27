@@ -22,8 +22,6 @@ using namespace Tasks;
 void setup()
 {
 	Serial.begin(SERIAL_BAUD_RATE);
-
-	delay(5000);
 	
 	checkFileSystem();
 	
