@@ -27,7 +27,6 @@ class LambdaTask: public Tasks::Task
 
 	private:
 		std::function<void()> f;
-
 };
 
 

@@ -103,7 +103,10 @@ int getHttpResponse(WiFiClient& wifiClient, HTTPClient& httpClient, MapCollector
 	int httpCode = httpClient.GET();
 
 	if (httpCode != 200)
+	{
+		httpClient.end();
 		return httpCode;
+	}
 
 	mc.reset();
 

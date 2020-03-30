@@ -76,8 +76,8 @@ String getTime()
 }
 
 
-static const std::vector<const char*> dayNames{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-//static const std::vector<const char*> dayNames{"Nd", "Pn", "Wt", "Sr", "Cz", "Pt", "Sb"};
+static const char long_day_names[][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+static const char short_day_names[][4] PROGMEM = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
 
 
 String getDate()
@@ -93,9 +93,11 @@ String getDate()
 
 	char localBuffer[20];
 
+	static const auto day_names = DataStore::value("segments").toInt() <= 5 ? short_day_names: long_day_names;
+
 	auto lt = localtime(&now);
 	snprintf(localBuffer, sizeof(localBuffer), "%s %02d/%02d",
-			dayNames[lt->tm_wday],
+			day_names[lt->tm_wday],
 			lt->tm_mday,
 			lt->tm_mon+1);
 
@@ -106,10 +108,11 @@ String getDate()
 
 
 
-static time_t previousDateTime = 0;
+
 
 const char* getDateTime()
 {
+	static time_t previousDateTime = 0;
 	time_t now = time(nullptr);
 	if (now == previousDateTime)
 		return dateTimeBuffer;

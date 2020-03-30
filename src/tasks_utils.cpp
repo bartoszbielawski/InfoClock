@@ -54,7 +54,8 @@ void setupTasks()
 	addTask(&WebServerTask::getInstance());
 	addTask(&DisplayTask::getInstance());
 
-	addOptionalTask<LHCStatusReaderNew>(F("lhcEnabled"), TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
+	// LHC task seems to be broken in some strange way - with an exception in the HTTP client
+	//addOptionalTask<LHCStatusReaderNew>(F("lhcEnabled"), TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
 	addOptionalTask<LEDBlinker>(F("ledEnabled"), 0);
 	addOptionalTask<WeatherGetter>(F("owmEnabled"), TaskDescriptor::SLOW | TaskDescriptor::CONNECTED);
 	addOptionalTask<MQTTTask>(F("mqttEnabled"), TaskDescriptor::CONNECTED);

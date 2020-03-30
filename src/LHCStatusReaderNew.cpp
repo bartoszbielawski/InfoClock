@@ -52,6 +52,7 @@ void LHCStatusReaderNew::run()
 		logPrintfX(F("LHC"), F("HTTP code: %d"), httpCode);
 		reset();		//this resets variables
 		sleep(60_s);
+		httpClient.end();
 		return;
 	}
 
@@ -87,6 +88,8 @@ void LHCStatusReaderNew::run()
 			logPrintfX(F("LHC"), F("BeamMode: %s"), beamMode.c_str());
 		}
 	}
+
+	httpClient.end();
 
 	refreshTime = getDateTime();
 

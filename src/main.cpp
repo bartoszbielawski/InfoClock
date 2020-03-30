@@ -37,10 +37,7 @@ void setup()
 	displayTask.pushMessage(versionString, 0.4_s, true);
 	displayTask.addRegularMessage({&displayTask, getMessage, 0.05_s, 1, true});
 
-	timezone = readConfig(F("timezone")).toInt();
 	syslogServer = readConfig(F("syslogServer"));
-
-	configTime(timezone, 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
 
 	configureOTA();
 }

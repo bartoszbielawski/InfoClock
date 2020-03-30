@@ -140,6 +140,9 @@ static void wifiConnectorCallback(WifiConnector::States state)
 		{
 			WebServerTask::getInstance().reset();
 
+			int timezone = readConfig(F("timezone")).toInt();
+			configTime(timezone, 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
+
 			DisplayTask::getInstance().pushMessage(readConfig(F("essid")), 0.4_s, true);
 			String ip = WiFi.localIP().toString();
 			DisplayTask::getInstance().pushMessage(ip, 0.1_s, true);
