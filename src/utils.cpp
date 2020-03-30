@@ -183,7 +183,9 @@ bool checkFileSystem()
 	return alreadyFormatted;
 }
 
-std::pair<String, String> splitLine(String&& line)
+
+
+std::pair<String, String> splitLine(String& line)
 {
     std::pair<String, String> result;
 
@@ -228,11 +230,12 @@ void readConfigFromFS()
 	
     while (file.available())
     {   
-	    auto p = splitLine(readLine(file));
+		String l = readLine(file);
+	    auto p = splitLine(l);
         if (not p.second.length())
             continue;
             
-        logPrintfX("UTL", F("Config: %s = %s"), p.first.c_str(), p.second.c_str());
+        logPrintfX("UTL", F("Config: %s = '%s'"), p.first.c_str(), p.second.c_str());
 		DataStore::value(p.first) = p.second;
     }
 	SPIFFS.end();

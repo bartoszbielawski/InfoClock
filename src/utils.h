@@ -60,7 +60,7 @@ namespace fs
 };
 
 String readLine(fs::File& file);
-
+std::pair<String, String> splitLine(String& line);
 std::vector<String> tokenize(const String& s);
 
 #endif /* UTILS_H_ */

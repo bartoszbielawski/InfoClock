@@ -24,6 +24,7 @@
 #include <MQTTTask.h>
 #include <WeatherGetter.h>
 #include <LocalSensorTask.h>
+#include <SerialCommand.h>
 
 //ESP8266 raw API
 extern "C" {
@@ -54,8 +55,9 @@ void setupTasks()
 	addTask(&WebServerTask::getInstance());
 	addTask(&DisplayTask::getInstance());
 
+	addTask(new SerialCommandTask, 0);
 	// LHC task seems to be broken in some strange way - with an exception in the HTTP client
-	//addOptionalTask<LHCStatusReaderNew>(F("lhcEnabled"), TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
+	//addOptionalTask<LHCStatusReaderNew>(F("lhcEnabled"), TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);	
 	addOptionalTask<LEDBlinker>(F("ledEnabled"), 0);
 	addOptionalTask<WeatherGetter>(F("owmEnabled"), TaskDescriptor::SLOW | TaskDescriptor::CONNECTED);
 	addOptionalTask<MQTTTask>(F("mqttEnabled"), TaskDescriptor::CONNECTED);
