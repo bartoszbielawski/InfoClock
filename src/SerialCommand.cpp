@@ -8,6 +8,7 @@
 #include <SerialCommand.h>
 #include <utils.h>
 #include <DataStore.h>
+#include <ESP8266WiFi.h>
 
 SerialCommandTask::SerialCommandTask() {}
 
@@ -63,6 +64,12 @@ void SerialCommandTask::run()
             {
                 logPrintfX(F("SCT"), F("%s = '%s'"), k.c_str(), dataSource(k.c_str()).c_str());
             }
+            continue;
+        }
+
+        if (cmd == "connected")
+        {
+            logPrintfX(F("SCT"), F("Connected = %s"), WiFi.isConnected() ? "true": "false");
             continue;
         }
 
