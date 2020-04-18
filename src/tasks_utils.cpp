@@ -64,7 +64,7 @@ void setupTasks()
 	addOptionalTask<WeatherGetter>(F("owmEnabled"), TaskDescriptor::SLOW | TaskDescriptor::CONNECTED);
 	addOptionalTask<MQTTTask>(F("mqttEnabled"), TaskDescriptor::CONNECTED);
 	addOptionalTask<LocalSensorTask>(F("lstEnabled"), TaskDescriptor::SLOW);
-	addOptionalTask<MessagesTask>(F("messagesEnabled"), TaskDescriptor::ENABLED);
+	addOptionalTask<MessagesTask>(F("messagesEnabled"), TaskDescriptor::CONNECTED);
 
 	os_timer_setfn(&myTimer, timerCallback, NULL);
 	os_timer_arm(&myTimer, MS_PER_CYCLE, true);

@@ -49,9 +49,9 @@ void MessagesTask::updateFromConfig(bool verbose)
 
 String MessagesTask::getMessages()
 {
-  if (DataStore::hasValue("messages.split"))
+  if (DataStore::hasValue("messagesSplit"))
   {
-    String messageSplit = DataStore::value("messages.split");
+    String messageSplit = DataStore::value("messagesSplit");
     String toReturn = messageSplit;
     for (int i=1; i<=nbOfMessages; i++)
     {

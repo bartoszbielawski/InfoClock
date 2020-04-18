@@ -29,6 +29,8 @@ lstEnabled=1
 
 # messages
 messagesEnabled=1
+#if the following is set, it lists ALL messages at every cycle, if not set, one message per cycle
+messagesSplit= //
 
 # precision {0:days,1:hours,2:minutes,3:seconds}, default hours
 # countdown 1:yes 0:no, default 'no'
