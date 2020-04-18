@@ -12,8 +12,6 @@
 
 #include "DisplayTask.hpp"
 
-#include "StatelessMessages.h"
-
 #include "ArduinoOTA.h"
 
 using namespace Tasks;
@@ -22,11 +20,11 @@ using namespace Tasks;
 void setup()
 {
 	Serial.begin(SERIAL_BAUD_RATE);
-	
+
 	checkFileSystem();
-	
+
 	readConfigFromFS();
-	
+
 	setupTasks();
 
 	logPrintfX(F("MAIN"), F("MAC Address: %s"), WiFi.macAddress().c_str());
@@ -35,7 +33,6 @@ void setup()
 
 	displayTask.pushMessage("Initializing...", 2_s);
 	displayTask.pushMessage(versionString, 0.4_s, true);
-	displayTask.addRegularMessage({&displayTask, getMessage, 0.05_s, 1, true});
 
 	syslogServer = readConfig(F("syslogServer"));
 
@@ -47,4 +44,3 @@ void loop()
 	scheduleTasks();
 	ArduinoOTA.handle();
 }
-

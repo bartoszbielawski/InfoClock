@@ -27,5 +27,3 @@ String getMessage()
         msg_fun_index = 0;
     return msg_funs[msg_fun_index]();
 }
-
-

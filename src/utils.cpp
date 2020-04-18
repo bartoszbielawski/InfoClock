@@ -42,7 +42,7 @@ uint32_t getUpTime()
 {
 	if (!startUpTime)
 		return 0;
-		
+
 	return	time(nullptr) - startUpTime;
 }
 
@@ -189,7 +189,7 @@ std::pair<String, String> splitLine(String& line)
 {
     std::pair<String, String> result;
 
-    line.trim();     
+    line.trim();
 
     if (line.length() == 0)
         return result;
@@ -222,24 +222,24 @@ void readConfigFromFS()
 		logPrintfX(F("UTL"), F("The file is missing, please create your own config using the web interface!"));
 		return;
 	}
-        
+
 	logPrintfX(F("UTL"), "File size: %zu", file.size());
 
 	//remove all the data that's already present
 	DataStore::clear();
-	
+
     while (file.available())
-    {   
+    {
 		String l = readLine(file);
 	    auto p = splitLine(l);
         if (not p.second.length())
             continue;
-            
+
         logPrintfX("UTL", F("Config: %s = '%s'"), p.first.c_str(), p.second.c_str());
 		DataStore::value(p.first) = p.second;
     }
 	SPIFFS.end();
-}  
+}
 
 
 String readConfigWithDefault(const String& name, const String& def)
@@ -313,7 +313,7 @@ String readLine(fs::File& file)
 
 		if (c == '\r')
 			return result;
-		
+
 		//cast it, otherwise a number is appended - not a char
 		result += (char)c;
 	}
@@ -321,7 +321,7 @@ String readLine(fs::File& file)
 	return result;
 }
 
-std::vector<String> tokenize(const String& input)
+std::vector<String> tokenize(const String& input, const String& sep_str)
 {
 	uint32_t from = 0;
 	int32_t to;
@@ -330,11 +330,11 @@ std::vector<String> tokenize(const String& input)
 
 	do
 	{
-		auto commaIndex = input.indexOf(",", from);
+		auto commaIndex = input.indexOf(sep_str, from);
 		to = commaIndex == -1 ? input.length(): commaIndex;
 
 		String s = input.substring(from, to);
-		from = to+1;
+		from = to + 1; //TODO see with sep_str.len()
 
 		results.emplace_back(s);
 	}
