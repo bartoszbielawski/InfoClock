@@ -36,15 +36,15 @@ void MessagesTask::updateFromConfig(bool verbose)
   {
     if (key.startsWith("messages")) {
       std::vector<String> subKeys = tokenize(key, ".");
-      // TODO make it safer (checks) + Bartosz idea
       if (subKeys.size() > 1)
       {
-        nbOfMessages = subKeys[1].toInt();
+        if (std::find(messageKeys.begin(), messageKeys.end(), subKeys[1]) != messageKeys.end())
+          continue;
+        messageKeys.push_back(subKeys[1]);
       }
     }
   }
-  if (verbose){logPrintfX(F("MSG"), F("Config for %d message(s) found!"), nbOfMessages);}
-
+  if (verbose){logPrintfX(F("MSG"), F("Config for %d message(s) found!"), messageKeys.size());}
 }
 
 String MessagesTask::getMessages()
@@ -52,50 +52,50 @@ String MessagesTask::getMessages()
   if (DataStore::hasValue("messagesSplit"))
   {
     String messageSplit = DataStore::value("messagesSplit");
-    String toReturn = messageSplit;
-    for (int i=1; i<=nbOfMessages; i++)
-    {
-      toReturn = toReturn + getMessage(i) + messageSplit;
-    }
-    return toReturn;
+    std::vector<String> messageToReturn;
+    messageToReturn.push_back("All messages: " + messageSplit);
+    for(auto messageKey : messageKeys)
+      messageToReturn.push_back(getMessage(messageKey) + messageSplit);
+
+    return getOneStringFrom(messageToReturn);
   }
   else
   {
     messageCycleIndex++;
-    if (messageCycleIndex < 1 || messageCycleIndex > nbOfMessages) messageCycleIndex=1;
-      return getMessage(messageCycleIndex);
+    if (messageCycleIndex < 0 || messageCycleIndex >= messageKeys.size())
+      messageCycleIndex = 0;
+    return getMessage(messageKeys[messageCycleIndex]);
   }
 }
 
-String MessagesTask::getMessage(int messageIndex)
+String MessagesTask::getMessage(String messageKey)
 {
-  bool countdown = defaultCounting;
-  DeltaTimePrecision precision = defaultPrecision;
-  char msgkey[128];
-  snprintf(msgkey, sizeof(msgkey), "messages.%d", messageIndex);
-  String messageText = DataStore::value(msgkey);
-  snprintf(msgkey, sizeof(msgkey), "messages.%d.time", messageIndex);
-  time_t when = DataStore::value(msgkey).toInt();
-  snprintf(msgkey, sizeof(msgkey), "messages.%d.countdown", messageIndex);
-  if (DataStore::hasValue(msgkey)){ countdown = (bool) DataStore::value(msgkey).toInt();}
-  snprintf(msgkey, sizeof(msgkey), "messages.%d.precision", messageIndex);
-  if (DataStore::hasValue(msgkey))
-  {
-    switch (DataStore::value(msgkey).toInt())
-    {
-      case 0: precision = DeltaTimePrecision::DAYS; break;
-      case 1: precision = DeltaTimePrecision::HOURS; break;
-      case 2: precision = DeltaTimePrecision::MINUTES; break;
-      case 3: precision = DeltaTimePrecision::SECONDS; break;
-    }
-  }
+  String messageFullKey = "messages." + messageKey;
+  String messageText = DataStore::valueOrDefault(messageFullKey, "...$1...");
+  time_t when = DataStore::valueOrDefault(messageFullKey+".time", "0").toInt(); // TODO fix time_now to str_date
+  bool countdown = (bool)  DataStore::valueOrDefault(messageFullKey+".countdown", "1").toInt();
 
+  DeltaTimePrecision precision = allowedPrecisions[0];
+  int precisionId = DataStore::valueOrDefault(messageFullKey+".precision", "0").toInt();
+  if (precisionId > 0 &&  precisionId <= 4)
+    precision = allowedPrecisions[precisionId];
 
   time_t delta = time(NULL) - when;
   if ((delta < 0 && !countdown) || (delta > 0 && countdown) )
       return defaultMessage;
 
-  char msgtoReturn[128];
-  snprintf(msgtoReturn, sizeof(msgtoReturn), messageText.c_str(), formatDeltaTime(delta, precision).c_str());
-  return msgtoReturn;
+  messageText.replace(defaultReplaceString, formatDeltaTime(delta, precision));
+  return messageText;
+}
+
+String MessagesTask::getOneStringFrom(std::vector<String> messages)
+{
+  int totalLen = 0;
+  for (auto oneMsg : messages)
+    totalLen += oneMsg.length();
+  String toReturn;
+  toReturn.reserve(totalLen+1);
+  for (auto oneMsg : messages)
+    toReturn.concat(oneMsg);
+  return toReturn;
 }

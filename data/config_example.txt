@@ -35,7 +35,7 @@ messagesSplit= //
 # precision {0:days,1:hours,2:minutes,3:seconds}, default hours
 # countdown 1:yes 0:no, default 'no'
 
-messages.1=In lockdown for %s
+messages.1=In lockdown for $S
 #Tue, 17 mar 2020 @ 12:00 CET
 messages.1.time=1584446400
 

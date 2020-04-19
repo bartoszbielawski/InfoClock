@@ -13,6 +13,11 @@
 #include <time_utils.h>
 #include <utils.h>
 
+const static DeltaTimePrecision allowedPrecisions[] = {DeltaTimePrecision::DAYS,
+																								DeltaTimePrecision::HOURS,
+																								DeltaTimePrecision::MINUTES,
+																								DeltaTimePrecision::SECONDS};
+
 class MessagesTask: public Tasks::Task
 {
 	public:
@@ -23,13 +28,14 @@ class MessagesTask: public Tasks::Task
 	private:
     void updateFromConfig(bool verbose);
     String getMessages();
-    String getMessage(int messageIndex);
-    int nbOfMessages = 0; //overiden on startup
+    String getMessage(String messageKey);
+		String getOneStringFrom(std::vector<String> messages);
+
+		std::vector<String> messageKeys;
     int messageCycleIndex = 0;
 
-    DeltaTimePrecision defaultPrecision = DeltaTimePrecision::HOURS;
-    bool defaultCounting = false;
     String defaultMessage = "...";
+		String defaultReplaceString = "$S";
 };
 
 #endif /* MESSAGESTASK_H_ */
