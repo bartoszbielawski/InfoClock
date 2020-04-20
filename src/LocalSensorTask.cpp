@@ -28,7 +28,7 @@ LocalSensorTask::LocalSensorTask():
 	dallasTemperature.begin();
 	dallasTemperature.setWaitForConversion(false);
 	dallasTemperature.requestTemperatures();
-	
+
 	registerPage(F("lst"), "Local Sensors", [this](ESP8266WebServer& webServer) {handlePage(webServer);});
 
 	addRegularMessage({this, [this](){return formatTemperature();}, 3_s, 1, false});
@@ -44,7 +44,7 @@ void LocalSensorTask::run()
 		logPrintfX(F("LST"), F("Sensor not found..."));
 	}
 	else
-	{	
+	{
 		logPrintfX(F("LST"), F("T = %s deg C"), String(t, 1).c_str());
 	}
 
@@ -86,7 +86,7 @@ void LocalSensorTask::handlePage(ESP8266WebServer& webServer)
 
 String LocalSensorTask::formatTemperature()
 {
-	if (temperature == -127.0f)	
+	if (temperature == -127.0f)
 		return "No sensor detected!";
 
 	String p = "\x81 ";

@@ -44,13 +44,13 @@ void MQTTTask::reset()
     auto user = DataStore::value(F("mqttUser"));
     auto passwd = DataStore::value(F("mqttPassword"));
 
-    logPrintfX(F("MQT"), "Connecting (%s, %s)", mqttServer.c_str(), user.c_str()); 
+    logPrintfX(F("MQT"), "Connecting (%s, %s)", mqttServer.c_str(), user.c_str());
 
     if (not mqttClient.connect(clientId.c_str(), user.c_str(), passwd.c_str()))
         return;
 
     logPrintfX(F("MQT"), "Connected!");
-    
+
     char topic[64];
     snprintf(topic, sizeof(topic), "%s/+", clientId.c_str());
 
@@ -112,7 +112,7 @@ void MQTTTask::run()
         String reports = DataStore::value(F("mqttReports"));
         if (reports.length())
         {
-            auto varNames = tokenize(reports);
+            auto varNames = tokenize(reports,",");
             for (const auto& s: varNames)
             {
                 char topic[128];

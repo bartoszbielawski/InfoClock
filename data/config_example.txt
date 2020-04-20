@@ -25,3 +25,24 @@ ledEnabled=1
 
 # Local Sensor Task
 lstEnabled=1
+
+#################
+# messages
+
+messagesEnabled=1
+messagesVerbose=0
+
+#if the following is set, ALL messages will be listed at every cycle, if not set, ONE message per cycle changing cycle to cycle
+messagesSplit= //
+
+# hoto:
+# in the message text $S will be replaced with the formatted time_delta string
+# time -> 0
+# precision {0:days,1:hours,2:minutes,3:seconds}, default for 'days'
+# countdown 1:yes 0:no, default for 'yes'
+
+messages.1=In lockdown for $S
+#Tue, 17 mar 2020 @ 12:00 CET
+messages.1.time=1584446400
+messages.1.countdown=0
+messages.1.precision=1

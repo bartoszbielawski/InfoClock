@@ -9,7 +9,7 @@
 #include "DisplayTask.hpp"
 
 #include "pyfont.h"
-#include "myTestFont.h"
+#include "myTestFont8.h"
 
 #include "utils.h"
 #include "tasks_utils.h"

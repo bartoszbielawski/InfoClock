@@ -61,6 +61,6 @@ namespace fs
 
 String readLine(fs::File& file);
 std::pair<String, String> splitLine(String& line);
-std::vector<String> tokenize(const String& s);
+std::vector<String> tokenize(const String& s, const String& sep_str);
 
 #endif /* UTILS_H_ */
