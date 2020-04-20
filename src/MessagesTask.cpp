@@ -31,6 +31,7 @@ void MessagesTask::run()
 void MessagesTask::updateFromConfig(bool verbose)
 {
   std::vector<String> keys = DataStore::availableKeys();
+  messageKeys.clear();
 
   for (String &key : keys)
   {
@@ -53,10 +54,9 @@ String MessagesTask::getMessages()
   {
     String messageSplit = DataStore::value("messagesSplit");
     std::vector<String> messageToReturn;
-    messageToReturn.push_back("All messages: " + messageSplit);
+    messageToReturn.push_back("All messages:" + messageSplit);
     for(auto messageKey : messageKeys)
       messageToReturn.push_back(getMessage(messageKey) + messageSplit);
-
     return getOneStringFrom(messageToReturn);
   }
   else
@@ -70,20 +70,29 @@ String MessagesTask::getMessages()
 
 String MessagesTask::getMessage(String messageKey)
 {
+  bool msgVerbose = (bool) DataStore::valueOrDefault("messagesVerbose", "0").toInt();
   String messageFullKey = "messages." + messageKey;
-  String messageText = DataStore::valueOrDefault(messageFullKey, "...$1...");
-  time_t when = DataStore::valueOrDefault(messageFullKey+".time", "0").toInt(); // TODO fix time_now to str_date
-  bool countdown = (bool)  DataStore::valueOrDefault(messageFullKey+".countdown", "1").toInt();
+  String messageText = "[$KEY]" + DataStore::valueOrDefault(messageFullKey, "...$1...");
+
+  time_t when = DataStore::valueOrDefault(messageFullKey + ".time", "0").toInt(); // TODO fix time_now to str_date
+  bool countdown = (bool)  DataStore::valueOrDefault(messageFullKey + ".countdown", "1").toInt();
 
   DeltaTimePrecision precision = allowedPrecisions[0];
-  int precisionId = DataStore::valueOrDefault(messageFullKey+".precision", "0").toInt();
+  int precisionId = DataStore::valueOrDefault(messageFullKey + ".precision", "0").toInt();
   if (precisionId > 0 &&  precisionId <= 4)
     precision = allowedPrecisions[precisionId];
 
   time_t delta = time(NULL) - when;
   if ((delta < 0 && !countdown) || (delta > 0 && countdown) )
-      return defaultMessage;
+      if (msgVerbose)
+        return "[" + messageKey + "]" + defaultMessage;
+      else
+        return defaultMessage;
 
+  if (msgVerbose)
+    messageText.replace("$KEY", messageKey);
+  else
+    messageText.replace("[$KEY]", "");
   messageText.replace(defaultReplaceString, formatDeltaTime(delta, precision));
   return messageText;
 }

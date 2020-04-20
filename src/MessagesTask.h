@@ -32,7 +32,7 @@ class MessagesTask: public Tasks::Task
 		String getOneStringFrom(std::vector<String> messages);
 
 		std::vector<String> messageKeys;
-    int messageCycleIndex = 0;
+    uint8 messageCycleIndex = 0;
 
     String defaultMessage = "...";
 		String defaultReplaceString = "$S";
