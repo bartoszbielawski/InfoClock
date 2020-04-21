@@ -1,4 +1,4 @@
-# InfoClock v 0.5.0
+# InfoClock v 0.5.1
 
 A small and configurable clock project that displays some information on a LED display.
 
@@ -13,7 +13,7 @@ Configured for use with PlatformIO
 * LHC Status display (using data from ALICE) (currently disabled, the LHC is off for maintenance)
 * Currency exchange rate from http://fixer.io (disabled - broken due to API changes)
 * Modular approach makes it easy to add new modules (tasks)
-* Stateless messages (based on Brexit code)
+* Stateless messages, configurable with end/start date, displayable with countdown/count-up option.
 
 ## Parts:
 * CPU:      ESP8266 (WeMos D1 Mini or NodeMCU)

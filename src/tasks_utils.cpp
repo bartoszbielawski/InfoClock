@@ -19,6 +19,8 @@
 #include "WifiConnector.h"
 #include "DisplayTask.hpp"
 
+#include "MessagesTask.h"
+
 #include <LHCStatusReaderNew.h>
 #include <LEDBlinker.h>
 #include <MQTTTask.h>
@@ -57,11 +59,12 @@ void setupTasks()
 
 	addTask(new SerialCommandTask, 0);
 	// LHC task seems to be broken in some strange way - with an exception in the HTTP client
-	//addOptionalTask<LHCStatusReaderNew>(F("lhcEnabled"), TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);	
+	//addOptionalTask<LHCStatusReaderNew>(F("lhcEnabled"), TaskDescriptor::CONNECTED | TaskDescriptor::SLOW);
 	addOptionalTask<LEDBlinker>(F("ledEnabled"), 0);
 	addOptionalTask<WeatherGetter>(F("owmEnabled"), TaskDescriptor::SLOW | TaskDescriptor::CONNECTED);
 	addOptionalTask<MQTTTask>(F("mqttEnabled"), TaskDescriptor::CONNECTED);
 	addOptionalTask<LocalSensorTask>(F("lstEnabled"), TaskDescriptor::SLOW);
+	addOptionalTask<MessagesTask>(F("messagesEnabled"), TaskDescriptor::CONNECTED);
 
 	os_timer_setfn(&myTimer, timerCallback, NULL);
 	os_timer_arm(&myTimer, MS_PER_CYCLE, true);
