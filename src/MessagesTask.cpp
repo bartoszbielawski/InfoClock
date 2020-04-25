@@ -8,93 +8,123 @@
 
 #include "MessagesTask.h"
 #include <DisplayTask.hpp>
+#include <iterator>
 #include "utils.h"
 #include "tasks_utils.h"
 #include "config.h"
 
 #define DEFAULT_DISPLAY_TIME 0.05_s
 
-MessagesTask::MessagesTask(){
-  if (DataStore::value("messagesEnabled").toInt())
-  {
-    updateFromConfig(true);
-    addRegularMessage({this, [this](){return getMessages();}, DEFAULT_DISPLAY_TIME, 1, true});
-  }
+MessagesTask::MessagesTask()
+{
+  addRegularMessage({this, [this](){return getMessages();}, DEFAULT_DISPLAY_TIME, 1, true});
 }
 
 void MessagesTask::run()
 {
-  updateFromConfig(false);
-  sleep(5_s);
+  updateFromConfig();
+  sleep(60_s);
 }
 
-void MessagesTask::updateFromConfig(bool verbose)
+void MessagesTask::updateFromConfig()
 {
-  std::vector<String> keys = DataStore::availableKeys();
-  messageKeys.clear();
+  std::vector<String> new_message_keys;
+  const auto& all_keys = DataStore::availableKeys();
+  
+  std::copy_if(all_keys.begin(), 
+               all_keys.end(), 
+               std::back_inserter(new_message_keys),
+               [](const String& k) {return k.startsWith("messages.");});
 
-  for (String &key : keys)
+  if (new_message_keys == messageKeys)
   {
-    if (key.startsWith("messages")) {
-      std::vector<String> subKeys = tokenize(key, ".");
-      if (subKeys.size() > 1)
-      {
-        if (std::find(messageKeys.begin(), messageKeys.end(), subKeys[1]) != messageKeys.end())
-          continue;
-        messageKeys.push_back(subKeys[1]);
-      }
-    }
+    logPrintfX(F("MSG"), F("No new keys..."));
+    return;
   }
-  if (verbose){logPrintfX(F("MSG"), F("Config for %d message(s) found!"), messageKeys.size());}
+
+  //new keys detected
+  messageKeys = std::move(new_message_keys);
+  messageCycleIndex = 0;
+  
+  logPrintfX(F("MSG"), F("Config for %zu message(s) found!"), messageKeys.size());
 }
 
 String MessagesTask::getMessages()
 {
+  String result;
+  if (messageKeys.size() == 0)
+    return result;
+
   if (DataStore::hasValue("messagesSplit"))
   {
     String messageSplit = DataStore::value("messagesSplit");
-    std::vector<String> messageToReturn;
-    messageToReturn.push_back("All messages:" + messageSplit);
-    for(auto messageKey : messageKeys)
-      messageToReturn.push_back(getMessage(messageKey) + messageSplit);
-    return getOneStringFrom(messageToReturn);
+    std::vector<String> messageToReturn = {"All messages:", messageSplit};
+
+    std::transform(messageKeys.begin(), messageKeys.end(),
+                   std::back_inserter(messageToReturn),
+                   [&messageToReturn, this, &messageSplit](const String& k) 
+                   {return getMessage(k) + messageSplit;});
+
+    result = getOneStringFrom(messageToReturn);
   }
   else
   {
+    result = messageKeys[messageCycleIndex];
+
     messageCycleIndex++;
-    if (messageCycleIndex < 0 || messageCycleIndex >= messageKeys.size())
-      messageCycleIndex = 0;
-    return getMessage(messageKeys[messageCycleIndex]);
+    if (messageCycleIndex >= messageKeys.size())
+        messageCycleIndex = 0;
   }
+  return result;
 }
+
+struct DeltaTimeReplacer
+{
+    DeltaTimeReplacer(time_t delta): delta(delta) {}
+
+    String operator()(const char* t)
+    {
+      String tag = t;
+      if (tag == "D") return formatDeltaTime(delta, DeltaTimePrecision::DAYS);
+      if (tag == "H") return formatDeltaTime(delta, DeltaTimePrecision::HOURS);
+      if (tag == "M") return formatDeltaTime(delta, DeltaTimePrecision::MINUTES);
+      if (tag == "S") return formatDeltaTime(delta, DeltaTimePrecision::SECONDS);
+
+      return dataSource(t);
+    }
+
+    time_t delta;
+};
+
 
 String MessagesTask::getMessage(String messageKey)
 {
-  bool msgVerbose = (bool) DataStore::valueOrDefault("messagesVerbose", "0").toInt();
-  String messageFullKey = "messages." + messageKey;
-  String messageText = "[$KEY]" + DataStore::valueOrDefault(messageFullKey, "...$1...");
+  String config = DataStore::valueOrDefault(messageKey, "...");
 
-  time_t when = DataStore::valueOrDefault(messageFullKey + ".time", "0").toInt(); // TODO fix time_now to str_date
-  bool countdown = (bool)  DataStore::valueOrDefault(messageFullKey + ".countdown", "1").toInt();
+  std::vector<String> fields = tokenize(config,";");
+  if (fields.size() != 3)
+    return String();
 
-  DeltaTimePrecision precision = allowedPrecisions[0];
-  int precisionId = DataStore::valueOrDefault(messageFullKey + ".precision", "0").toInt();
-  if (precisionId > 0 &&  precisionId <= 4)
-    precision = allowedPrecisions[precisionId];
+  time_t when = fields[2].toInt();
+  if (not when)
+    return String();
+  
+  time_t delta = when - time(NULL);
 
-  time_t delta = time(NULL) - when;
-  if ((delta < 0 && !countdown) || (delta > 0 && countdown) )
-      if (msgVerbose)
-        return "[" + messageKey + "]" + defaultMessage;
-      else
-        return defaultMessage;
+  const String& before = fields[0];
+  const String& after =  fields[1];
 
-  if (msgVerbose)
-    messageText.replace("$KEY", messageKey);
-  else
-    messageText.replace("[$KEY]", "");
-  messageText.replace(defaultReplaceString, formatDeltaTime(delta, precision));
-  return messageText;
+  String selected_string  = (delta > 0) ? before: after;
+
+  StringStream ss;
+  StringViewStream svs(selected_string);
+  DeltaTimeReplacer dtr(delta);
+
+  macroStringReplaceS(svs, dtr, ss);
+  
+  logPrintfX(F("MSG"), "%s", ss.buffer.c_str());
+
+  return ss.buffer;
 }
 
 String MessagesTask::getOneStringFrom(std::vector<String> messages)

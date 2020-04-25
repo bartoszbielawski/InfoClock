@@ -45,20 +45,23 @@ void FlashStream::reset()
 	offset = 0;
 }
 
+// void macroStringReplace(FlashStream& fs, Lookup lookup, Stream& outputStream)
+// {
+// 	
+// 	macroStringReplace(fs, lookup, outputStream);
+// }
 
-void macroStringReplace(FlashStream& fs, Lookup lookup, Stream& outputStream)
+void macroStringReplaceS(Stream& as, Lookup lookup, Stream& outputStream)
 {
 	char localBuffer[128];
 	bool inKey = false;
 
-	fs.reset();
-
-	while (uint32_t available = fs.available())
+	while (uint32_t available = as.available())
 	{
 
 		int toRead = min(available, sizeof(localBuffer));
 
-		int read = fs.readBytesUntil('$', localBuffer, toRead);
+		int read = as.readBytesUntil('$', localBuffer, toRead);
 		if (read == toRead)
 		{
 			outputStream.write(localBuffer, toRead);
@@ -82,6 +85,12 @@ void macroStringReplace(FlashStream& fs, Lookup lookup, Stream& outputStream)
 
 		outputStream.write(localBuffer, read);
 	}
+}
+
+void macroStringReplace(FlashStream& as, Lookup lookup, Stream& outputStream)
+{
+	as.reset();
+	macroStringReplaceS(as, lookup, outputStream);
 }
 
 Lookup constString(const String& c)

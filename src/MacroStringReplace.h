@@ -76,12 +76,32 @@ class StringStream: public Stream
 		String 	buffer;
 };
 
+class StringViewStream: public Stream
+{
+	public:
+		StringViewStream(const String& s): s(s) {}
+		virtual ~StringViewStream() {}
+
+		int available() override {return s.length() - read_pos;}
+
+		int read() override {return s[read_pos++];}
+		int peek() override {return s[read_pos];}
+
+		size_t write(uint8_t c) override {return 0;}
+
+		void flush() override {}
+
+		const String& s;
+		size_t read_pos = 0;
+};
+
 
 using Lookup = std::function<String(const char*)>;
 
 Lookup constString(const String& c);
 
 void macroStringReplace(FlashStream& fs, Lookup lookup, Stream& outputStream);
+void macroStringReplaceS(Stream& as, Lookup lookup, Stream& outputStream);
 
 Lookup mapLookup(const std::map<String, String>& m);
 
