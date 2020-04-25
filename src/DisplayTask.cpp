@@ -21,7 +21,8 @@
 DisplayTask::DisplayTask():
 		TaskCRTP(&DisplayTask::nextMessage),
 		ledMatrixDriver(
-				readConfigWithDefault(F("segments"),"8").toInt(), LED_CS),
+				readConfigWithDefault(F("segments"), "8").toInt(), LED_CS,
+				readConfigWithDefault(F("rotation"), "0").toInt()),
 				scroll(ledMatrixDriver),
 		regularMessages({
 			{this, getDate, 2_s,	1,	false},

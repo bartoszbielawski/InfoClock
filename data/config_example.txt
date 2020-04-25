@@ -3,6 +3,7 @@ essid=essid
 wifiPassword=wifi_password
 segments=5
 brightness=5
+rotation=0
 timezone=3600
 
 # OWM SETTINGS
