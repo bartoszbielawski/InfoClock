@@ -189,7 +189,7 @@ std::pair<String, String> splitLine(String& line)
 {
     std::pair<String, String> result;
 
-    line.trim();
+    //line.trim();
 
     if (line.length() == 0)
         return result;
@@ -244,8 +244,7 @@ void readConfigFromFS()
 
 String readConfigWithDefault(const String& name, const String& def)
 {
-	auto v = readConfig(name);
-	return v.length() != 0 ? v: def;
+	return DataStore::valueOrDefault(name, def);
 }
 
 String readConfig(const String& name)
@@ -255,9 +254,12 @@ String readConfig(const String& name)
 
 int32_t timezone = 0;
 
-String dataSource(const char* name)
+String dataSource(const String& name_)
 {
 	String result;
+
+	String name = name_;
+	name.toUpperCase();
 
 	if (DataStore::hasValue(name))
 	{
@@ -266,25 +268,25 @@ String dataSource(const char* name)
 			return result;
 	}
 
-	if (strcmp(name, "ip") == 0)
+	if (name == F("IP"))
 		return WiFi.localIP().toString();
 
-	if (strcmp(name, "heap") == 0)
+	if (name ==  "HEAP")
 		return String(ESP.getFreeHeap()) + " B";
 
-	if (strcmp(name, "version") == 0)
+	if (name == "VERSION")
 		return versionString;
 
-	if (strcmp(name, "build") == 0)
+	if (name ==  "BUILD")
 		return __DATE__ " - " __TIME__;
 
-	if (strcmp(name, "essid") == 0)
+	if (name == "ESSID")
 		return WiFi.SSID();
 
-	if (strcmp(name, "mac") == 0)
+	if (name == "mac")
 		return WiFi.macAddress();
 
-	if (strcmp(name, "uptime") == 0)
+	if (name == "uptime")
 	{
 		return formatDeltaTime(getUpTime(), DeltaTimePrecision::SECONDS);
 	}

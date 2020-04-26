@@ -52,7 +52,7 @@ void rebootClock();
 int32_t getTimeZone();
 uint32_t getUpTime();
 
-String dataSource(const char* name);
+String dataSource(const String& name);
 
 namespace fs
 {
