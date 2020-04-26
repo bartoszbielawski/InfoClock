@@ -49,7 +49,12 @@ void SerialCommandTask::run()
              //read
             if (param.length() == 0)       
             {
-                logPrintfX(F("SCT"), F("%s = '%s'"), variableNameC, dataSource(variableNameC).c_str());
+                if (not DataStore::hasValue(variableName))
+                {
+                    logPrintfX(F("SCT"), F("Variable '%s' not found!"), variableNameC);
+                    continue;
+                }
+                logPrintfX(F("SCT"), F("%s = '%s'"), variableNameC, dataSource(variableName).c_str());
                 continue;
             }
 
@@ -62,7 +67,7 @@ void SerialCommandTask::run()
         {
             for (const auto& k: DataStore::availableKeys())
             {
-                logPrintfX(F("SCT"), F("%s = '%s'"), k.c_str(), dataSource(k.c_str()).c_str());
+                logPrintfX(F("SCT"), F("%s = '%s'"), k.c_str(), DataStore::value(k).c_str());
             }
             continue;
         }

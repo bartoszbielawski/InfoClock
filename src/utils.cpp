@@ -271,22 +271,22 @@ String dataSource(const String& name_)
 	if (name == F("IP"))
 		return WiFi.localIP().toString();
 
-	if (name ==  "HEAP")
+	if (name ==  F("HEAP"))
 		return String(ESP.getFreeHeap()) + " B";
 
-	if (name == "VERSION")
+	if (name == F("VERSION"))
 		return versionString;
 
-	if (name ==  "BUILD")
+	if (name ==  F("BUILD"))
 		return __DATE__ " - " __TIME__;
 
-	if (name == "ESSID")
+	if (name == F("ESSID"))
 		return WiFi.SSID();
 
-	if (name == "mac")
+	if (name == F("MAC"))
 		return WiFi.macAddress();
 
-	if (name == "uptime")
+	if (name == F("UPTIME"))
 	{
 		return formatDeltaTime(getUpTime(), DeltaTimePrecision::SECONDS);
 	}
