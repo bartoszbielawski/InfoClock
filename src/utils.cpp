@@ -259,7 +259,7 @@ String dataSource(const String& name_)
 	String result;
 
 	String name = name_;
-	name.toUpperCase();
+	
 
 	if (DataStore::hasValue(name))
 	{
@@ -267,6 +267,8 @@ String dataSource(const String& name_)
 		if (result)
 			return result;
 	}
+
+	name.toUpperCase();
 
 	if (name == F("IP"))
 		return WiFi.localIP().toString();

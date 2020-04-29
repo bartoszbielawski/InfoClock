@@ -74,12 +74,14 @@ void MQTTTask::callback(const char* topic_raw, byte* payload, unsigned int lengt
         DisplayTask::getInstance().pushMessage(m, 0.05_s, true);
         message = String();
         logPrintfX(F("MQT"), F("New push message: %s"), msg);
+        return;
     }
 
     if (topic.endsWith("looped"))
     {
         message = msg;
         logPrintfX(F("MQT"), F("New looped message: %s"), msg);
+        return;
     }
 
     if (topic.endsWith("request"))
@@ -93,7 +95,12 @@ void MQTTTask::callback(const char* topic_raw, byte* payload, unsigned int lengt
         char returnedTopic[128];
         auto clientId = DataStore::valueOrDefault(F("mqttClientId"), F("InfoClock"));
         snprintf(returnedTopic, sizeof(returnedTopic), "%s/publish/%s", clientId.c_str(), msg);
-        mqttClient.publish(returnedTopic, dataSource(msg).c_str());
+
+        auto variable = dataSource(p);
+        logPrintfX(F("MQT"), F("Sending %s to %s"), variable.c_str(), returnedTopic);
+
+        mqttClient.publish(returnedTopic, variable.c_str());
+
         mqttClient.loop();
     }
 }

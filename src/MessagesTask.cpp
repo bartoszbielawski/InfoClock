@@ -69,7 +69,7 @@ String MessagesTask::getMessages()
   }
   else
   {
-    result = messageKeys[messageCycleIndex];
+    result = getMessage(messageKeys[messageCycleIndex]);
 
     messageCycleIndex++;
     if (messageCycleIndex >= messageKeys.size())
