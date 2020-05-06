@@ -1,4 +1,4 @@
-# InfoClock v 0.5.1
+# InfoClock v 0.5.2
 
 A small and configurable clock project that displays some information on a LED display.
 
@@ -32,3 +32,6 @@ Configured for use with PlatformIO
 * AJSP (https://github.com/bartoszbielawski/InfoClock)
 * CPPTasks (https://github.com/bartoszbielawski/CPPTasks)
 * LEDMatrixDisplay (https://github.com/bartoszbielawski/LEDMatrixDriver)
+
+### Contributors
+* Arkadiusz Gorzawski (https://github.com/agorzawski)

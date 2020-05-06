@@ -10,6 +10,7 @@
 #include <vector>
 #include <memory>
 #include <utility>
+#include <deque>
 
 #include "utils.h"
 #include "config.h"
@@ -145,17 +146,19 @@ const char* generateRandomUUID()
 }
 
 
-void logPPrintf(char* format, ...)
+static std::deque<String>logHistory;
+
+const std::deque<String>& getLogHistory()
 {
-	char localBuffer[256];
-	va_list argList;
-	va_start(argList, format);
-	Serial.printf("%s-%09u - ", getDateTime(), ESP.getCycleCount());
-	vsnprintf(localBuffer, sizeof(localBuffer), format, argList);
-	Serial.println(localBuffer);
-	va_end(argList);
+	return logHistory;
 }
 
+void appendToLogHistory(const char* msg)
+{
+	logHistory.push_back(msg);
+	while (logHistory.size() > 40)
+		logHistory.pop_front();
+}
 
 void logPrintfX(const String& app, const String& format, ...)
 {
@@ -165,13 +168,38 @@ void logPrintfX(const String& app, const String& format, ...)
 	va_start(argList, format);
 	uint32_t bytes = snprintf(localBuffer, sizeof(localBuffer), "%s - %s: ", getDateTime(), a.c_str());
 	vsnprintf(localBuffer+bytes, sizeof(localBuffer)-bytes, format.c_str(), argList);
+
+	limitToLatin1(localBuffer);
 	Serial.println(localBuffer);
 
 	syslogSend(app, localBuffer+bytes);
 
+	appendToLogHistory(localBuffer);
+
 	va_end(argList);
 }
 
+String limitToLatin1(String s)
+{
+	for (auto& c: s)
+	{
+		if (c > 127)
+			c = ' ';
+	}
+	return s;
+}
+
+void limitToLatin1(char * p)
+{
+	while (*p != '\0')
+	{
+		if (*p > 127)
+		{
+			*p = ' ';
+		}
+		p++;
+	}
+}
 
 bool checkFileSystem()
 {

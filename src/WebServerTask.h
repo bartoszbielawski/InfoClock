@@ -41,7 +41,8 @@ private:
 	void handleWebMessage();
 	void handleGeneralSettings();
 	void handleConfig();
-
+	void handleLogs();
+	
 	String generateLinks();
 
 	ESP8266WebServer webServer;

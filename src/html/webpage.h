@@ -71,6 +71,7 @@ static const char mainPage[] PROGMEM = R"_(
    <a href="/status">Device status</a>
    <a href="/webmessage">Web Message</a>
    <a href="/config">Configuration</a>
+   <a href="/log">Logs</a>
    $links$
    <br>
    <a class="red" href="/reset">Reset device</a>

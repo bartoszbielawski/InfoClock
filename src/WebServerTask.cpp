@@ -76,6 +76,7 @@ void WebServerTask::run()
 		webServer.on("/status", 	[this](){handleStatus();});
 		webServer.on("/reset", [this]{handleReset();});
 		webServer.on("/config", [this]{handleConfig();});
+		webServer.on("/log", [this](){handleLogs();});
 
 		webServer.begin();
 
@@ -133,6 +134,26 @@ void WebServerTask::handleReset()
 	webServer.send(302, textPlain, "");
 }
 
+void WebServerTask::handleLogs()
+{
+	if (!handleAuth(webServer)) return;
+
+	StringStream ss(2048);
+	webServer.chunkedResponseModeStart(200, "text/html");
+	macroStringReplace(pageHeaderFS, constString("Logs"), ss);
+	webServer.sendContent(ss.buffer);
+	
+	webServer.sendContent(F("<table>"));
+	for (const auto& s: getLogHistory())
+	{
+		webServer.sendContent(F("<tr><td>"));
+		webServer.sendContent(s);
+		webServer.sendContent(F("</td></tr>\n\r"));
+		
+	}
+	webServer.sendContent(F("</table><script>setTimeout(function(){window.location.reload(1);}, 5000);</script></body></html>"));
+	webServer.chunkedResponseFinalize();
+}
 
 FlashStream webmessageFS(webmessagePage);
 
