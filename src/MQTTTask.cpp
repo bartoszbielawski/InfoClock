@@ -117,16 +117,24 @@ void MQTTTask::run()
     if ((time(NULL) - lastReport) > 60)
     {
         auto clientId = DataStore::valueOrDefault(F("mqttClientId"), F("InfoClock"));
-        String reports = DataStore::value(F("mqttReports"));
+        String reports = DataStore::valueOrDefault(F("mqttReports"), String());
         if (reports.length())
         {
             auto varNames = tokenize(reports,",");
             for (const auto& s: varNames)
             {
                 char topic[128];
-                logPrintfX(F("MQT"), F("Reporting %s..."), s.c_str());
-                snprintf(topic, sizeof(topic), "%s/publish/%s", clientId.c_str(), s.c_str());
-                mqttClient.publish(topic, dataSource(s.c_str()).c_str());
+                const char *sp = s.c_str(); 
+                logPrintfX(F("MQT"), F("Reporting %s..."), sp);
+                snprintf(topic, sizeof(topic), "%s/publish/%s", clientId.c_str(), sp);
+                String value = dataSource(s);
+                if (value.isEmpty())
+                {
+                    logPrintfX(F("MQT"), F("Variable %s not found!"), sp);
+                    continue;
+                }
+
+                mqttClient.publish(topic, dataSource(s).c_str());
             }
         }
         lastReport = time(NULL);

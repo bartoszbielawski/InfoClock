@@ -280,9 +280,17 @@ String readConfig(const String& name)
 	return DataStore::value(name);
 }
 
+
+
 int32_t timezone = 0;
 
+
 String dataSource(const String& name_)
+{
+	return dataSourceWithDefault(name_, String());
+}
+
+String dataSourceWithDefault(const String& name_, const String& default_)
 {
 	String result;
 
@@ -321,7 +329,7 @@ String dataSource(const String& name_)
 		return formatDeltaTime(getUpTime(), DeltaTimePrecision::SECONDS);
 	}
 
-	return "?";
+	return default_;
 }
 
 void rebootClock()

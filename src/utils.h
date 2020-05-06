@@ -38,7 +38,9 @@ void readConfigFromFS();
 bool checkFileSystem();
 String readConfigWithDefault(const String& name, const String& def);
 String readConfig(const String& name);
-String dataSource(const String& name);
+
+String dataSource(const String& name_);
+String dataSourceWithDefault(const String& name_, const String& default_);
 
 namespace fs
 {

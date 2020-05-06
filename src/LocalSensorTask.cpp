@@ -18,7 +18,7 @@ LocalSensorTask::LocalSensorTask():
 	oneWire(ONE_WIRE_TEMP),
 	dallasTemperature(&oneWire)
 {
-	//this is need
+	//this is need if there are no free GND pins
 #ifdef OW_GND
 	pinMode(OW_GND, OUTPUT);
 	digitalWrite(OW_GND, 0);
@@ -29,30 +29,40 @@ LocalSensorTask::LocalSensorTask():
 	dallasTemperature.setWaitForConversion(false);
 	dallasTemperature.requestTemperatures();
 
-	registerPage(F("lst"), "Local Sensors", [this](ESP8266WebServer& webServer) {handlePage(webServer);});
+	registerPage(F("lst"), F("Local Sensors"), [this](ESP8266WebServer& webServer) {handlePage(webServer);});
 
 	addRegularMessage({this, [this](){return formatTemperature();}, 3_s, 1, false});
 
 	sleep(10_s);
 }
 
+bool isTemperatureValid(float f)
+{
+	return (f != -127.0f) && (f != 85.0);
+}
+
 void LocalSensorTask::run()
 {
 	float t = dallasTemperature.getTempCByIndex(0);
-	if (t == -127.0f)
+	bool isValid = isTemperatureValid(t);
+
+	if (isValid)
 	{
-		logPrintfX(F("LST"), F("Sensor not found..."));
+		logPrintfX(F("LST"), F("T = %s deg C"), String(t, 1).c_str());
 	}
 	else
 	{
-		logPrintfX(F("LST"), F("T = %s deg C"), String(t, 1).c_str());
+		logPrintfX(F("LST"), F("Sensor not found..."));
 	}
 
 	temperature = t;
 
-	if (DataStore::value("lstMqtt").toInt())
+	if (DataStore::value(F("lstMqtt")).toInt())
 	{
-		DataStore::value("lstTemperature") = String(t, 1);
+		if (isValid)
+			DataStore::value(F("lstTemperature")) = String(t, 1);
+		else
+			DataStore::erase(F("lstTemperature"));
 	}
 
 	dallasTemperature.requestTemperatures();
@@ -77,7 +87,7 @@ void LocalSensorTask::handlePage(ESP8266WebServer& webServer)
 	macroStringReplace(pageHeaderFS, constString(F("LST Status")), ss);
 
 	String tempString(F("Sensor missing"));
-	if (temperature > -127.0f)
+	if (isTemperatureValid(temperature))
 		tempString = String(temperature);
 
 	macroStringReplace(lstStatusPageFS, constString(String(tempString)), ss);
@@ -86,8 +96,8 @@ void LocalSensorTask::handlePage(ESP8266WebServer& webServer)
 
 String LocalSensorTask::formatTemperature()
 {
-	if (temperature == -127.0f)
-		return "No sensor detected!";
+	if (not isTemperatureValid(temperature))
+		return F("No sensor!");
 
 	String p = "\x81 ";
 	p += String(temperature, 1);
