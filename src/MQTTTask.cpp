@@ -110,7 +110,7 @@ void MQTTTask::run()
     if (!mqttClient.connected())
     {
         reset();
-        sleep(60_s);
+        sleep(1_s);
         return;
     }
 

@@ -7,7 +7,7 @@
 
 #include "Arduino.h"
 #include "time.h"
-#include "FS.h"
+#include "LittleFS.h"
 
 
 #include "WebServerTask.h"
@@ -194,8 +194,8 @@ void WebServerTask::handleConfig()
 	if (webServer.method() == HTTP_GET)
 	{
 		//read config from the file
-		SPIFFS.begin();
-		auto file = SPIFFS.open("/config.txt", "r");
+		LittleFS.begin();
+		auto file = LittleFS.open("/config.txt", "r");
 		if (!file)
 			content = F("# The file is empty, please create a new one!");
 		else
@@ -204,18 +204,18 @@ void WebServerTask::handleConfig()
 			file.close();
 		}
 	
-		SPIFFS.end();
+		LittleFS.end();
 	}
 	else
 	{
 		//POST
 		//load content from variable
 		content = webServer.arg(F("content"));
-		SPIFFS.begin();
-		auto file = SPIFFS.open("/config.txt", "w+");
+		LittleFS.begin();
+		auto file = LittleFS.open("/config.txt", "w+");
 		file.print(content);
 		file.close();
-		SPIFFS.end();
+		LittleFS.end();
 		readConfigFromFS();
 	}
 	

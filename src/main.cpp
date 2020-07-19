@@ -1,7 +1,6 @@
 #include "Arduino.h"
 #include <time.h>
 #include "sntp.h"
-#include "FS.h"
 
 #include "config.h"
 

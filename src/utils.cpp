@@ -16,7 +16,7 @@
 #include "config.h"
 #include "Client.h"
 #include "Arduino.h"
-#include "FS.h"
+#include "LittleFS.h"
 #include "DataStore.h"
 #include "WiFiUdp.h"
 #include "SyslogSender.h"
@@ -25,8 +25,6 @@
 #include "LambdaTask.hpp"
 #include <time_utils.h>
 #include <DisplayTask.hpp>
-
-#include <FS.h>
 
 extern "C" {
 #include "user_interface.h"
@@ -203,11 +201,11 @@ void limitToLatin1(char * p)
 
 bool checkFileSystem()
 {
-	bool alreadyFormatted = SPIFFS.begin();
+	bool alreadyFormatted = LittleFS.begin();
 	if (not alreadyFormatted)
-		SPIFFS.format();
+		LittleFS.format();
 
-	SPIFFS.end();
+	LittleFS.end();
 	return alreadyFormatted;
 }
 
@@ -243,8 +241,8 @@ void readConfigFromFS()
 {
     logPrintfX("UTL", F("Reading configuration values from the flash..."));
     //the FS has to be initialized already...
-	SPIFFS.begin();
-    auto file = SPIFFS.open("/config.txt", "r");
+	LittleFS.begin();
+    auto file = LittleFS.open("/config.txt", "r");
     if (!file)
 	{
 		logPrintfX(F("UTL"), F("The file is missing, please create your own config using the web interface!"));
@@ -266,7 +264,7 @@ void readConfigFromFS()
         logPrintfX("UTL", F("Config: %s = '%s'"), p.first.c_str(), p.second.c_str());
 		DataStore::value(p.first) = p.second;
     }
-	SPIFFS.end();
+	LittleFS.end();
 }
 
 
