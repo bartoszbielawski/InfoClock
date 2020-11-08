@@ -64,6 +64,19 @@ String getTime()
 
 	char localBuffer[10];
 
+	bool short_display = DataStore::value("segments").toInt() <= 4;
+
+	if (short_display)
+	{
+		auto lt = localtime(&now);
+		snprintf(localBuffer, sizeof(localBuffer), "%02d:%02d",
+			lt->tm_hour,
+			lt->tm_min);
+
+		r = localBuffer;
+		return r;	
+	}
+	
 	auto lt = localtime(&now);
 	snprintf(localBuffer, sizeof(localBuffer), "%02d:%02d:%02d",
 			lt->tm_hour,
@@ -92,7 +105,7 @@ String getDate()
 
 	char localBuffer[20];
 
-	static const auto day_names = DataStore::value("segments").toInt() <= 5 ? short_day_names: long_day_names;
+	static const auto day_names = DataStore::value("segments").toInt() < 5 ? short_day_names: long_day_names;
 
 	auto lt = localtime(&now);
 	snprintf(localBuffer, sizeof(localBuffer), "%s %02d/%02d",
