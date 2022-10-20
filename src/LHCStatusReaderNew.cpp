@@ -12,11 +12,13 @@
 #include "LHCStatusReaderNew.h"
 
 #include "ESP8266HTTPClient.h"
+#include "WiFiClientSecureBearSSL.h"
 #include "utils.h"
 #include "tasks_utils.h"
 #include "web_utils.h"
 
-static const char pageUrl[] PROGMEM = "http://alicedcs.web.cern.ch/AliceDCS/monitoring/screenshots/rss.xml";
+static const char pageUrl[] PROGMEM = "https://alicedcs.web.cern.ch/monitoring/screenshots/rss.xml";
+
 
 LHCStatusReaderNew::LHCStatusReaderNew()
 {
@@ -41,7 +43,9 @@ void LHCStatusReaderNew::reset()
 void LHCStatusReaderNew::run()
 {
 	HTTPClient httpClient;
-	WiFiClient wifiClient;
+	BearSSL::WiFiClientSecure wifiClient;
+
+	wifiClient.setInsecure();
 
 	logPrintfX(F("LHC"), F("Reading LHC Status"));
 	httpClient.begin(wifiClient, pageUrl);
@@ -54,12 +58,15 @@ void LHCStatusReaderNew::run()
 		sleep(60_s);
 		httpClient.end();
 		return;
-	}
+	}	
+	
+	logPrintfX(F("LHC"), "Response size: %d", httpClient.getSize());
 
-	auto httpStream = httpClient.getStream();
-
+	String response = httpClient.getString();
+	StringViewStream httpStream(response);
+	
 	while (httpStream.available())
-	{
+	{			
 		bool found = httpStream.findUntil("<title>","</rss>");
 		if (not found)
 			break;
@@ -67,10 +74,21 @@ void LHCStatusReaderNew::run()
 		auto title = httpStream.readStringUntil(':');
 		if (title == F("LhcPage1"))
 		{
-			page1Comment = httpStream.readStringUntil('<');
-			page1Comment.trim();
-			page1Comment.replace(F("\n\n"), F(" -- "));
-			page1Comment.replace('\n', ' ');
+			int startStreamPos = httpStream.read_pos;
+			found = httpStream.findUntil("</title>", "</rss>");
+			if (not found) break;
+
+			int endStreamPos = httpStream.read_pos;
+
+			page1Comment = response.substring(startStreamPos, endStreamPos);
+			page1Comment.replace(F("</title>"), F(""));
+
+			page1Comment.trim();			
+			
+			page1Comment.replace(F("<br><br>"), F(" - "));
+			page1Comment.replace(F("<br>"), F(" - "));
+			page1Comment.replace(F("\n\n"), F(" - "));	
+			page1Comment.replace(F("\n"), F(" - "));
 			logPrintfX(F("LHC"), F("Page1Comment: %s"), page1Comment.c_str());
 		}
 
@@ -86,7 +104,7 @@ void LHCStatusReaderNew::run()
 			beamMode = httpStream.readStringUntil('<');
 			beamMode.trim();
 			logPrintfX(F("LHC"), F("BeamMode: %s"), beamMode.c_str());
-		}
+		}		
 	}
 
 	httpClient.end();
