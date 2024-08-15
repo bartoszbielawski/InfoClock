@@ -47,7 +47,8 @@ static const char statusPage[] PROGMEM = R"_(
 <tr><th>WiFi</th></tr>
 <tr><td class="l">essid:</td><td>$essid$</td></tr>
 <tr><td class="l">IP:</td><td>$ip$</td></tr>
-<tr><td class="l">MAC Address:</td><td>$mac$</td></tr>
+<tr><td class="l">Name:</td><td>$hostname$</td></tr>
+><tr><td class="l">MAC Address:</td><td>$mac$</td></tr>
 </table>
 </body>
 </html>

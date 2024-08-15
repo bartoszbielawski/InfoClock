@@ -67,8 +67,9 @@ void WifiConnector::initSTA(const String& essid)
 {
 	WiFi.softAPdisconnect();
 	WiFi.disconnect();
+	WiFi.hostname(readConfigWithDefault(F("hostname"), F("InfoClock")).c_str());
 	WiFi.mode(WIFI_STA);
-
+	
 	//set the lowest possible mode
 	wifi_set_phy_mode(PHY_MODE_11N);
 
@@ -140,8 +141,8 @@ static void wifiConnectorCallback(WifiConnector::States state)
 		{
 			WebServerTask::getInstance().reset();
 
-			int timezone = readConfig(F("timezone")).toInt();
-			configTime(timezone, 0, "pool.ntp.org", "time.nist.gov", "ntp3.pl");
+			String tzs = readConfigWithDefault(F("timezone"), F("CET-1CEST,M3.5.0/2,M10.5.0/3"));			
+			configTzTime(tzs.c_str(), "pool.ntp.org", "time.nist.gov", "ntp3.pl");
 
 			DisplayTask::getInstance().pushMessage(readConfig(F("essid")), 0.4_s, true);
 			String ip = WiFi.localIP().toString();
