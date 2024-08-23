@@ -97,9 +97,8 @@ void DisplayTask::nextMessage()
 	nextDisplay();
 
 	if (ds.scrolling)
-	{
-		const String& msg = ds.fun();
-		scroll.renderString(msg, myTestFont::font);
+	{		
+		scroll.renderString(currentMessage, myTestFont::font);
 		nextState = &DisplayTask::scrollMessage;
 		return;
 	}
@@ -110,6 +109,9 @@ void DisplayTask::nextMessage()
 
 void DisplayTask::refreshMessage()
 {
+	//this code here calls the function again and again because the message may be different every time
+	//for example the time or date
+
 	scroll.renderString(ds.fun(), myTestFont::font);
 
 	if (--ds.cycles == 0)
@@ -128,23 +130,31 @@ void DisplayTask::nextDisplay()
 	{
 		ds = priorityMessages.front();
 		priorityMessages.erase(priorityMessages.begin());
-		logPrintfX(F("DT"), F("New message from PQ = %s"), ds.fun().c_str());
+		currentMessage = ds.fun();
+		
+		logPrintfX(F("DT"), F("New message from PQ = %s"), currentMessage.c_str());
 		priorityMessagePlayed = true;
 		return;
 	}
 
 	priorityMessagePlayed = false;
-
 	//otherwise get back to the regular display
+		
+	if (regularMessages.size() == 0)		
+		return;
+		
 	do
 	{
 		index++;
 		index %= regularMessages.size();
-	}
-	while (regularMessages[index].fun().length() == 0);
+		ds = regularMessages[index];
 
-	ds = regularMessages[index];
-	logPrintfX(F("DT"), F("New message from RQ = %s"), ds.fun().c_str());
+		// save the current message for future use
+		currentMessage = ds.fun();
+	}
+	while (currentMessage.length() == 0);	
+
+	logPrintfX(F("DT"), F("New message from RQ = %s"), currentMessage.c_str());
 	ledMatrixDriver.setIntensity(readConfig(F("brightness")).toInt());
 }
 

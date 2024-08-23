@@ -67,7 +67,7 @@ void WifiConnector::initSTA(const String& essid)
 {
 	WiFi.softAPdisconnect();
 	WiFi.disconnect();
-	WiFi.hostname(readConfigWithDefault(F("hostname"), F("InfoClock")).c_str());
+	WiFi.hostname(readConfigWithDefault(F("hostname"), HOSTNAME));
 	WiFi.mode(WIFI_STA);
 	
 	//set the lowest possible mode

@@ -23,9 +23,10 @@ struct DisplayState
 {
 		void*		owner;
 		MessageProvider fun;
+		
 		uint16_t	period;
 		uint16_t 	cycles;
-		bool		scrolling;		//refresh till it's done
+		bool		scrolling;		//refresh till it's done		
 };
 
 
@@ -61,6 +62,7 @@ class DisplayTask: public Tasks::TaskCRTP<DisplayTask>
 		std::vector<DisplayState> regularMessages;
 		std::vector<DisplayState> priorityMessages;
 		bool		priorityMessagePlayed = false;
+		String 		currentMessage;
 
 	public:
 		void handleConfigPage(ESP8266WebServer& webServer);
