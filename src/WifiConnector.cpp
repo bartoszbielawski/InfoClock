@@ -12,6 +12,7 @@
 #include <DataStore.h>
 #include <tasks_utils.h>
 #include <ArduinoOTA.h>
+#include <lwip/apps/sntp.h>
 
 extern "C"
 {
@@ -123,7 +124,10 @@ static void wifiConnectorCallback(WifiConnector::States state)
 			{
 				if (td.flags & TaskDescriptor::CONNECTED)
 					td.task->suspend();
-			}
+			}			
+
+			//we have lost connection, stop the sntp
+			sntp_stop();
 			return;
 
 		case WifiConnector::States::AP:
@@ -142,7 +146,7 @@ static void wifiConnectorCallback(WifiConnector::States state)
 			WebServerTask::getInstance().reset();
 
 			String tzs = readConfigWithDefault(F("timezone"), F("CET-1CEST,M3.5.0/2,M10.5.0/3"));			
-			configTzTime(tzs.c_str(), "pool.ntp.org", "time.nist.gov", "ntp3.pl");
+			configTzTime(tzs.c_str(), "pool.ntp.org", "time.nist.gov", "ntp3.pl");			
 
 			DisplayTask::getInstance().pushMessage(readConfig(F("essid")), 0.4_s, true);
 			String ip = WiFi.localIP().toString();
