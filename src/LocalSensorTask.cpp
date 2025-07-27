@@ -43,30 +43,35 @@ bool isTemperatureValid(float f)
 
 void LocalSensorTask::run()
 {
-	float t = dallasTemperature.getTempCByIndex(0);
-	bool isValid = isTemperatureValid(t);
+    const int maxRetries = 3;
+    float t = -127.0f;
+    bool isValid = false;
 
-	if (isValid)
-	{
-		logPrintfX(F("LST"), F("T = %s deg C"), String(t, 1).c_str());
-	}
-	else
-	{
-		logPrintfX(F("LST"), F("Sensor not found..."));
-	}
+    for (int i = 0; i < maxRetries; ++i) {
+        t = dallasTemperature.getTempCByIndex(0);
+        isValid = isTemperatureValid(t);
+        if (isValid)
+            break;
+        sleep(0.1_s);
+    }
 
-	temperature = t;
+    if (isValid) {
+        logPrintfX(F("LST"), F("T = %s deg C"), String(t, 1).c_str());
+    } else {
+        logPrintfX(F("LST"), F("Sensor not found..."));
+    }
 
-	if (DataStore::value(F("lstMqtt")).toInt())
-	{
-		if (isValid)
-			DataStore::value(F("lstTemperature")) = String(t, 1);
-		else
-			DataStore::erase(F("lstTemperature"));
-	}
+    temperature = t;
+    if (DataStore::value(F("lstMqtt")).toInt())
+    {
+        if (isValid)
+            DataStore::value(F("lstTemperature")) = String(t, 1);
+        else
+            DataStore::erase(F("lstTemperature"));
+    }
 
-	dallasTemperature.requestTemperatures();
-	sleep(10_s);
+    dallasTemperature.requestTemperatures();
+    sleep(30_s);
 }
 
 

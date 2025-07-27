@@ -21,6 +21,8 @@
 
 #include "MessagesTask.h"
 
+#include "RestaurantMenuTask.h"
+
 #include <LHCStatusReaderNew.h>
 #include <LEDBlinker.h>
 #include <MQTTTask.h>
@@ -64,6 +66,7 @@ void setupTasks()
 	addOptionalTask<MQTTTask>(F("mqttEnabled"), TaskDescriptor::CONNECTED);
 	addOptionalTask<LocalSensorTask>(F("lstEnabled"), TaskDescriptor::SLOW);
 	addOptionalTask<MessagesTask>(F("messagesEnabled"), TaskDescriptor::CONNECTED);
+	addOptionalTask<RestaurantMenuTask>(F("menuEnabled"), TaskDescriptor::SLOW | TaskDescriptor::CONNECTED);
 
 	os_timer_setfn(&myTimer, timerCallback, NULL);
 	os_timer_arm(&myTimer, MS_PER_CYCLE, true);

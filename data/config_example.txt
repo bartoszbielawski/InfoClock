@@ -47,3 +47,17 @@ messages.1=In lockdown for $S
 messages.1.time=1584446400
 messages.1.countdown=0
 messages.1.precision=1
+
+
+# Restaurant menu
+
+# enable CERN restaurant menu display (If no menu is available, it will not be shown)
+menuEnabled=1
+# select restaurant number (1,2,3)
+restaurant=3
+# At what hour to start showing today's menu
+menuStartHour=9
+# At what hour to stop showing today's menu
+menuEndHour=17
+# Enable showing tomorrow's menu after end hour
+menuShowTomorrow=1

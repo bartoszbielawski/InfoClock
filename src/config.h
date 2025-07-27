@@ -28,7 +28,7 @@ const static uint8_t ONE_WIRE_TEMP = D3;
 //use this define if you have no free ground pin and want to use some DIO
 #define OW_GND D2
 
-const static char versionString[] = "v 0.5.6";
+const static char versionString[] = "v 0.5.7";
 
 const static char DEFAULT_USER[] = "user";
 
