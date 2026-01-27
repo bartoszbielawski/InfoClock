@@ -1,4 +1,4 @@
-# InfoClock v 0.5.6
+# InfoClock v 0.5.7
 
 A small and configurable clock project that displays some information on a LED display.
 
@@ -14,6 +14,9 @@ Configured for use with PlatformIO
 * Currency exchange rate from http://fixer.io (disabled - broken due to API changes)
 * Modular approach makes it easy to add new modules (tasks)
 * Stateless messages, configurable with end/start date, displayable with countdown/count-up option.
+* Temperature offset
+* large alphabet
+* 5 languages (english, french, spanish, portugese, german)
 
 ## Parts:
 * CPU:      ESP8266 (WeMos D1 Mini or NodeMCU)

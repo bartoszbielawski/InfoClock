@@ -43,7 +43,7 @@ bool isTemperatureValid(float f)
 
 void LocalSensorTask::run()
 {
-	float t = dallasTemperature.getTempCByIndex(0);
+	float t = dallasTemperature.getTempCByIndex(0) + readConfig(F("tempOffset")).toInt();
 	bool isValid = isTemperatureValid(t);
 
 	if (isValid)

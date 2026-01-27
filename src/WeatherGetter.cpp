@@ -22,9 +22,9 @@
 using namespace std;
 
 const static char urlTemplate[] PROGMEM =
-		"http://api.openweathermap.org/data/2.5/weather?id=%d&APPID=%s&units=metric";
+		"http://api.openweathermap.org/data/2.5/weather?id=%d&APPID=%s&units=metric&lang=%s";
 const static char urlForecastTemplate[] PROGMEM =
-		"http://api.openweathermap.org/data/2.5/forecast?id=%d&APPID=%s&units=metric&cnt=2";
+		"http://api.openweathermap.org/data/2.5/forecast?id=%d&APPID=%s&units=metric&cnt=2&lang=%s";
 
 
 /* forecast path
@@ -148,8 +148,10 @@ void WeatherGetter::run()
 
 	while (true)
 	{
+		// before building URLs in WeatherGetter::run():
+		String lang = readConfig(F("lang"));
 		//get weather
-		snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, w.locationId, apiKey.c_str());
+		snprintf_P(localBuffer, sizeof(localBuffer), urlTemplate, w.locationId, apiKey.c_str(), lang.c_str());
 		logPrintfX(F("WG"), "URL: %s", localBuffer);
 		code = getHttpResponse(wifiClient, httpClient, mc, localBuffer);
 		if (code != 200)
@@ -160,7 +162,7 @@ void WeatherGetter::run()
 		w.location = results["/root/name"].c_str();
 
 		//get forecast
-		snprintf_P(localBuffer, sizeof(localBuffer), urlForecastTemplate, w.locationId, apiKey.c_str());
+		snprintf_P(localBuffer, sizeof(localBuffer), urlForecastTemplate, w.locationId, apiKey.c_str(), lang.c_str());
 		logPrintfX(F("WG"), "URL: %s", localBuffer);
 		code = getHttpResponse(wifiClient, httpClient, mc, localBuffer);
 		if (code != 200)

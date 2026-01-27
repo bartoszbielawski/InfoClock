@@ -121,7 +121,7 @@ String MessagesTask::getMessage(String messageKey)
   DeltaTimeReplacer dtr(delta);
 
   macroStringReplaceS(svs, dtr, ss);
-  
+
   logPrintfX(F("MSG"), "%s", ss.buffer.c_str());
 
   return ss.buffer;

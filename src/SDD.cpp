@@ -6,7 +6,7 @@
 #include <LEDMatrixDriver.hpp>
 #include "SDD.hpp"
 #include "config.h"
-
+#include "utils.h"
 using namespace std;
 
 SDD::SDD(LEDMatrixDriver &ledMatrixDriver):
@@ -62,7 +62,8 @@ bool SDD::tick()
 
 void SDD::renderString(const String &message, const PyFont& font)
 {
-	size_t len = calculateRenderedLength(font, message.c_str());
+	const char* cleanmessage = utf8ToLatin1(message.c_str());
+	size_t len = calculateRenderedLength(font, cleanmessage);
 	startColumn = 0;
 
 	//here we make difference between a text that fits in the display and a text
@@ -76,7 +77,7 @@ void SDD::renderString(const String &message, const PyFont& font)
 
 		int margin = (physicalDisplayLen - len + 1) / 2;    //calculate margin with rounding
 
-		renderText(font, message.c_str(), buffer.data() + margin, len);
+		renderText(font, cleanmessage, buffer.data() + margin, len);
 
 		state = STATE::END;
 		delayCounter = endDelay;
@@ -87,7 +88,7 @@ void SDD::renderString(const String &message, const PyFont& font)
 
 	//just change the size, the values will be initialized anyway when rendering
 	buffer.resize(len);
-	renderText(font, message.c_str(), buffer.data(), len);
+	renderText(font, cleanmessage, buffer.data(), len);
 
 	state = STATE::START;
 	delayCounter = endDelay;

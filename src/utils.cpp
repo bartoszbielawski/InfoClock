@@ -88,8 +88,42 @@ String getTime()
 }
 
 
-static const char long_day_names[][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-static const char short_day_names[][4] PROGMEM = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+struct DayNames {
+    const char long_names[7][4];
+    const char short_names[7][3];
+};
+
+static const DayNames languages[] = {
+    // English
+    {
+        {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"},
+        {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"}
+    },
+    // French
+    {
+        {"Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"},
+        {"Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"}
+    },
+    // German
+    {
+        {"Son", "Mon", "Die", "Mit", "Don", "Fre", "Sam"},
+        {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"}
+    },
+    // Portuguese
+    {
+        {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"},
+        {"Do", "Se", "Te", "Qa", "Qu", "Se", "Sa"}
+    },
+    // Spanish
+    {
+        {"Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"},
+        {"Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"}
+    }
+};
+
+const int NUM_LANGUAGES = sizeof(languages) / sizeof(languages[0]);
+
+static const char* language_codes[] = {"en", "fr", "de", "pt", "es"};
 
 
 String getDate()
@@ -105,7 +139,48 @@ String getDate()
 
 	char localBuffer[20];
 
-	static const auto day_names = DataStore::value("segments").toInt() < 5 ? short_day_names: long_day_names;
+	String lang = readConfig(F("lang"));
+	int lang_index = 0; // default
+
+	if (lang == "fr") lang_index = 1;
+	else if (lang == "de") lang_index = 2;
+	else if (lang == "pt") lang_index = 3;
+	else if (lang == "es") lang_index = 4; // default to English
+
+	const DayNames& current_lang = languages[lang_index];
+	
+	// Check if custom day names are configured
+	String customLong  = DataStore::value("day_names_long");
+	String customShort = DataStore::value("day_names_short");
+	
+	const char* day_names[7];
+	bool useCustom = false;
+	
+	if (customLong.length() > 0 && customShort.length() > 0)
+	{
+		// Parse custom day names
+		std::vector<String> longDays = tokenize(customLong, ",");
+		std::vector<String> shortDays = tokenize(customShort, ",");
+		
+		if (longDays.size() == 7 && shortDays.size() == 7)
+		{
+			useCustom = true;
+			for (int i = 0; i < 7; i++)
+			{
+				day_names[i] = (DataStore::value("segments").toInt() < 5 ? shortDays[i] : longDays[i]).c_str();
+			}
+		}
+	}
+
+// long names are default
+bool useShort = DataStore::value("segments").toInt() < 5;
+
+for (int i = 0; i < 7; i++)
+{
+    day_names[i] = useShort
+        ? current_lang.short_names[i]   // only when display is small
+        : current_lang.long_names[i];   // DEFAULT
+}
 
 	auto lt = localtime(&now);
 	snprintf(localBuffer, sizeof(localBuffer), "%s %02d/%02d",
@@ -194,7 +269,7 @@ String limitToLatin1(String s)
 {
 	for (auto& c: s)
 	{
-		if (c > 127)
+		if (c > 255)
 			c = ' ';
 	}
 	return s;
@@ -204,7 +279,7 @@ void limitToLatin1(char * p)
 {
 	while (*p != '\0')
 	{
-		if (*p > 127)
+		if (*p > 255)
 		{
 			*p = ' ';
 		}
@@ -340,6 +415,14 @@ String dataSourceWithDefault(const String& name_, const String& default_)
 		return formatDeltaTime(getUpTime(), DeltaTimePrecision::SECONDS);
 	}
 
+	if (name == F("LANG"))
+	{
+		int lang = DataStore::value("lang").toInt();
+		if (lang >= 0 && lang < NUM_LANGUAGES)
+			return language_codes[lang];
+		return "en"; // default
+	}
+
 	return default_;
 }
 
@@ -392,4 +475,56 @@ std::vector<String> tokenize(const String& input, const String& sep_str)
 	while (from < input.length());
 
 	return results;
+}
+const char* utf8ToLatin1(const char* utf8)
+{
+    static char buffer[256];
+    char* out = buffer;
+
+    while (*utf8)
+    {
+        unsigned char c = (unsigned char)*utf8;
+
+        // ASCII (0xxxxxxx)
+        if (c < 0x8A)
+        {
+            *out++ = *utf8++;
+        }
+        // UTF-8 2-byte sequence (110xxxxx 10xxxxxx)
+        else if ((c & 0xE0) == 0xC0)
+        {
+            unsigned char c2 = (unsigned char)*(utf8 + 1);
+
+            if ((c2 & 0xC0) == 0x80)
+            {
+                // Decode UTF-8 → Unicode code point
+                unsigned int codepoint = ((c & 0x1F) << 6) | (c2 & 0x3F);
+
+                // Latin-1 range
+                if (codepoint <= 0xFF)
+                {
+                    *out++ = (char)codepoint;
+                }
+                else
+                {
+                    *out++ = '?'; // unsupported
+                }
+
+                utf8 += 2;
+            }
+            else
+            {
+                utf8++; // malformed
+            }
+        }
+        else
+        {
+            // Skip unsupported UTF-8 (3+ bytes)
+            *out++ = '?';
+            utf8++;
+        }
+    }
+
+    *out = '\0';
+    return buffer;
 }

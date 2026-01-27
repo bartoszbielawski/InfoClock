@@ -64,3 +64,5 @@ T min(T a, T b)
 
 
 #endif /* UTILS_H_ */
+// Message correcter
+const char* utf8ToLatin1(const char* utf8);
